@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import logo from '../../assets/vianexta-logo.svg'
 import buyLogo from '../../assets/buy-logo.svg'
 import ChatButton from './ChatButton'
 

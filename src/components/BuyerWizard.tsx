@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import vianextaLogo from '../../assets/vianexta-logo.svg'
 import buyLogo from '../../assets/buy-logo.svg'
 import roastedIcon from '../../assets/roasted.svg'
 import wholesaleBrandsIcon from '../../assets/wholesale-brands.svg'

@@ -22,7 +22,7 @@ function Hero({ onBuyClick, onBuildClick }: HeroProps) {
 
   useEffect(() => {
     let split: SplitType | null = null
-    let shapeAnimationTimer: NodeJS.Timeout | null = null
+    let shapeAnimationTimer: ReturnType<typeof setTimeout> | null = null
     
     // Use requestAnimationFrame to ensure DOM is ready after key change
     const timer = requestAnimationFrame(() => {

@@ -25,9 +25,6 @@ function TrustedBrands() {
   useEffect(() => {
     if (!scrollContainerRef.current) return
 
-    // Duplicate logos for seamless loop
-    const allLogos = [...logos, ...logos]
-
     // Create animation
     animationRef.current = gsap.to(scrollContainerRef.current, {
       x: `-${scrollContainerRef.current.scrollWidth / 2}px`,
