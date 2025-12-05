@@ -26,7 +26,6 @@ function BuyerWizard() {
   const [caseQuantity, setCaseQuantity] = useState<string>('1')
   const [amount, setAmount] = useState<string>('19')
   const [quantity, setQuantity] = useState<string>('')
-  const [uploadedLogo, setUploadedLogo] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string>('')
   const [showNotification, setShowNotification] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
@@ -294,7 +293,6 @@ function BuyerWizard() {
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      setUploadedLogo(file)
       const reader = new FileReader()
       reader.onloadend = () => {
         setLogoPreview(reader.result as string)
