@@ -74,13 +74,16 @@ function Header({ isBuyMode }: HeaderProps) {
                 >
                   Sign in
                 </Link>
-                <button className={`px-6 py-2 rounded-full transition-opacity ${
-                  isBuyMode 
-                    ? 'bg-white text-[#09543D] hover:opacity-90' 
-                    : 'bg-[#09543D] text-white hover:opacity-90'
-                }`}>
+                <Link 
+                  to="/signup"
+                  className={`px-6 py-2 rounded-full transition-opacity ${
+                    isBuyMode 
+                      ? 'bg-white text-[#09543D] hover:opacity-90' 
+                      : 'bg-[#09543D] text-white hover:opacity-90'
+                  }`}
+                >
                   Get Started
-                </button>
+                </Link>
               </div>
             </div>
           </nav>
@@ -159,16 +162,17 @@ function Header({ isBuyMode }: HeaderProps) {
               >
                 Sign in
               </Link>
-              <button 
+              <Link 
+                to="/signup"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`w-full px-6 py-3 rounded-full transition-opacity ${
+                className={`w-full px-6 py-3 rounded-full transition-opacity text-center block ${
                   isBuyMode 
                     ? 'bg-white text-[#09543D] hover:opacity-90' 
                     : 'bg-[#09543D] text-white hover:opacity-90'
                 }`}
               >
                 Get Started
-              </button>
+              </Link>
             </div>
           </div>
         </div>

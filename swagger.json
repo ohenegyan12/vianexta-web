@@ -1,0 +1,4178 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "CoffeePLUG V1 API",
+        "description": "Backend API for CoffeePLUG V1 Web & Mobile Applications",
+        "contact": {
+            "name": "CoffeePLUG Team"
+        },
+        "license": {
+            "name": "Proprietary"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/api",
+            "description": "Local Server"
+        },
+        {
+            "url": "https://coffeeplug-api-b982ba0e7659.herokuapp.com/api",
+            "description": "Production Server"
+        }
+    ],
+    "paths": {
+        "/api/update-shipment": {
+            "put": {
+                "tags": [
+                    "shipment-controller"
+                ],
+                "operationId": "shipmentUpdate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShipmentDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supplier-profile": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getSupplierProfile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "updateSupplierProfile",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SupplierDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stock-posting": {
+            "put": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "updateStockPosting",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StockPostingDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "createStockPosting",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StockPostingDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/reassign-existing": {
+            "put": {
+                "tags": [
+                    "shipment-controller"
+                ],
+                "operationId": "reassignExisting",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShipmentDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/reactivate-stock-posting/{id}": {
+            "put": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "reactivateStockPosting",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order-update": {
+            "put": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "totalOrderUpdate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TotalOrderDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/monthly-payment-record": {
+            "put": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "monthlyPaymentUpdate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MonthlyPaymentDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deactivate-stock-posting/{id}": {
+            "put": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "deactivateStockPosting",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/change-password": {
+            "put": {
+                "tags": [
+                    "user-auth-controller"
+                ],
+                "operationId": "changePassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cart-item": {
+            "put": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "editItemCart",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "addItemToCart",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/buyer-profile": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getBuyerProfile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "updateBuyerProfile",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BuyerDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/voiceflow/chat": {
+            "post": {
+                "tags": [
+                    "voiceflow-controller"
+                ],
+                "operationId": "processChatMessage",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VoiceflowChatRequestDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VoiceflowChatResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/webhooks/sendgrid": {
+            "post": {
+                "tags": [
+                    "send-grid-webhook-controller"
+                ],
+                "operationId": "handleSendGridWebhook",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendGridWebhookDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/upload-bag-logo": {
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "uploadBagLogo",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BagLogoUploadDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/unsubscribe/{id}": {
+            "post": {
+                "tags": [
+                    "data-collection-controller"
+                ],
+                "operationId": "unsubscribeNewsletter",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subscribe-newsletter": {
+            "post": {
+                "tags": [
+                    "data-collection-controller"
+                ],
+                "operationId": "subscribeNewsletter",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/status-update": {
+            "post": {
+                "tags": [
+                    "shipment-controller"
+                ],
+                "operationId": "statusUpdate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShipmentStatusDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/signup": {
+            "post": {
+                "tags": [
+                    "user-auth-controller"
+                ],
+                "operationId": "createAccount",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserInfoDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/select-delivery-quote": {
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "selectDeliveryQuote",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeliveryQuoteSelectionDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/reset-password/{token}/{encodedEmail}": {
+            "post": {
+                "tags": [
+                    "user-auth-controller"
+                ],
+                "operationId": "resetPassword",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "encodedEmail",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/request-reset-password": {
+            "post": {
+                "tags": [
+                    "user-auth-controller"
+                ],
+                "operationId": "sendResetPassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/recommend-farmer": {
+            "post": {
+                "tags": [
+                    "data-collection-controller"
+                ],
+                "operationId": "recommendFarmer",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FarmerReferralDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/reassign-creation": {
+            "post": {
+                "tags": [
+                    "shipment-controller"
+                ],
+                "operationId": "reassignCreation",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShipmentDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/webhook": {
+            "get": {
+                "tags": [
+                    "pay-pal-webhook-controller"
+                ],
+                "operationId": "webhookGet",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "pay-pal-webhook-controller"
+                ],
+                "operationId": "handleWebhook",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/create-order": {
+            "post": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "createPayPalOrder",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/create-crypto-order": {
+            "post": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "createCryptoOrder",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/capture-order": {
+            "post": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "capturePayPalOrder",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/capture-crypto-order": {
+            "post": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "captureCryptoOrder",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/regenerate-link/{orderId}": {
+            "post": {
+                "tags": [
+                    "payment-controller"
+                ],
+                "operationId": "regeneratePaymentLink",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/manual-cancel": {
+            "post": {
+                "tags": [
+                    "payment-controller"
+                ],
+                "operationId": "manualPaymentCancel",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/failure": {
+            "post": {
+                "tags": [
+                    "payment-controller"
+                ],
+                "operationId": "handlePaymentFailure",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/create-link": {
+            "post": {
+                "tags": [
+                    "payment-controller"
+                ],
+                "operationId": "createPaymentLink",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequestDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order-status-update": {
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "orderStatusUpdate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrderStatusDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order-feedback": {
+            "post": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "orderFeedback",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrderFeedbackDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/new-shipment": {
+            "post": {
+                "tags": [
+                    "shipment-controller"
+                ],
+                "operationId": "createShipment",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShipmentDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "user-auth-controller"
+                ],
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "user-auth-controller"
+                ],
+                "operationId": "loginStandard",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/email/send": {
+            "post": {
+                "tags": [
+                    "email-controller"
+                ],
+                "operationId": "sendEmail",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailRequestDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/direct-order": {
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "createDirectOrder",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DirectOrderRequestDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/delivery-update": {
+            "post": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "deliveryUpdate",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrderDeliveryDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/delivery-quotes": {
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "getDeliveryQuotes",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeliveryQuoteRequestDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/create-supplier-hyperwallet-account": {
+            "post": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "createSupplierHyperwalletAccount",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HyperwalletAccountDto"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/checkout-cart": {
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "checkoutCartItems",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/assign-roast-order": {
+            "post": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "assignRoastOrder",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/whole_sale_brands": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getWholeSaleBrands",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/voiceflow/commodity-prices": {
+            "get": {
+                "tags": [
+                    "commodity-price-controller"
+                ],
+                "operationId": "getCommodityPricesForVoiceflow",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user-role/{email}": {
+            "get": {
+                "tags": [
+                    "user-auth-controller"
+                ],
+                "operationId": "getUserRole",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserRoleResponseDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/unpaid-orders": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getUnpaidOrders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/total-order-details": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "totalOrderDetails",
+                "parameters": [
+                    {
+                        "name": "totalOrderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/suppliers": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getSuppliers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supplier-total-orders": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "supplierTotalOrders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supplier-order-data": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getSupplierOrderData",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/supplier-monthly-analytics": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "supplierMonthlyAnalytics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stock-postings": {
+            "get": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "getStockPostings",
+                "parameters": [
+                    {
+                        "name": "originCountry",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "process",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "coffeeType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "variety",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "qualityScoreLowerBound",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "qualityScoreUpperBound",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "double"
+                        }
+                    },
+                    {
+                        "name": "isSpecialty",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "producedBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "productType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stock-postings-search-all": {
+            "get": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "searchStockPostings",
+                "parameters": [
+                    {
+                        "name": "searchQuery",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stock-postings-by-supplier/{supplierId}": {
+            "get": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "getStockPostingBySupplierId",
+                "parameters": [
+                    {
+                        "name": "supplierId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stock-posting/{id}": {
+            "get": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "getStockPostingById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "deleteStockPostingById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/roasters": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getRoasters",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/product-history/{id}": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "productHistory",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/price-tracking": {
+            "get": {
+                "tags": [
+                    "commodity-price-controller"
+                ],
+                "operationId": "priceTrackingRaw",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/price-tracking-bag": {
+            "get": {
+                "tags": [
+                    "commodity-price-controller"
+                ],
+                "operationId": "priceTrackingPerBag",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/success": {
+            "get": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "paymentSuccess",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "PayerID",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/failed": {
+            "get": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "paymentFailed",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reason",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/crypto/success": {
+            "get": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "cryptoPaymentSuccess",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/crypto/cancel": {
+            "get": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "cryptoPaymentCancel",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paypal/cancel": {
+            "get": {
+                "tags": [
+                    "pay-pal-controller"
+                ],
+                "operationId": "paymentCancel",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/transactions/{orderId}": {
+            "get": {
+                "tags": [
+                    "payment-controller"
+                ],
+                "operationId": "getOrderTransactions",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/success": {
+            "get": {
+                "tags": [
+                    "payment-controller"
+                ],
+                "operationId": "handlePaymentSuccess",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/cancel": {
+            "get": {
+                "tags": [
+                    "payment-controller"
+                ],
+                "operationId": "handlePaymentCancel",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/paid-orders": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getPaidOrders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders-by-payment-status": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getOrdersByPaymentStatus",
+                "parameters": [
+                    {
+                        "name": "paymentStatus",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order-lists": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "orderLists",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order-data": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getOrderData",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/most-popular-stock-postings": {
+            "get": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "mostPopularStockPostings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/monthly-payment/{supplierId}": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getMonthlyPayment",
+                "parameters": [
+                    {
+                        "name": "supplierId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-shipment-status": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getShipmentStatus",
+                "parameters": [
+                    {
+                        "name": "lotOrderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-order-status": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getOrderStatus",
+                "parameters": [
+                    {
+                        "name": "lotOrderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-lot-order-status/{lotOrderId}": {
+            "get": {
+                "tags": [
+                    "shipment-controller"
+                ],
+                "operationId": "getTotalOrderStatus",
+                "parameters": [
+                    {
+                        "name": "lotOrderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-lot-order-from-total": {
+            "get": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "getLotOrderFromTotal",
+                "parameters": [
+                    {
+                        "name": "totalOrderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-feedback": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getFeedback",
+                "parameters": [
+                    {
+                        "name": "lotOrderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-delivery-status": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getDeliveryStatus",
+                "parameters": [
+                    {
+                        "name": "lotOrderId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-cloudinary-signature": {
+            "get": {
+                "tags": [
+                    "supplier-controller"
+                ],
+                "operationId": "getCloudinarySignature",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-cart-price-breakdown": {
+            "get": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "getCartPriceBreakdown",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/filter-options-stock-postings": {
+            "get": {
+                "tags": [
+                    "stock-posting-controller"
+                ],
+                "operationId": "getFilterOptionsForStockPostings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/failed-orders": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getFailedOrders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coffee-suppliers": {
+            "get": {
+                "tags": [
+                    "coffee-supplier-controller"
+                ],
+                "operationId": "getCoffeeSuppliersWithPagination",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "company"
+                        }
+                    },
+                    {
+                        "name": "sortDirection",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "ASC"
+                        }
+                    },
+                    {
+                        "name": "searchTerm",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coffee-suppliers/{id}": {
+            "get": {
+                "tags": [
+                    "coffee-supplier-controller"
+                ],
+                "operationId": "getCoffeeSupplierById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coffee-suppliers/states": {
+            "get": {
+                "tags": [
+                    "coffee-supplier-controller"
+                ],
+                "operationId": "getAllStates",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coffee-suppliers/categories": {
+            "get": {
+                "tags": [
+                    "coffee-supplier-controller"
+                ],
+                "operationId": "getAllCategories",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coffee-suppliers/all": {
+            "get": {
+                "tags": [
+                    "coffee-supplier-controller"
+                ],
+                "operationId": "getAllCoffeeSuppliers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/check-subscription": {
+            "get": {
+                "tags": [
+                    "data-collection-controller"
+                ],
+                "operationId": "checkEmailSubscription",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cancelled-orders": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getCancelledOrders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cafes": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "getCafes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/buyer-monthly-analytics": {
+            "get": {
+                "tags": [
+                    "buyer-controller"
+                ],
+                "operationId": "buyerMonthlyAnalytics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/all-cart-items": {
+            "get": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "getCartItems",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "deleteAllItemsCart",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cart-item/{stockPostingId}": {
+            "delete": {
+                "tags": [
+                    "order-controller"
+                ],
+                "operationId": "deleteItemCart",
+                "parameters": [
+                    {
+                        "name": "stockPostingId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "LotOrderDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "stockPostingId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "createdDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "numBags": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "bagWeight": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalWeight": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "bagPrice": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "supplierPaymentStatus": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "productName": {
+                        "type": "string"
+                    },
+                    "is_roast": {
+                        "type": "boolean"
+                    },
+                    "roast_type": {
+                        "type": "string"
+                    },
+                    "grind_type": {
+                        "type": "string"
+                    },
+                    "bag_size": {
+                        "type": "string"
+                    },
+                    "bag_image": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ShipmentDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "shipmentType": {
+                        "type": "string"
+                    },
+                    "scheduledShipmentDate": {
+                        "type": "string"
+                    },
+                    "actualShipmentDate": {
+                        "type": "string"
+                    },
+                    "freightCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "carrierInsuranceCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "exportTariffCost": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "roasterPaymentStatus": {
+                        "type": "string"
+                    },
+                    "roasterPaymentMethod": {
+                        "type": "string"
+                    },
+                    "roasterPaymentDate": {
+                        "type": "string"
+                    },
+                    "originCity": {
+                        "type": "string"
+                    },
+                    "destinationCity": {
+                        "type": "string"
+                    },
+                    "lotOrderRecords": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LotOrderDto"
+                        }
+                    }
+                }
+            },
+            "StatusDto": {
+                "type": "object",
+                "properties": {
+                    "statusCode": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object"
+                    }
+                }
+            },
+            "SupplierDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "jobTitle": {
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "type": "string"
+                    },
+                    "sendEmailUpdates": {
+                        "type": "boolean"
+                    },
+                    "dateOfAccountCreation": {
+                        "type": "string"
+                    },
+                    "harvestSeason": {
+                        "type": "string"
+                    },
+                    "billingAddressLine1": {
+                        "type": "string"
+                    },
+                    "billingAddressLine2": {
+                        "type": "string"
+                    },
+                    "billingCity": {
+                        "type": "string"
+                    },
+                    "billingState": {
+                        "type": "string"
+                    },
+                    "billingCountry": {
+                        "type": "string"
+                    },
+                    "billingZipCode": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine1": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine2": {
+                        "type": "string"
+                    },
+                    "shippingCity": {
+                        "type": "string"
+                    },
+                    "shippingState": {
+                        "type": "string"
+                    },
+                    "shippingCountry": {
+                        "type": "string"
+                    },
+                    "shippingZipCode": {
+                        "type": "string"
+                    },
+                    "elevation": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "foundedYear": {
+                        "type": "string"
+                    },
+                    "imageUrl": {
+                        "type": "string"
+                    },
+                    "userType": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ScaScoreComponentsDto": {
+                "type": "object",
+                "properties": {
+                    "fragrance": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "flavor": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "aftertaste": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "acidity": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "body": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "balance": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "sweetness": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "cleanCup": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "uniformity": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "StockPostingDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "postedDate": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "imageUrl": {
+                        "type": "string"
+                    },
+                    "quantityPosted": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "bagWeight": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "bagPrice": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "variety": {
+                        "type": "string"
+                    },
+                    "coffeeType": {
+                        "type": "string"
+                    },
+                    "process": {
+                        "type": "string"
+                    },
+                    "quality": {
+                        "type": "string"
+                    },
+                    "aroma": {
+                        "type": "string"
+                    },
+                    "isSpecialty": {
+                        "type": "boolean"
+                    },
+                    "supplierInfo": {
+                        "$ref": "#/components/schemas/SupplierInfoDto"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "inUse": {
+                        "type": "boolean"
+                    },
+                    "quantityLeft": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "scaScoreComponents": {
+                        "$ref": "#/components/schemas/ScaScoreComponentsDto"
+                    },
+                    "producedBy": {
+                        "type": "string"
+                    },
+                    "productType": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SupplierInfoDto": {
+                "type": "object",
+                "properties": {
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "billingCountry": {
+                        "type": "string"
+                    },
+                    "billingCity": {
+                        "type": "string"
+                    },
+                    "harvestSeason": {
+                        "type": "string"
+                    },
+                    "elevation": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "foundedYear": {
+                        "type": "string"
+                    },
+                    "imageUrl": {
+                        "type": "string"
+                    }
+                }
+            },
+            "TotalOrderDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "createdDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "numBags": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalPrice": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "roastFee": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "grindFee": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "packageFee": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "roastType": {
+                        "type": "string"
+                    },
+                    "roasterLocation": {
+                        "type": "string"
+                    },
+                    "refundStatus": {
+                        "type": "string"
+                    },
+                    "invoiceSent": {
+                        "type": "boolean"
+                    },
+                    "purchaseOrderSent": {
+                        "type": "boolean"
+                    },
+                    "paymentStatus": {
+                        "type": "string"
+                    },
+                    "paymentDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "paymentMethod": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "billingAddressLine1": {
+                        "type": "string"
+                    },
+                    "billingAddressLine2": {
+                        "type": "string"
+                    },
+                    "billingCity": {
+                        "type": "string"
+                    },
+                    "billingState": {
+                        "type": "string"
+                    },
+                    "billingCountry": {
+                        "type": "string"
+                    },
+                    "billingZipCode": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine1": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine2": {
+                        "type": "string"
+                    },
+                    "shippingCity": {
+                        "type": "string"
+                    },
+                    "shippingState": {
+                        "type": "string"
+                    },
+                    "shippingCountry": {
+                        "type": "string"
+                    },
+                    "shippingZipCode": {
+                        "type": "string"
+                    },
+                    "delivery": {
+                        "type": "boolean"
+                    },
+                    "deliveryAmount": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                }
+            },
+            "MonthlyPaymentDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "supplierId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "month": {
+                        "type": "string"
+                    },
+                    "totalPayment": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "paymentStatus": {
+                        "type": "boolean"
+                    },
+                    "paymentPlatform": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "paymentDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "BuyerDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "billingAddressLine1": {
+                        "type": "string"
+                    },
+                    "billingAddressLine2": {
+                        "type": "string"
+                    },
+                    "billingCity": {
+                        "type": "string"
+                    },
+                    "billingState": {
+                        "type": "string"
+                    },
+                    "billingCountry": {
+                        "type": "string"
+                    },
+                    "billingZipCode": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine1": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine2": {
+                        "type": "string"
+                    },
+                    "shippingCity": {
+                        "type": "string"
+                    },
+                    "shippingState": {
+                        "type": "string"
+                    },
+                    "shippingCountry": {
+                        "type": "string"
+                    },
+                    "shippingZipCode": {
+                        "type": "string"
+                    },
+                    "jobTitle": {
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "type": "string"
+                    },
+                    "sendEmailUpdates": {
+                        "type": "boolean"
+                    },
+                    "dateOfAccountCreation": {
+                        "type": "string"
+                    },
+                    "paymentMethodId": {
+                        "type": "string"
+                    },
+                    "imageUrl": {
+                        "type": "string"
+                    }
+                }
+            },
+            "VoiceflowChatRequestDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ChatDataDto": {
+                "type": "object",
+                "properties": {
+                    "formattedResponse": {
+                        "type": "string"
+                    },
+                    "mediaElements": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MediaElement"
+                        }
+                    }
+                }
+            },
+            "MediaElement": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "altText": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                }
+            },
+            "VoiceflowChatResponseDto": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ChatDataDto"
+                    },
+                    "error": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "SendGridWebhookDto": {
+                "type": "object",
+                "properties": {
+                    "from": {
+                        "type": "string"
+                    },
+                    "to": {
+                        "type": "string"
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    },
+                    "html": {
+                        "type": "string"
+                    },
+                    "senderName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "BagLogoUploadDto": {
+                "type": "object",
+                "properties": {
+                    "base64Image": {
+                        "type": "string"
+                    },
+                    "imageUrl": {
+                        "type": "string"
+                    },
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "bagSize": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ShipmentStatusDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "shipmentId": {
+                        "type": "string"
+                    },
+                    "postingAdminName": {
+                        "type": "string"
+                    },
+                    "postingDate": {
+                        "type": "string"
+                    },
+                    "statusUpdate": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UserInfoDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "userRole": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "receiveEmailNotifications": {
+                        "type": "boolean"
+                    },
+                    "dateOfAccountCreation": {
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "type": "string"
+                    },
+                    "businessName": {
+                        "type": "string"
+                    },
+                    "businessType": {
+                        "type": "string"
+                    },
+                    "billingAddressLine1": {
+                        "type": "string"
+                    },
+                    "billingAddressLine2": {
+                        "type": "string"
+                    },
+                    "billingCity": {
+                        "type": "string"
+                    },
+                    "billingState": {
+                        "type": "string"
+                    },
+                    "billingCountry": {
+                        "type": "string"
+                    },
+                    "billingZipCode": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine1": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine2": {
+                        "type": "string"
+                    },
+                    "shippingCity": {
+                        "type": "string"
+                    },
+                    "shippingState": {
+                        "type": "string"
+                    },
+                    "shippingCountry": {
+                        "type": "string"
+                    },
+                    "shippingZipCode": {
+                        "type": "string"
+                    },
+                    "taxIdNumber": {
+                        "type": "string"
+                    },
+                    "preferredLanguage": {
+                        "type": "string"
+                    },
+                    "imageUrl": {
+                        "type": "string"
+                    },
+                    "userType": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DeliveryQuoteSelectionDto": {
+                "type": "object",
+                "properties": {
+                    "totalOrderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "quoteId": {
+                        "type": "string"
+                    },
+                    "totalAmount": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "paymentType": {
+                        "type": "string"
+                    }
+                }
+            },
+            "FarmerReferralDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "farmerName": {
+                        "type": "string"
+                    },
+                    "farmerEmail": {
+                        "type": "string"
+                    },
+                    "farmerNumber": {
+                        "type": "string"
+                    },
+                    "recommenderEmail": {
+                        "type": "string"
+                    },
+                    "farmerDescription": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PaymentRequestDto": {
+                "type": "object",
+                "properties": {
+                    "orderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "returnUrl": {
+                        "type": "string"
+                    },
+                    "cancelUrl": {
+                        "type": "string"
+                    },
+                    "paymentType": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OrderStatusDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "lotOrderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "postingAdminName": {
+                        "type": "string"
+                    },
+                    "postingDate": {
+                        "type": "string"
+                    },
+                    "statusUpdate": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "comment": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OrderFeedbackDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "lotOrderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "postingBuyerName": {
+                        "type": "string"
+                    },
+                    "receiveDate": {
+                        "type": "string"
+                    },
+                    "received": {
+                        "type": "boolean"
+                    },
+                    "feedback": {
+                        "type": "string"
+                    }
+                }
+            },
+            "EmailRequestDto": {
+                "type": "object",
+                "properties": {
+                    "recipientEmail": {
+                        "type": "string"
+                    },
+                    "subject": {
+                        "type": "string"
+                    },
+                    "messageContent": {
+                        "type": "string"
+                    },
+                    "templateId": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "EmailDataDto": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "emailDetails": {
+                        "type": "object"
+                    }
+                }
+            },
+            "EmailResponseDto": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/EmailDataDto"
+                    },
+                    "error": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AddressDto": {
+                "type": "object",
+                "properties": {
+                    "addressLine1": {
+                        "type": "string"
+                    },
+                    "addressLine2": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "state": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "zipCode": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DirectOrderItemDto": {
+                "type": "object",
+                "properties": {
+                    "stockPostingId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "bagSize": {
+                        "type": "string"
+                    },
+                    "grindType": {
+                        "type": "string"
+                    },
+                    "roastType": {
+                        "type": "string"
+                    },
+                    "bagImage": {
+                        "type": "string"
+                    },
+                    "isRoast": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "DirectOrderRequestDto": {
+                "type": "object",
+                "properties": {
+                    "buyerEmail": {
+                        "type": "string"
+                    },
+                    "buyerFirstName": {
+                        "type": "string"
+                    },
+                    "buyerLastName": {
+                        "type": "string"
+                    },
+                    "buyerBusinessName": {
+                        "type": "string"
+                    },
+                    "buyerPhoneNumber": {
+                        "type": "string"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DirectOrderItemDto"
+                        }
+                    },
+                    "billingAddress": {
+                        "$ref": "#/components/schemas/AddressDto"
+                    },
+                    "shippingAddress": {
+                        "$ref": "#/components/schemas/AddressDto"
+                    },
+                    "paymentType": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OrderDeliveryDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "lotOrderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "deliverDate": {
+                        "type": "string"
+                    },
+                    "delivered": {
+                        "type": "boolean"
+                    },
+                    "comment": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DeliveryQuoteRequestDto": {
+                "type": "object",
+                "properties": {
+                    "orderId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalWeight": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "length": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "height": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "insuranceAmount": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                }
+            },
+            "HyperwalletAccountDto": {
+                "type": "object",
+                "properties": {
+                    "businessName": {
+                        "type": "string"
+                    },
+                    "businessEmail": {
+                        "type": "string"
+                    },
+                    "businessAddressLine1": {
+                        "type": "string"
+                    },
+                    "businessAddressLine2": {
+                        "type": "string"
+                    },
+                    "businessAddressCity": {
+                        "type": "string"
+                    },
+                    "businessAddressStateCode": {
+                        "type": "string"
+                    },
+                    "businessAddressPostalCode": {
+                        "type": "string"
+                    },
+                    "businessAddressCountry": {
+                        "type": "string"
+                    },
+                    "bankAccountRoutingNumber": {
+                        "type": "string"
+                    },
+                    "bankAccountAccountNumber": {
+                        "type": "string"
+                    },
+                    "bankAccountAccountType": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UserRoleResponseDto": {
+                "type": "object",
+                "properties": {
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "businessName": {
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "type": "string"
+                    },
+                    "userType": {
+                        "type": "string"
+                    },
+                    "userFound": {
+                        "type": "boolean"
+                    },
+                    "billingAddressLine1": {
+                        "type": "string"
+                    },
+                    "billingAddressLine2": {
+                        "type": "string"
+                    },
+                    "billingCity": {
+                        "type": "string"
+                    },
+                    "billingState": {
+                        "type": "string"
+                    },
+                    "billingCountry": {
+                        "type": "string"
+                    },
+                    "billingZipCode": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine1": {
+                        "type": "string"
+                    },
+                    "shippingAddressLine2": {
+                        "type": "string"
+                    },
+                    "shippingCity": {
+                        "type": "string"
+                    },
+                    "shippingState": {
+                        "type": "string"
+                    },
+                    "shippingCountry": {
+                        "type": "string"
+                    },
+                    "shippingZipCode": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
