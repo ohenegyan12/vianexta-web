@@ -13,7 +13,7 @@ function BuyerWizard() {
   const [currentPage, setCurrentPage] = useState(1)
   const [showCoffeeType, setShowCoffeeType] = useState(false)
   const [showSingleOrigin, setShowSingleOrigin] = useState(false)
-  const totalPages = 2
+  const totalPages = 3
   const coffeeTypeSectionRef = useRef<HTMLDivElement>(null)
   const singleOriginSectionRef = useRef<HTMLDivElement>(null)
 
@@ -385,7 +385,13 @@ function BuyerWizard() {
                     { name: 'ETHIOPIA', country: 'Ethiopia', score: 91 },
                     { name: 'TANZANIA PEABERRY', country: 'Tanzania', score: 93 },
                     { name: 'UGANDA BUGISHU', country: 'Uganda', score: 86 },
-                  ].map((coffee, index) => (
+                    { name: 'COLOMBIA SUPREMO', country: 'Colombia', score: 92 },
+                    { name: 'BRAZIL SANTOS', country: 'Brazil', score: 87 },
+                    { name: 'GUATEMALA ANTIGUA', country: 'Guatemala', score: 94 },
+                    { name: 'COSTA RICA TARRAZU', country: 'Costa Rica', score: 90 },
+                  ]
+                  .slice((currentPage - 1) * 4, currentPage * 4)
+                  .map((coffee, index) => (
                     <div
                       key={index}
                       className="bg-white rounded-xl border-2 border-gray-200 p-3 hover:border-[#09543D] hover:shadow-lg transition-all cursor-pointer"
@@ -436,7 +442,7 @@ function BuyerWizard() {
 
                   {/* Page number buttons */}
                   <div className="flex gap-2">
-                    {[1, 2].map((page) => (
+                    {[1, 2, 3].map((page) => (
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
