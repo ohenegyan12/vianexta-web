@@ -64,3 +64,29 @@ body {
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
+/* Chat message HTML content styling */
+.clare-chat-html-content {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.clare-chat-html-content p {
+  margin: 0 0 16px 0;
+  padding: 0;
+}
+
+.clare-chat-html-content p:last-child {
+  margin-bottom: 0;
+}
+
+.clare-chat-html-content div {
+  margin: 0;
+  padding: 0;
+}
+
+.clare-chat-html-content div p {
+  margin: 0 0 16px 0;
+  padding: 0;
+}
+
