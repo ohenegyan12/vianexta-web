@@ -7,6 +7,8 @@ import roasterArt from '../../assets/roaster.svg'
 import cafeArt from '../../assets/cafe.svg'
 import ChatButton from './ChatButton'
 
+const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+
 function SignUp() {
   const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)
@@ -14,6 +16,8 @@ function SignUp() {
   const [selectedAccountType, setSelectedAccountType] = useState('')
   const [activeTab, setActiveTab] = useState<'profile' | 'business'>('profile')
   const [showToast, setShowToast] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -61,6 +65,89 @@ function SignUp() {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const handleSignup = async () => {
+    // Validate required fields
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || 
+        !formData.phone || !formData.businessName || !formData.billingAddressLine1 || 
+        !formData.billingCity || !formData.billingState || !formData.billingZipCode) {
+      setError('Please fill in all required fields.')
+      return
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
+    if (!formData.agreeToTerms) {
+      setError('Please agree to the terms and conditions.')
+      return
+    }
+
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      // Map form data to UserInfoDto
+      const signupData = {
+        email: formData.email,
+        password: formData.password,
+        userRole: selectedAccountType || 'buyer', // Map account type to userRole
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        receiveEmailNotifications: formData.subscribeNewsletter,
+        phoneNumber: formData.phone,
+        businessName: formData.businessName,
+        businessType: formData.businessType,
+        billingAddressLine1: formData.billingAddressLine1,
+        billingAddressLine2: formData.billingAddressLine2 || '',
+        billingCity: formData.billingCity,
+        billingState: formData.billingState,
+        billingCountry: formData.billingCountry,
+        billingZipCode: formData.billingZipCode,
+        shippingAddressLine1: formData.billingAddressLine1, // Use billing as default
+        shippingAddressLine2: formData.billingAddressLine2 || '',
+        shippingCity: formData.billingCity,
+        shippingState: formData.billingState,
+        shippingCountry: formData.billingCountry,
+        shippingZipCode: formData.billingZipCode,
+        taxIdNumber: formData.taxIdNumber || '',
+        preferredLanguage: selectedLanguage || 'en',
+        userType: selectedAccountType || 'buyer',
+        dateOfAccountCreation: new Date().toISOString()
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(signupData)
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`)
+      }
+
+      if (data.statusCode === 200 || data.statusCode === 201) {
+        // Show success toast and redirect
+        setShowToast(true)
+        setTimeout(() => {
+          navigate('/signin')
+        }, 2000)
+      } else {
+        setError(data.message || 'Signup failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Signup error:', error)
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -198,6 +285,13 @@ function SignUp() {
               {currentStep === 3 && 'Enter your details to create your account.'}
               {currentStep === 4 && 'We\'ve sent a verification code to your email.'}
             </p>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
 
             {/* Step 1: Language Selection */}
             {currentStep === 1 && (
@@ -727,20 +821,28 @@ function SignUp() {
                     Previous Step
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (activeTab === 'profile') {
                         setActiveTab('business')
                       } else {
-                        // Handle finish - show toast and redirect
-                        setShowToast(true)
-                        setTimeout(() => {
-                          navigate('/signin')
-                        }, 2000)
+                        // Handle finish - submit signup
+                        await handleSignup()
                       }
                     }}
-                    className="flex-1 bg-[#09543D] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#09543D]/90 transition-colors"
+                    disabled={isLoading}
+                    className="flex-1 bg-[#09543D] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#09543D]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    {activeTab === 'profile' ? 'Next: Business Info' : 'Finish'}
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creating account...
+                      </>
+                    ) : (
+                      activeTab === 'profile' ? 'Next: Business Info' : 'Finish'
+                    )}
                   </button>
                 </div>
               </div>

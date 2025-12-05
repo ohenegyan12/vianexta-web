@@ -3,18 +3,59 @@ import { Link, useNavigate } from 'react-router-dom'
 import buyLogo from '../../assets/buy-logo.svg'
 import ChatButton from './ChatButton'
 
+const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+
 function SignIn() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle sign in logic here
-    console.log('Signing in:', { email, password })
-    // Redirect to buyer wizard after sign in
-    navigate('/buyer')
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`)
+      }
+
+      if (data.statusCode === 200 || data.statusCode === 201) {
+        // Store auth token if provided in response
+        if (data.data?.token) {
+          localStorage.setItem('authToken', data.data.token)
+        }
+        if (data.data?.user) {
+          localStorage.setItem('user', JSON.stringify(data.data.user))
+        }
+        
+        // Redirect to buyer wizard after sign in
+        navigate('/buyer')
+      } else {
+        setError(data.message || 'Login failed. Please check your credentials.')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -139,6 +180,13 @@ function SignIn() {
               Welcome back to your ViaNexta account
             </p>
 
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <div>
@@ -200,9 +248,20 @@ function SignIn() {
               {/* Sign In Button */}
               <button
                 type="submit"
-                className="w-full bg-[#09543D] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#09543D]/90 transition-colors"
+                disabled={isLoading}
+                className="w-full bg-[#09543D] text-white py-3 px-6 rounded-xl font-semibold hover:bg-[#09543D]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Continue
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </>
+                ) : (
+                  'Continue'
+                )}
               </button>
 
               {/* Or Separator */}
