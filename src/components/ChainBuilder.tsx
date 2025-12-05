@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SplitType from 'split-type'
-import chainBuilderBg from '../../assets/chain-builder.svg?url'
+const chainBuilderBg = '/assets/chain-builder.svg'
 
 gsap.registerPlugin(ScrollTrigger)
 

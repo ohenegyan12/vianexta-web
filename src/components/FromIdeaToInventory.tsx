@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import SplitType from 'split-type'
 
 gsap.registerPlugin(ScrollTrigger)
-import fromIdeaBg from '../../assets/from-idea.svg?url'
+const fromIdeaBg = '/assets/from-idea.svg'
 import sourcingIcon from '../../assets/sourcing.svg'
 import brandingIcon from '../../assets/branding.svg'
 import packagingIcon from '../../assets/packaging.svg'
