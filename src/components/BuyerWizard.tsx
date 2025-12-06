@@ -29,6 +29,10 @@ function BuyerWizard() {
   const [quantity, setQuantity] = useState<string>('')
   const [logoPreview, setLogoPreview] = useState<string>('')
   const [showNotification, setShowNotification] = useState(false)
+  const [fracPackSize, setFracPackSize] = useState<string>('3oz') // For frac pack size selection
+  const [productAmount, setProductAmount] = useState<string>('0.00') // For regular product amount calculation
+  const [bagPreviewImages, setBagPreviewImages] = useState<string[]>([]) // For bag preview thumbnails
+  const [selectedPreviewImage, setSelectedPreviewImage] = useState<string>('') // Currently selected preview image
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -74,6 +78,7 @@ function BuyerWizard() {
   const packageSizeSectionRef = useRef<HTMLDivElement>(null)
   const dropzoneSectionRef = useRef<HTMLLabelElement>(null)
   const wholesaleProductDetailRef = useRef<HTMLDivElement>(null)
+  const logoInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch products and filter options on mount
   useEffect(() => {
@@ -430,17 +435,61 @@ function BuyerWizard() {
     }
   }
 
+  // Handle logo deletion
+  const handleLogoDelete = () => {
+    setLogoPreview('')
+    // Reset the file input so the same file can be uploaded again
+    if (logoInputRef.current) {
+      logoInputRef.current.value = ''
+    }
+  }
+
+
   // Update bag image when package size changes
   useEffect(() => {
     if (selectedPackageSize) {
       const bagImage = bagImageMap[selectedPackageSize] || bagImageMap['12oz']
       console.log('Setting bag image for package size:', selectedPackageSize, 'Image URL:', bagImage)
       setCurrentBagImage(bagImage)
+      setSelectedPreviewImage(bagImage)
+      
+      // Set preview images based on package size (using same image for now, can be expanded)
+      const previewImages = [bagImage, bagImage, bagImage, bagImage]
+      setBagPreviewImages(previewImages)
     } else {
       // Set default image when no package is selected
       setCurrentBagImage('')
+      setSelectedPreviewImage('')
+      setBagPreviewImages([])
     }
   }, [selectedPackageSize])
+
+  // Package weight mapping (in pounds) for calculation
+  // This is used to calculate the total price: quantity * (spot_price * bag_weight)
+  const packageWeightMap: { [key: string]: number } = {
+    '5lb': 5,
+    '12oz': 0.75, // 12oz = 0.75lb
+    '10oz': 0.625, // 10oz = 0.625lb
+    'frac': fracPackSize === '3oz' ? 0.1875 : 0.25, // 3oz = 0.1875lb, 4oz = 0.25lb
+    'kcup': 0.75, // Approximate weight for K-cup box
+  }
+
+  // Calculate product amount when quantity or price changes (for regular products)
+  useEffect(() => {
+    if (selectedType !== 'wholesale' && quantity && selectedProductData && selectedPackageSize) {
+      const qty = parseFloat(quantity) || 0
+      const spotPrice = parseFloat(selectedProductData.spotPrice || selectedProductData.price || '0') || 0
+      const bagWeight = packageWeightMap[selectedPackageSize] || 1
+      
+      // For regular products: quantity * (spot_price * bag_weight)
+      // This matches the web version calculation: quantity * (spot_price * package_size)
+      const total = qty * (spotPrice * bagWeight)
+      setProductAmount(total.toFixed(2))
+    } else {
+      setProductAmount('0.00')
+    }
+  }, [quantity, selectedProductData, selectedType, selectedPackageSize, fracPackSize])
+
 
   // Handle product selection
   const handleProductSelect = async (productId: number | string, productType: 'single-origin' | 'blend' | 'wholesale') => {
@@ -486,10 +535,16 @@ function BuyerWizard() {
 
     try {
       setIsLoading(true)
+      // Determine bag size - use frac pack size if frac pack is selected
+      let finalBagSize = selectedType === 'wholesale' ? bagSize : (selectedPackageSize || bagSize)
+      if (selectedPackageSize === 'frac') {
+        finalBagSize = `frac_pack_${fracPackSize}`
+      }
+
       const cartItem = {
         stockPostingId: selectedProductData.id,
-        quantity: parseInt(qty),
-        bagSize: selectedType === 'wholesale' ? bagSize : (selectedPackageSize || bagSize),
+        numBags: parseInt(qty), // Use numBags instead of quantity to match API
+        bagSize: finalBagSize,
         grindType: selectedGrindType || undefined,
         roastType: selectedRoastType || undefined,
         bagImage: logoPreview || undefined,
@@ -2189,10 +2244,24 @@ function BuyerWizard() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
                             </div>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleLogoDelete()
+                              }}
+                              className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                              title="Delete logo"
+                            >
+                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
                           </div>
                         )}
                       </div>
                       <input
+                        ref={logoInputRef}
                         type="file"
                         accept="image/*"
                         onChange={handleLogoUpload}
@@ -2218,8 +2287,8 @@ function BuyerWizard() {
                         <p className="text-gray-500 text-sm">Customize your packaging</p>
                       </div>
 
-                      {/* Bag Image Preview with Logo Overlay */}
-                      <div className="flex justify-center">
+                          {/* Bag Image Preview with Logo Overlay */}
+                      <div className="flex flex-col items-center gap-4">
                         <div 
                           className="relative"
                           style={{
@@ -2238,9 +2307,9 @@ function BuyerWizard() {
                           }}
                         >
                           {/* Main Bag Image */}
-                          {currentBagImage ? (
+                          {selectedPreviewImage || currentBagImage ? (
                             <img 
-                              src={currentBagImage} 
+                              src={selectedPreviewImage || currentBagImage} 
                               alt="Coffee bag preview" 
                               className="preview-img"
                               style={{
@@ -2253,7 +2322,7 @@ function BuyerWizard() {
                               }}
                               onError={(e) => {
                                 // Fallback if image fails to load
-                                console.error('Failed to load bag image:', currentBagImage)
+                                console.error('Failed to load bag image:', selectedPreviewImage || currentBagImage)
                                 const target = e.target as HTMLImageElement
                                 target.style.display = 'none'
                               }}
@@ -2325,7 +2394,30 @@ function BuyerWizard() {
                               />
                               </div>
                           )}
-                        </div>
+                            </div>
+                        
+                        {/* Preview Thumbnails */}
+                        {bagPreviewImages.length > 0 && (
+                          <div className="flex gap-2 justify-center">
+                            {bagPreviewImages.map((img, index) => (
+                              <button
+                                key={index}
+                                onClick={() => setSelectedPreviewImage(img)}
+                                className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${
+                                  selectedPreviewImage === img || (index === 0 && !selectedPreviewImage)
+                                    ? 'border-[#09543D] ring-2 ring-[#09543D]/20'
+                                    : 'border-gray-200 hover:border-[#09543D]/50'
+                                }`}
+                              >
+                                <img 
+                                  src={img} 
+                                  alt={`Preview ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -2372,6 +2464,44 @@ function BuyerWizard() {
                             </div>
                           </div>
 
+                          {/* Frac Pack Size Selection */}
+                          {selectedPackageSize === 'frac' && (
+                            <div className="mb-6 pb-6 border-b border-gray-200">
+                              <label 
+                                className="block text-sm font-bold text-gray-700 mb-3"
+                                style={{
+                                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                                }}
+                              >
+                                Select size:
+                              </label>
+                              <div className="flex gap-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="fracPackSize"
+                                    value="3oz"
+                                    checked={fracPackSize === '3oz'}
+                                    onChange={(e) => setFracPackSize(e.target.value)}
+                                    className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
+                                  />
+                                  <span className="text-gray-700 font-semibold">3oz</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="radio"
+                                    name="fracPackSize"
+                                    value="4oz"
+                                    checked={fracPackSize === '4oz'}
+                                    onChange={(e) => setFracPackSize(e.target.value)}
+                                    className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
+                                  />
+                                  <span className="text-gray-700 font-semibold">4oz</span>
+                                </label>
+                              </div>
+                            </div>
+                          )}
+
                           {/* Quantity Input */}
                           <div>
                             <label 
@@ -2387,6 +2517,7 @@ function BuyerWizard() {
                                 QUANTITY (# OF BAGS) *
                               </span>
                             </label>
+                            <p className="text-sm text-gray-500 mb-2">Enter the number of bags you'd like to order</p>
                             <input
                               type="number"
                               min="1"
@@ -2398,6 +2529,15 @@ function BuyerWizard() {
                                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                               }}
                             />
+                            {/* Amount Display for Regular Products */}
+                            {selectedType !== 'wholesale' && quantity && parseFloat(quantity) > 0 && (
+                              <div className="mt-3 text-right">
+                                <span className="text-sm text-gray-600">Amount: </span>
+                                <span className="text-lg font-bold text-[#09543D]">
+                                  ${parseFloat(productAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Confirm and Proceed Button */}
