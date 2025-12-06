@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import buyLogo from '../../assets/buy-logo.svg'
 import roastedIcon from '../../assets/roasted.svg'
@@ -10,6 +10,7 @@ import mediumRoastIcon from '../../assets/medium.svg'
 import mediumDarkRoastIcon from '../../assets/medium-dark.svg'
 import darkRoastIcon from '../../assets/dark.svg'
 import ChatButton from './ChatButton'
+import { stockPostingsApi, cartApi, wholesaleApi } from '../utils/api'
 
 function BuyerWizard() {
   const navigate = useNavigate()
@@ -39,6 +40,29 @@ function BuyerWizard() {
   const [showRoastType, setShowRoastType] = useState(false)
   const [showGrindType, setShowGrindType] = useState(false)
   const [showPackageSize, setShowPackageSize] = useState(false)
+  
+  // API Data States
+  const [singleOriginProducts, setSingleOriginProducts] = useState<any[]>([])
+  const [blendProducts, setBlendProducts] = useState<any[]>([])
+  const [wholesaleProducts, setWholesaleProducts] = useState<any[]>([])
+  const [originalWholesaleProducts, setOriginalWholesaleProducts] = useState<any[]>([]) // Store original for search reset
+  const [wholesaleBrands, setWholesaleBrands] = useState<any[]>([])
+  const [filterOptions, setFilterOptions] = useState<any>(null)
+  const [selectedProductData, setSelectedProductData] = useState<any>(null)
+  const [loadingProducts, setLoadingProducts] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [cartItemsCount, setCartItemsCount] = useState(0)
+  const [currentBagImage, setCurrentBagImage] = useState<string>('')
+  
+  // Bag image mapping based on package size - using local images from public folder
+  const bagImageMap: { [key: string]: string } = {
+    '5lb': '/images/buyer/5lb_1.jpg',
+    '12oz': '/images/buyer/12oz_1.png',
+    '10oz': '/images/buyer/10oz_1.png',
+    'frac': '/images/buyer/frac_pack.png',
+    'kcup': '/images/buyer/kcup.jpg',
+  }
+  
   const totalPages = 3
   const wholesaleTotalPages = 2
   const coffeeTypeSectionRef = useRef<HTMLDivElement>(null)
@@ -50,6 +74,108 @@ function BuyerWizard() {
   const packageSizeSectionRef = useRef<HTMLDivElement>(null)
   const dropzoneSectionRef = useRef<HTMLLabelElement>(null)
   const wholesaleProductDetailRef = useRef<HTMLDivElement>(null)
+
+  // Fetch products and filter options on mount
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setLoadingProducts(true)
+        
+        // Fetch filter options
+        const filterResponse = await stockPostingsApi.getFilterOptions()
+        if (filterResponse?.statusCode === 200) {
+          setFilterOptions(filterResponse.data)
+        }
+
+        // Fetch cart items count
+        const cartResponse = await cartApi.getCartItems()
+        if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
+          setCartItemsCount(cartResponse.data.length)
+        }
+      } catch (error) {
+        console.error('Error fetching initial data:', error)
+      } finally {
+        setLoadingProducts(false)
+      }
+    }
+
+    fetchInitialData()
+  }, [])
+
+  // Fetch single origin products when selected
+  useEffect(() => {
+    if (selectedCoffeeType === 'single-origin') {
+      const fetchSingleOrigin = async () => {
+        try {
+          setLoadingProducts(true)
+          const response = await stockPostingsApi.getStockPostings({
+            productType: 'roasted_single_origin'
+          })
+          if (response?.statusCode === 200) {
+            setSingleOriginProducts(response.data || [])
+          }
+        } catch (error) {
+          console.error('Error fetching single origin products:', error)
+        } finally {
+          setLoadingProducts(false)
+        }
+      }
+      fetchSingleOrigin()
+    }
+  }, [selectedCoffeeType])
+
+  // Fetch blend products when selected
+  useEffect(() => {
+    if (selectedCoffeeType === 'blend') {
+      const fetchBlends = async () => {
+        try {
+          setLoadingProducts(true)
+          const response = await stockPostingsApi.getStockPostings({
+            productType: 'roasted_blend'
+          })
+          if (response?.statusCode === 200) {
+            setBlendProducts(response.data || [])
+          }
+        } catch (error) {
+          console.error('Error fetching blend products:', error)
+        } finally {
+          setLoadingProducts(false)
+        }
+      }
+      fetchBlends()
+    }
+  }, [selectedCoffeeType])
+
+  // Fetch wholesale products and brands when selected
+  useEffect(() => {
+    if (selectedType === 'wholesale') {
+      const fetchWholesale = async () => {
+        try {
+          setLoadingProducts(true)
+          setSearchQuery('') // Reset search when switching to wholesale
+          setWholesalePage(1) // Reset pagination
+          const [productsResponse, brandsResponse] = await Promise.all([
+            stockPostingsApi.getStockPostings({ productType: 'whole_sale_brand' }),
+            wholesaleApi.getWholesaleBrands()
+          ])
+          
+          if (productsResponse?.statusCode === 200) {
+            const products = productsResponse.data || []
+            setWholesaleProducts(products)
+            setOriginalWholesaleProducts(products) // Store original for search reset
+          }
+          if (brandsResponse?.statusCode === 200) {
+            setWholesaleBrands(brandsResponse.data || [])
+          }
+        } catch (error) {
+          console.error('Error fetching wholesale products:', error)
+        } finally {
+          setLoadingProducts(false)
+        }
+      }
+      fetchWholesale()
+    }
+  }, [selectedType])
 
   useEffect(() => {
     if (selectedType === 'roasted') {
@@ -85,8 +211,11 @@ function BuyerWizard() {
   useEffect(() => {
     if (selectedCoffeeType === 'single-origin') {
       setTimeout(() => setShowSingleOrigin(true), 50)
+      setSearchQuery('') // Reset search when switching
+      setCurrentPage(1) // Reset pagination
     } else if (selectedCoffeeType === 'blend') {
       setTimeout(() => setShowProductSelection(true), 50)
+      setSearchQuery('') // Reset search when switching
       // Scroll to product selection section after it's rendered
       setTimeout(() => {
         if (productSelectionSectionRef.current) {
@@ -301,6 +430,170 @@ function BuyerWizard() {
     }
   }
 
+  // Update bag image when package size changes
+  useEffect(() => {
+    if (selectedPackageSize) {
+      const bagImage = bagImageMap[selectedPackageSize] || bagImageMap['12oz']
+      console.log('Setting bag image for package size:', selectedPackageSize, 'Image URL:', bagImage)
+      setCurrentBagImage(bagImage)
+    } else {
+      // Set default image when no package is selected
+      setCurrentBagImage('')
+    }
+  }, [selectedPackageSize])
+
+  // Handle product selection
+  const handleProductSelect = async (productId: number | string, productType: 'single-origin' | 'blend' | 'wholesale') => {
+    try {
+      const id = typeof productId === 'string' ? parseInt(productId) : productId
+      const response = await stockPostingsApi.getStockPostingById(id)
+      if (response?.statusCode === 200) {
+        setSelectedProductData(response.data)
+        if (productType === 'single-origin') {
+          setSelectedCoffee(String(productId))
+        } else if (productType === 'blend') {
+          setSelectedProduct(String(productId))
+        } else {
+          // For wholesale products, set initial values
+          setSelectedWholesaleProduct(String(productId))
+          if (response.data?.bagPrice) {
+            setBagPrice(response.data.bagPrice.toString())
+          }
+          setCaseQuantity('1')
+          // Calculate initial amount
+          const price = parseFloat(response.data?.bagPrice || '0')
+          setAmount(price.toString())
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching product details:', error)
+    }
+  }
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    if (!selectedProductData) {
+      alert('Please select a product')
+      return
+    }
+
+    // For wholesale, use caseQuantity; for others, use quantity
+    const qty = selectedType === 'wholesale' ? caseQuantity : quantity
+    if (!qty) {
+      alert('Please enter quantity')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      const cartItem = {
+        stockPostingId: selectedProductData.id,
+        quantity: parseInt(qty),
+        bagSize: selectedType === 'wholesale' ? bagSize : (selectedPackageSize || bagSize),
+        grindType: selectedGrindType || undefined,
+        roastType: selectedRoastType || undefined,
+        bagImage: logoPreview || undefined,
+        isRoast: selectedType === 'roasted',
+      }
+
+      const response = await cartApi.addToCart(cartItem)
+      if (response?.statusCode === 200) {
+        // Update cart count
+        const cartResponse = await cartApi.getCartItems()
+        if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
+          setCartItemsCount(cartResponse.data.length)
+        }
+        setShowNotification(true)
+      } else {
+        alert(response?.message || 'Failed to add item to cart')
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      alert('Failed to add item to cart. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Calculate wholesale amount
+  const calculateWholesaleAmount = useCallback(() => {
+    const price = parseFloat(bagPrice || '0')
+    const qty = parseInt(caseQuantity || '1')
+    const total = price * qty
+    setAmount(total.toFixed(2))
+  }, [bagPrice, caseQuantity])
+
+  // Update wholesale bag size and price
+  const updateWholesaleBagSize = useCallback((newBagSize: string) => {
+    setBagSize(newBagSize)
+    // Update price based on bag size (you can customize this logic)
+    const wholesaleBagConfigs: { [key: string]: number } = {
+      '12oz Retail Bag': selectedProductData?.bagPrice || 12.99,
+      '16oz Retail Bag': (selectedProductData?.bagPrice || 12.99) * 1.2,
+      '5lb Bag': (selectedProductData?.bagPrice || 12.99) * 3.5,
+    }
+    if (wholesaleBagConfigs[newBagSize]) {
+      setBagPrice(wholesaleBagConfigs[newBagSize].toString())
+    }
+  }, [selectedProductData])
+
+  // Update amount when case quantity or bag price changes
+  useEffect(() => {
+    if (selectedType === 'wholesale' && selectedWholesaleProduct) {
+      calculateWholesaleAmount()
+    }
+  }, [caseQuantity, bagPrice, selectedType, selectedWholesaleProduct, calculateWholesaleAmount])
+
+  // Handle search
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      // Reset to original products when search is cleared
+      if (selectedType === 'wholesale') {
+        setWholesaleProducts(originalWholesaleProducts)
+        setWholesalePage(1)
+      } else if (selectedCoffeeType === 'single-origin') {
+        // Refetch single origin products
+        const response = await stockPostingsApi.getStockPostings({
+          productType: 'roasted_single_origin'
+        })
+        if (response?.statusCode === 200) {
+          setSingleOriginProducts(response.data || [])
+          setCurrentPage(1)
+        }
+      } else if (selectedCoffeeType === 'blend') {
+        // Refetch blend products
+        const response = await stockPostingsApi.getStockPostings({
+          productType: 'roasted_blend'
+        })
+        if (response?.statusCode === 200) {
+          setBlendProducts(response.data || [])
+        }
+      }
+      return
+    }
+
+    try {
+      setLoadingProducts(true)
+      const response = await stockPostingsApi.searchStockPostings(query)
+      if (response?.statusCode === 200) {
+        // Update products based on current selection
+        if (selectedCoffeeType === 'single-origin') {
+          setSingleOriginProducts(response.data || [])
+          setCurrentPage(1) // Reset to first page
+        } else if (selectedCoffeeType === 'blend') {
+          setBlendProducts(response.data || [])
+        } else if (selectedType === 'wholesale') {
+          setWholesaleProducts(response.data || [])
+          setWholesalePage(1) // Reset to first page
+        }
+      }
+    } catch (error) {
+      console.error('Error searching products:', error)
+    } finally {
+      setLoadingProducts(false)
+    }
+  }
+
   const packageSizes = [
     { id: '5lb', name: '5lb Bag', details: { size: '~6" W x 4" D x 14" H', color: 'Matte black', labelSize: '2.5 in (H) x 4.5 in (L)' } },
     { id: '12oz', name: '12oz Bag', details: { size: '~4" W x 3" D x 12" H', color: 'Matte black', labelSize: '1.75 in (H) x 3.75 in (L)' } },
@@ -341,6 +634,21 @@ function BuyerWizard() {
                 <svg className="w-5 h-5 lg:w-6 lg:h-6 text-gray-600 group-hover:text-[#09543D] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
+              </button>
+
+              {/* Cart icon with count */}
+              <button 
+                className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all duration-200 shadow-sm hover:shadow-md group"
+                aria-label="Shopping Cart"
+              >
+                <svg className="w-5 h-5 lg:w-6 lg:h-6 text-gray-600 group-hover:text-[#09543D] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                {cartItemsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#D8501C] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartItemsCount > 9 ? '9+' : cartItemsCount}
+                  </span>
+                )}
               </button>
 
               {/* Order history icon */}
@@ -656,35 +964,59 @@ function BuyerWizard() {
                   Wholesale Brands
                 </h2>
 
+                {/* Search Bar */}
+                <div className="max-w-md mx-auto mb-6">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        handleSearch(e.target.value)
+                      }}
+                      placeholder="Search products..."
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
+                    />
+                    <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Loading State */}
+                {loadingProducts && (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#09543D]"></div>
+                    <p className="mt-4 text-gray-600">Loading products...</p>
+                  </div>
+                )}
+
                 {/* Product Cards Grid */}
+                {!loadingProducts && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5 mb-6">
-                  {[
-                    { name: 'BRAZIL', origin: 'Brazil', type: 'Arabica', score: 93 },
-                    { name: 'LUPARA ESPRESSO', origin: 'Lupara', type: 'Arabica', score: 93 },
-                    { name: 'MEXICO', origin: 'Mexico', type: 'Arabica', score: 93 },
-                    { name: 'ETHIOPIA', origin: 'Ethiopia', type: 'Arabica', score: 93 },
-                    { name: 'COLOMBIA', origin: 'Colombia', type: 'Arabica', score: 93 },
-                    { name: 'RWANDA CYESHA', origin: 'Rwanda', type: 'Arabica', score: 93 },
-                    { name: 'EL SALVADOR', origin: 'El Salvador', type: 'Arabica', score: 93 },
-                    { name: 'INDONESIA SUMATRA', origin: 'Indonesia', type: 'Arabica', score: 93 },
-                    { name: 'GUATEMALA EL GUAPO', origin: 'Guatemala', type: 'Arabica', score: 93 },
-                    { name: 'ROCKET ROAST', origin: 'Rocket', type: 'Arabica', score: 93 },
-                    { name: 'PAPUA NEW GUINEA', origin: 'Papua New Guinea', type: 'Arabica', score: 93 },
-                    { name: 'STARLIGHT DECAF', origin: 'Starlight', type: 'Arabica', score: 93 },
-                  ]
+                    {wholesaleProducts
                   .slice((wholesalePage - 1) * 8, wholesalePage * 8)
-                  .map((product, index) => (
-                    <div
-                      key={index}
-                      onClick={() => setSelectedWholesaleProduct(product.name)}
+                      .map((product: any) => {
+                        const qualityScore = product.scaScoreComponents 
+                          ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
+                          : 0
+                        const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
+                        
+                        return (
+                          <div
+                            key={product.id}
+                            onClick={() => handleProductSelect(product.id, 'wholesale')}
                       className={`bg-white rounded-xl border-2 p-3 hover:shadow-lg transition-all cursor-pointer ${
-                        selectedWholesaleProduct === product.name
+                              selectedWholesaleProduct === String(product.id)
                           ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg'
                           : 'border-gray-200 hover:border-[#09543D]'
                       }`}
                     >
                       {/* Coffee Bag Image */}
                       <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                              {product.imageUrl ? (
+                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                              ) : (
                         <div className="w-full h-full bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 flex items-center justify-center relative">
                           {/* Coffee bag representation */}
                           <div className="w-20 h-24 bg-amber-700 rounded-lg shadow-lg relative">
@@ -694,6 +1026,7 @@ function BuyerWizard() {
                             </div>
                           </div>
                         </div>
+                              )}
                       </div>
 
                       {/* Product Name */}
@@ -703,30 +1036,42 @@ function BuyerWizard() {
                           fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                         }}
                       >
-                        {product.name}
+                              {product.name || 'Unnamed Product'}
                       </h3>
 
                       {/* Origin */}
                       <div className="flex items-center justify-center gap-1.5 mb-2">
                         <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
-                        <span className="text-[10px] text-gray-600 truncate">{product.origin}</span>
+                              <span className="text-[10px] text-gray-600 truncate">{originCountry}</span>
                       </div>
 
                       {/* Coffee Type */}
-                      <p className="text-[10px] text-gray-600 text-center mb-2">{product.type}</p>
+                            <p className="text-[10px] text-gray-600 text-center mb-2">{product.coffeeType || 'Arabica'}</p>
 
                       {/* Score */}
+                            {qualityScore > 0 && (
                       <div className="flex flex-col items-center">
                         <div className="bg-[#09543D] text-white px-2 py-1 rounded text-[10px] font-bold">
-                          {product.score}
+                                  {Math.round(qualityScore)}
                         </div>
                         <span className="text-[9px] text-gray-500 mt-0.5">Score</span>
                       </div>
+                            )}
                     </div>
-                  ))}
+                        )
+                      })}
                 </div>
+                )}
+
+                {/* No Products Message */}
+                {!loadingProducts && wholesaleProducts.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">No products found. Try adjusting your search.</p>
+                  </div>
+                )}
 
                 {/* Pagination */}
+                {wholesaleProducts.length > 8 && (
                 <div className="flex flex-col items-center gap-4">
                   {/* Page indicator */}
                   <p 
@@ -735,12 +1080,12 @@ function BuyerWizard() {
                       fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                     }}
                   >
-                    Page {wholesalePage} of {wholesaleTotalPages}
+                      Page {wholesalePage} of {Math.ceil(wholesaleProducts.length / 8)}
                   </p>
 
                   {/* Page number buttons */}
                   <div className="flex gap-2">
-                    {[1, 2].map((page) => (
+                      {Array.from({ length: Math.ceil(wholesaleProducts.length / 8) }, (_, i) => i + 1).map((page) => (
                       <button
                         key={page}
                         onClick={() => setWholesalePage(page)}
@@ -778,10 +1123,10 @@ function BuyerWizard() {
                       Previous
                     </button>
                     <button
-                      onClick={() => setWholesalePage(prev => Math.min(wholesaleTotalPages, prev + 1))}
-                      disabled={wholesalePage === wholesaleTotalPages}
+                        onClick={() => setWholesalePage(prev => Math.min(Math.ceil(wholesaleProducts.length / 8), prev + 1))}
+                        disabled={wholesalePage >= Math.ceil(wholesaleProducts.length / 8)}
                       className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${
-                        wholesalePage === wholesaleTotalPages
+                          wholesalePage >= Math.ceil(wholesaleProducts.length / 8)
                           ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-white border-[#09543D] text-[#09543D] hover:bg-[#09543D]/5 hover:border-[#09543D]/80'
                       }`}
@@ -796,6 +1141,7 @@ function BuyerWizard() {
                     </button>
                   </div>
                 </div>
+                )}
               </div>
             )}
 
@@ -804,7 +1150,10 @@ function BuyerWizard() {
               <div ref={wholesaleProductDetailRef} className="mt-8 lg:mt-10">
                 {/* Back Button */}
                 <button
-                  onClick={() => setSelectedWholesaleProduct('')}
+                  onClick={() => {
+                    setSelectedWholesaleProduct('')
+                    setSelectedProductData(null)
+                  }}
                   className="mb-6 flex items-center gap-2 text-gray-600 hover:text-[#09543D] transition-colors"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
@@ -822,6 +1171,13 @@ function BuyerWizard() {
                   <div>
                     {/* Main Product Image */}
                     <div className="bg-gray-100 rounded-xl p-8 mb-4 flex items-center justify-center min-h-[400px]">
+                      {selectedProductData?.imageUrl ? (
+                        <img 
+                          src={selectedProductData.imageUrl} 
+                          alt={selectedProductData.name || 'Product'} 
+                          className="w-full h-full max-h-[400px] object-contain rounded-lg"
+                        />
+                      ) : (
                       <div className="relative">
                         {/* Coffee bag representation */}
                         <div className="w-48 h-64 bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 rounded-lg shadow-2xl relative">
@@ -829,12 +1185,13 @@ function BuyerWizard() {
                           <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
                             <div className="w-28 h-28 bg-gradient-to-br from-[#09543D] to-[#1E4637] rounded-full flex flex-col items-center justify-center text-white p-4 text-center">
                               <div className="text-xs font-bold mb-1">GREENSTREET</div>
-                              <div className="text-lg font-bold">{selectedWholesaleProduct.split(' ')[0]}</div>
-                              <div className="text-xs mt-1">{selectedWholesaleProduct.split(' ').slice(1).join(' ')}</div>
+                                <div className="text-lg font-bold">{(selectedProductData?.name || selectedWholesaleProduct).split(' ')[0]}</div>
+                                <div className="text-xs mt-1">{(selectedProductData?.name || selectedWholesaleProduct).split(' ').slice(1).join(' ')}</div>
                             </div>
                           </div>
                         </div>
                       </div>
+                      )}
                     </div>
 
                     {/* Thumbnail Images */}
@@ -844,11 +1201,19 @@ function BuyerWizard() {
                           key={thumb}
                           className="bg-gray-100 rounded-lg p-3 cursor-pointer hover:border-2 hover:border-[#09543D] transition-all"
                         >
+                          {selectedProductData?.imageUrl ? (
+                            <img 
+                              src={selectedProductData.imageUrl} 
+                              alt={`Thumbnail ${thumb}`}
+                              className="w-full h-24 object-cover rounded"
+                            />
+                          ) : (
                           <div className="w-full h-24 bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 rounded flex items-center justify-center">
                             <div className="w-12 h-16 bg-amber-700 rounded relative">
                               <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rounded-full"></div>
                             </div>
                           </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -864,12 +1229,13 @@ function BuyerWizard() {
                         letterSpacing: '-1px'
                       }}
                     >
-                      {selectedWholesaleProduct}
+                      {(selectedProductData?.name || selectedProductData?.description || selectedWholesaleProduct)?.toUpperCase()}
                     </h2>
 
                     {/* Purchase Options */}
                     <div className="space-y-4 mb-6">
-                      {/* Bag Size */}
+                      {/* Bag Size and Bag Price Row */}
+                      <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label
                           className="block text-sm font-semibold text-gray-700 mb-2"
@@ -881,17 +1247,14 @@ function BuyerWizard() {
                         </label>
                         <select
                           value={bagSize}
-                          onChange={(e) => setBagSize(e.target.value)}
+                            onChange={(e) => updateWholesaleBagSize(e.target.value)}
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
                         >
-                          <option>12oz Retail Bag</option>
-                          <option>16oz Retail Bag</option>
-                          <option>5lb Bag</option>
+                            <option value="12oz Retail Bag">12oz Retail Bag</option>
+                            <option value="16oz Retail Bag">16oz Retail Bag</option>
+                            <option value="5lb Bag">5lb Bag</option>
                         </select>
                       </div>
-
-                      {/* Bag Price and Case Quantity Row */}
-                      <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label
                             className="block text-sm font-semibold text-gray-700 mb-2"
@@ -902,15 +1265,16 @@ function BuyerWizard() {
                             Bag Price($)
                           </label>
                           <input
-                            type="number"
-                            value={bagPrice}
-                            onChange={(e) => {
-                              setBagPrice(e.target.value)
-                              setAmount((parseFloat(e.target.value) * parseInt(caseQuantity || '1')).toString())
-                            }}
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
+                            type="text"
+                            value={bagPrice || '0.00'}
+                            readOnly
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50"
                           />
                         </div>
+                      </div>
+
+                      {/* Case Quantity and Amount Row */}
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label
                             className="block text-sm font-semibold text-gray-700 mb-2"
@@ -922,17 +1286,15 @@ function BuyerWizard() {
                           </label>
                           <input
                             type="number"
+                            min="1"
                             value={caseQuantity}
                             onChange={(e) => {
                               setCaseQuantity(e.target.value)
-                              setAmount((parseFloat(bagPrice || '0') * parseInt(e.target.value || '1')).toString())
+                              calculateWholesaleAmount()
                             }}
                             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
                           />
                         </div>
-                      </div>
-
-                      {/* Amount */}
                       <div>
                         <label
                           className="block text-sm font-semibold text-gray-700 mb-2"
@@ -944,29 +1306,38 @@ function BuyerWizard() {
                         </label>
                         <input
                           type="text"
-                          value={`$ ${amount}`}
+                            value={`$ ${parseFloat(amount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                           readOnly
                           className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50"
                         />
+                        </div>
                       </div>
 
                       {/* Availability */}
                       <p className="text-sm text-gray-600">
-                        1000 bags available
+                        {selectedProductData?.quantityLeft || selectedProductData?.quantityPosted || 'N/A'} bags available
                       </p>
 
                       {/* Proceed Button */}
                       <button
-                        onClick={() => {
-                          // Handle proceed action
-                          setShowNotification(true)
-                        }}
-                        className="w-full bg-[#09543D] text-white py-4 rounded-lg font-bold text-lg hover:bg-[#1E4637] transition-colors"
+                        onClick={handleAddToCart}
+                        disabled={isLoading || !caseQuantity || !selectedProductData}
+                        className="w-full bg-[#D8501C] text-white py-4 rounded-lg font-bold text-lg hover:bg-[#b73d1a] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                         style={{
                           fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                         }}
                       >
-                        Proceed
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          'Proceed'
+                        )}
                       </button>
                     </div>
 
@@ -1005,27 +1376,31 @@ function BuyerWizard() {
                           <tbody>
                             <tr className="border-b border-gray-200">
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Vendor</td>
-                              <td className="px-4 py-3 text-sm text-[#09543D] font-semibold">Greenstreet</td>
+                              <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">{selectedProductData?.supplierInfo?.firstName || 'N/A'}</td>
                             </tr>
                             <tr className="border-b border-gray-200">
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Variety</td>
-                              <td className="px-4 py-3 text-sm text-[#09543D] font-semibold">{selectedWholesaleProduct}</td>
+                              <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">{selectedProductData?.variety || selectedProductData?.description || 'N/A'}</td>
                             </tr>
                             <tr className="border-b border-gray-200">
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Coffee Type</td>
-                              <td className="px-4 py-3 text-sm text-[#09543D] font-semibold">Arabica</td>
+                              <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">{selectedProductData?.coffeeType || 'Arabica'}</td>
                             </tr>
                             <tr className="border-b border-gray-200">
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Quality</td>
-                              <td className="px-4 py-3 text-sm text-[#09543D] font-semibold">93</td>
+                              <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">
+                                {selectedProductData?.scaScoreComponents 
+                                  ? Math.round(Object.values(selectedProductData.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9)
+                                  : selectedProductData?.quality || 'Premium'}
+                              </td>
                             </tr>
                             <tr className="border-b border-gray-200">
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Notes</td>
-                              <td className="px-4 py-3 text-sm text-[#09543D] font-semibold">Balanced, slightly sweet and acidic</td>
+                              <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">{selectedProductData?.description || selectedProductData?.aroma || 'Balanced, slightly sweet and acidic'}</td>
                             </tr>
                             <tr>
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Process</td>
-                              <td className="px-4 py-3 text-sm text-[#09543D] font-semibold">FULLY-WASHED</td>
+                              <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">{selectedProductData?.process || 'Pupled Natural and Fully Washed Beans'}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -1055,69 +1430,103 @@ function BuyerWizard() {
                   Single origin
                 </h2>
 
-                {/* Coffee Cards Grid */}
-                <div className="grid grid-cols-2 gap-3 lg:gap-4 mb-6">
-                  {/* Sample coffee cards */}
-                  {[
-                    { name: 'ETHIOPIA GUJI', country: 'Ethiopia', score: 88 },
-                    { name: 'KENYA AB', country: 'Kenya', score: 90 },
-                    { name: 'TANZANIA ZANZIBAR', country: 'Tanzania', score: 96 },
-                    { name: 'PERU', country: 'Peru', score: 93 },
-                    { name: 'KENYA AA', country: 'Kenya', score: 89 },
-                    { name: 'ETHIOPIA', country: 'Ethiopia', score: 91 },
-                    { name: 'TANZANIA PEABERRY', country: 'Tanzania', score: 93 },
-                    { name: 'UGANDA BUGISHU', country: 'Uganda', score: 86 },
-                    { name: 'COLOMBIA SUPREMO', country: 'Colombia', score: 92 },
-                    { name: 'BRAZIL SANTOS', country: 'Brazil', score: 87 },
-                    { name: 'GUATEMALA ANTIGUA', country: 'Guatemala', score: 94 },
-                    { name: 'COSTA RICA TARRAZU', country: 'Costa Rica', score: 90 },
-                  ]
-                  .slice((currentPage - 1) * 4, currentPage * 4)
-                  .map((coffee, index) => (
-                    <div
-                      key={index}
-                      onClick={() => {
-                        setSelectedCoffee(coffee.name)
+                {/* Search Bar */}
+                <div className="max-w-md mx-auto mb-6">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        handleSearch(e.target.value)
                       }}
-                      className={`bg-white rounded-xl border-2 p-3 hover:shadow-lg transition-all cursor-pointer ${
-                        selectedCoffee === coffee.name
+                      placeholder="Search products..."
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
+                    />
+                    <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Loading State */}
+                {loadingProducts && (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#09543D]"></div>
+                    <p className="mt-4 text-gray-600">Loading products...</p>
+                  </div>
+                )}
+
+                {/* Coffee Cards Grid */}
+                {!loadingProducts && (
+                  <div className="grid grid-cols-4 lg:grid-cols-5 gap-3 lg:gap-4 mb-6 max-w-6xl mx-auto">
+                    {singleOriginProducts
+                      .slice((currentPage - 1) * 9, currentPage * 9)
+                      .map((product: any) => {
+                        const qualityScore = product.scaScoreComponents 
+                          ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
+                          : 0
+                        const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
+                        
+                        return (
+                          <div
+                            key={product.id}
+                            onClick={() => handleProductSelect(product.id, 'single-origin')}
+                            className={`bg-white rounded-xl border-2 p-4 hover:shadow-lg transition-all cursor-pointer flex flex-col ${
+                              selectedCoffee === String(product.id)
                           ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
                           : 'border-gray-200 hover:border-[#09543D]'
                       }`}
                     >
                       {/* Coffee Bean Image */}
-                      <div className="w-full h-20 bg-gray-100 rounded-lg mb-2 flex items-center justify-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-700 to-green-900 rounded-lg"></div>
+                            <div className="w-full h-32 lg:h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0">
+                              {product.imageUrl ? (
+                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-lg"></div>
+                              )}
                       </div>
 
                       {/* Coffee Name */}
                       <h3 
-                        className="text-xs font-bold text-gray-900 mb-2 uppercase truncate"
+                              className="text-sm lg:text-base font-bold text-gray-900 mb-2 uppercase line-clamp-2 leading-tight flex-grow"
                         style={{
                           fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                         }}
                       >
-                        {coffee.name}
+                              {product.name || 'Unnamed Product'}
                       </h3>
 
                       {/* Bottom Section */}
-                      <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-auto">
                         {/* Left: Flag and Country */}
                         <div className="flex items-center gap-1.5">
-                          <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
-                          <span className="text-[10px] text-gray-600 truncate">{coffee.country}</span>
+                                <div className="w-3 h-3 bg-green-500 rounded-sm flex-shrink-0"></div>
+                                <span className="text-xs text-gray-600 truncate">{originCountry}</span>
                         </div>
 
                         {/* Right: Score */}
-                        <div className="bg-[#D8501C] text-white px-1.5 py-0.5 rounded text-[10px] font-bold">
-                          {coffee.score}
+                              {qualityScore > 0 && (
+                                <div className="bg-[#D8501C] text-white px-2 py-1 rounded text-xs font-bold flex-shrink-0">
+                                  {Math.round(qualityScore)}
                         </div>
+                              )}
                       </div>
                     </div>
-                  ))}
+                        )
+                      })}
                 </div>
+                )}
+
+                {/* No Products Message */}
+                {!loadingProducts && singleOriginProducts.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">No products found. Try adjusting your search.</p>
+                  </div>
+                )}
 
                 {/* Pagination */}
+                {singleOriginProducts.length > 9 && (
                 <div className="flex flex-col items-center gap-4">
                   {/* Page indicator */}
                   <p 
@@ -1126,12 +1535,12 @@ function BuyerWizard() {
                       fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                     }}
                   >
-                    Page {currentPage} of {totalPages}
+                      Page {currentPage} of {Math.ceil(singleOriginProducts.length / 9)}
                   </p>
 
                   {/* Page number buttons */}
                   <div className="flex gap-2">
-                    {[1, 2, 3].map((page) => (
+                      {Array.from({ length: Math.ceil(singleOriginProducts.length / 9) }, (_, i) => i + 1).map((page) => (
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
@@ -1169,10 +1578,10 @@ function BuyerWizard() {
                       Previous
                     </button>
                     <button
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage(prev => Math.min(Math.ceil(singleOriginProducts.length / 9), prev + 1))}
+                      disabled={currentPage >= Math.ceil(singleOriginProducts.length / 9)}
                       className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${
-                        currentPage === totalPages
+                        currentPage >= Math.ceil(singleOriginProducts.length / 9)
                           ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-white border-[#09543D] text-[#09543D] hover:bg-[#09543D]/5 hover:border-[#09543D]/80'
                       }`}
@@ -1187,6 +1596,7 @@ function BuyerWizard() {
                     </button>
                   </div>
                 </div>
+                )}
               </div>
             )}
 
@@ -1209,29 +1619,59 @@ function BuyerWizard() {
                   Select Product
                 </h2>
 
+                {/* Search Bar */}
+                <div className="max-w-md mx-auto mb-6">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        handleSearch(e.target.value)
+                      }}
+                      placeholder="Search products..."
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
+                    />
+                    <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Loading State */}
+                {loadingProducts && (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#09543D]"></div>
+                    <p className="mt-4 text-gray-600">Loading products...</p>
+                  </div>
+                )}
+
                 {/* Product Cards */}
+                {!loadingProducts && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto">
-                  {[
-                    { id: 'tasty-coffee', name: 'TASTY COFFEE', origin: 'United States', type: 'Arabica', score: 98 },
-                    { id: 'colombian', name: 'COLOMBIAN', origin: 'Colombian', type: 'Arabica', score: 93 },
-                    { id: 'brazilian', name: 'BRAZILIAN', origin: 'Brazilian', type: 'Arabica', score: 93 },
-                  ].map((product) => (
+                    {blendProducts.map((product: any) => {
+                      const qualityScore = product.scaScoreComponents 
+                        ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
+                        : 0
+                      const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
+                      
+                      return (
                     <button
                       key={product.id}
                       onClick={() => {
-                        setSelectedProduct(product.id)
+                            handleProductSelect(product.id, 'blend')
                         setTimeout(() => {
                           roastTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                         }, 100)
                       }}
                       className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                        selectedProduct === product.id
+                            selectedProduct === String(product.id)
                           ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
                           : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                     >
                       {/* Selection indicator */}
-                      {selectedProduct === product.id && (
+                          {selectedProduct === String(product.id) && (
                         <div className="absolute top-2 right-2 w-5 h-5 bg-[#09543D] rounded-full flex items-center justify-center z-10">
                           <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -1241,6 +1681,9 @@ function BuyerWizard() {
 
                       {/* Product Image */}
                       <div className="w-full h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                            {product.imageUrl ? (
+                              <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                            ) : (
                         <div className="w-full h-full bg-gradient-to-br from-green-700 via-green-800 to-green-900 flex items-center justify-center">
                           <div className="grid grid-cols-4 gap-1 p-4">
                             {[...Array(16)].map((_, i) => (
@@ -1248,39 +1691,51 @@ function BuyerWizard() {
                             ))}
                           </div>
                         </div>
+                            )}
                       </div>
 
                       {/* Product Name */}
                       <h3 
                         className={`text-sm lg:text-base font-bold text-gray-900 mb-2 uppercase text-center ${
-                          selectedProduct === product.id ? 'text-[#09543D]' : ''
+                              selectedProduct === String(product.id) ? 'text-[#09543D]' : ''
                         }`}
                         style={{
                           fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                         }}
                       >
-                        {product.name}
+                            {product.name || 'Unnamed Product'}
                       </h3>
 
                       {/* Origin */}
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <div className="w-4 h-4 bg-green-500 rounded-sm"></div>
-                        <span className="text-xs text-gray-600">{product.origin}</span>
+                            <span className="text-xs text-gray-600">{originCountry}</span>
                       </div>
 
                       {/* Coffee Type */}
-                      <p className="text-xs text-gray-600 text-center mb-3">{product.type}</p>
+                          <p className="text-xs text-gray-600 text-center mb-3">{product.coffeeType || 'Arabica'}</p>
 
                       {/* Score */}
+                          {qualityScore > 0 && (
                       <div className="flex flex-col items-center">
                         <div className="bg-[#D8501C] text-white px-3 py-1.5 rounded-lg text-sm font-bold">
-                          {product.score}
+                                {Math.round(qualityScore)}
                         </div>
                         <span className="text-xs text-gray-500 mt-1">Score</span>
                       </div>
+                          )}
                     </button>
-                  ))}
+                      )
+                    })}
                 </div>
+                )}
+
+                {/* No Products Message */}
+                {!loadingProducts && blendProducts.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">No products found. Try adjusting your search.</p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1763,34 +2218,113 @@ function BuyerWizard() {
                         <p className="text-gray-500 text-sm">Customize your packaging</p>
                       </div>
 
-                      {/* Bag Image */}
+                      {/* Bag Image Preview with Logo Overlay */}
                       <div className="flex justify-center">
-                        <div className="relative w-full max-w-xs">
-                          {/* Bag representation */}
-                          <div className="bg-gradient-to-b from-gray-800 via-gray-700 to-gray-900 rounded-2xl p-6 lg:p-8 shadow-2xl relative">
-                            {/* Bag shape - Stand-up pouch */}
-                            <div className="bg-gray-800 rounded-xl h-64 flex flex-col items-center justify-center relative overflow-hidden">
-                              {/* Top seal */}
-                              <div className="absolute top-0 left-0 right-0 h-2 bg-gray-900"></div>
-                              
-                              {/* Valve */}
-                              <div className="absolute top-3 right-3 w-4 h-4 bg-gray-600 rounded-full border-2 border-gray-500"></div>
-                              
-                              {/* Design area with logo or placeholder */}
-                              <div className="w-4/5 h-32 border-2 border-dashed border-white/40 rounded-lg flex items-center justify-center bg-gray-700/60 backdrop-blur-sm mt-12 mb-4">
-                                {logoPreview ? (
-                                  <img src={logoPreview} alt="Your logo" className="max-w-full max-h-full object-contain p-2" />
-                                ) : (
-                                  <span className="text-white/70 text-xs text-center px-3 font-medium">YOUR DESIGN HERE</span>
-                                )}
-                              </div>
-                              
-                              {/* Bottom zipper */}
-                              <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-b from-gray-600 to-gray-700 flex items-center justify-center">
-                                <div className="w-12 h-1 bg-gray-500 rounded-full"></div>
+                        <div 
+                          className="relative"
+                          style={{
+                            minWidth: '300px',
+                            minHeight: selectedPackageSize === '5lb' ? '500px' : selectedPackageSize === 'kcup' ? '300px' : selectedPackageSize === 'frac' ? '380px' : '400px',
+                            width: '300px',
+                            height: selectedPackageSize === '5lb' ? '500px' : selectedPackageSize === 'kcup' ? '300px' : selectedPackageSize === 'frac' ? '380px' : '400px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#f8f9fa',
+                            borderRadius: '16px',
+                            padding: '20px',
+                            margin: '0 auto',
+                            position: 'relative'
+                          }}
+                        >
+                          {/* Main Bag Image */}
+                          {currentBagImage ? (
+                            <img 
+                              src={currentBagImage} 
+                              alt="Coffee bag preview" 
+                              className="preview-img"
+                              style={{
+                                maxWidth: '100%',
+                                maxHeight: '100%',
+                                width: 'auto',
+                                height: 'auto',
+                                objectFit: 'contain',
+                                borderRadius: '16px'
+                              }}
+                              onError={(e) => {
+                                // Fallback if image fails to load
+                                console.error('Failed to load bag image:', currentBagImage)
+                                const target = e.target as HTMLImageElement
+                                target.style.display = 'none'
+                              }}
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-gray-400">
+                              <div className="text-center">
+                                <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p className="text-sm">Bag preview</p>
                               </div>
                             </div>
-                          </div>
+                          )}
+                          
+                          {/* Logo Overlay - Only show for non-K-cup bags */}
+                          {logoPreview && selectedPackageSize !== 'kcup' && (
+                            <div 
+                              className="absolute"
+                              style={{
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                pointerEvents: 'none',
+                                zIndex: 5
+                              }}
+                            >
+                              <img 
+                                src={logoPreview} 
+                                alt="Your logo" 
+                                className="design-image"
+                                style={{
+                                  position: 'absolute',
+                                  objectFit: 'contain',
+                                  pointerEvents: 'auto',
+                                  ...(selectedPackageSize === '5lb' ? {
+                                    top: '42%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    maxWidth: '450px',
+                                    maxHeight: '210px'
+                                  } : selectedPackageSize === '12oz' ? {
+                                    top: '48%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    maxWidth: '280px',
+                                    maxHeight: '150px'
+                                  } : selectedPackageSize === '10oz' ? {
+                                    top: '65%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    maxWidth: '250px',
+                                    maxHeight: '150px'
+                                  } : selectedPackageSize === 'frac' ? {
+                                    top: '40%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    maxWidth: '130px',
+                                    maxHeight: '120px'
+                                  } : {
+                                    top: '48%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    maxWidth: '280px',
+                                    maxHeight: '150px'
+                                  })
+                                }}
+                              />
+                              </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1869,14 +2403,8 @@ function BuyerWizard() {
                           {/* Confirm and Proceed Button */}
                           <div className="mt-6 pt-6 border-t border-gray-200">
                             <button
-                              onClick={() => {
-                                setIsLoading(true)
-                                setTimeout(() => {
-                                  setIsLoading(false)
-                                  setShowNotification(true)
-                                }, 1500)
-                              }}
-                              disabled={isLoading}
+                              onClick={handleAddToCart}
+                              disabled={isLoading || !quantity || !selectedProductData}
                               className="w-full px-6 py-4 bg-[#09543D] text-white rounded-xl font-bold text-lg hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
                               style={{
                                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
