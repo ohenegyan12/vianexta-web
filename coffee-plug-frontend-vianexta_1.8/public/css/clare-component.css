@@ -1,0 +1,693 @@
+/* Clare Chat Component Styles */
+/* Based on the implementation from new_landing_page.blade.php */
+
+.clare-chat-btn {
+  position: fixed;
+  z-index: 9999;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  background: #07382F;
+  color: #fff;
+  font-weight: 500;
+  font-size: 1.25rem;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 24px 0 rgba(7,56,47,0.15);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, border 0.3s;
+}
+
+.clare-chat-btn.on-green {
+  background: #fff;
+  color: #07382F;
+  border: 1.5px solid #07382F;
+}
+
+.clare-chat-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-block;
+  transition: filter 0.3s;
+  user-select: none;
+  pointer-events: none;
+}
+
+.clare-chat-btn.on-green .clare-chat-icon {
+  filter: invert(19%) sepia(97%) saturate(749%) hue-rotate(120deg) brightness(95%) contrast(101%);
+}
+
+.clare-chat-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+.clare-chat-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 100%;
+  max-width: 400px;
+  z-index: 10000;
+  background: #f5f7fc;
+  box-shadow: -4px 0 24px 0 rgba(7,56,47,0.15);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+.clare-chat-drawer.open {
+  transform: translateX(0);
+}
+
+.clare-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border-top-left-radius: 16px;
+}
+
+.clare-chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clare-chat-logo {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+.clare-chat-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: #374151;
+}
+
+.clare-chat-close {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.clare-chat-close:hover {
+  background: #f3f4f6;
+}
+
+.clare-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem 0.5rem 1.25rem;
+  background: #f5f7fc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.clare-chat-message-user {
+  align-self: flex-end;
+  background: #fff;
+  color: #222;
+  padding: 0.75rem 1.25rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.03);
+  max-width: 80%;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.clare-chat-message-bot {
+  align-self: flex-start;
+  background: #fff;
+  color: #222;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.03);
+  max-width: 90%;
+  display: flex;
+  gap: 0.75rem;
+  font-size: 1rem;
+}
+
+.clare-chat-bot-avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  margin-top: 0.25rem;
+}
+
+.clare-chat-message-bot-content {
+  flex: 1;
+}
+
+.clare-chat-message-bot-link {
+  color: #15803d;
+  text-decoration: underline;
+}
+
+.clare-chat-message-typing {
+  color: #888;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.clare-chat-input-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: #f5f7fc;
+  border-bottom-left-radius: 16px;
+}
+
+.clare-chat-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 1.5rem;
+  border: none;
+  background: #e9edfa;
+  color: #222;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  min-height: 2.5rem;
+  max-height: 7.5rem;
+  line-height: 1.4;
+  transition: height 0.2s ease;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.clare-chat-send {
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+.clare-chat-send:hover {
+  background: #f3f4f6;
+}
+
+.clare-chat-send-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.clare-chat-message-user, .clare-chat-message-bot {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+  max-width: 90%;
+  box-sizing: border-box;
+}
+
+.clare-chat-message-bot-content {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clare-chat-image-card {
+  margin: 0.5rem 0;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  height: 300px;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.clare-chat-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.clare-chat-image-card {
+  margin: 0.5rem 0;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  height: 300px;
+  margin-left: 0;
+  margin-right: auto;
+  position: relative;
+}
+
+.clare-chat-image-caption {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+  text-align: center;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Special styling for bag preview images from Clare */
+.clare-chat-image-card .clare-chat-image {
+  border: 2px solid #D8501C;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(216, 80, 28, 0.2);
+  object-fit: contain;
+  background: #fff;
+}
+
+/* Ensure bag preview images are properly sized */
+.clare-chat-image-card {
+  min-height: 250px;
+  max-height: 400px;
+  width: 100%;
+  max-width: 350px;
+  margin: 16px auto;
+}
+
+@media (max-width: 600px) {
+  .clare-chat-message-user, .clare-chat-message-bot {
+    max-width: 98%;
+  }
+}
+
+/* Mobile Responsiveness for Clare Chat */
+@media (max-width: 768px) {
+  /* Clare Chat Button Mobile Styles */
+  .clare-chat-btn {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    gap: 0.5rem;
+    border-radius: 50px;
+    box-shadow: 0 4px 16px 0 rgba(7,56,47,0.2);
+  }
+
+  .clare-chat-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .clare-chat-text {
+    font-size: 0.875rem;
+  }
+
+  /* Clare Chat Drawer Mobile Styles */
+  .clare-chat-drawer {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .clare-chat-drawer.open {
+    transform: translateY(0);
+  }
+
+  .clare-chat-header {
+    border-radius: 0;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .clare-chat-title {
+    font-size: 1rem;
+  }
+
+  .clare-chat-logo {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .clare-chat-messages {
+    padding: 0.75rem 1rem 0.5rem 1rem;
+    gap: 0.5rem;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .clare-chat-message-user {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    max-width: 85%;
+  }
+
+  .clare-chat-message-bot {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    max-width: 90%;
+    gap: 0.5rem;
+  }
+
+  .clare-chat-bot-avatar {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.125rem;
+  }
+
+  /* Mobile Chat Input Area - Enhanced for better visibility */
+  .clare-chat-input-area {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f5f7fc;
+    position: sticky;
+    bottom: 0;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .clare-chat-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 1.5rem;
+    border: none;
+    background: #e9edfa;
+    color: #222;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    min-height: 2.5rem;
+    max-height: 7.5rem;
+    line-height: 1.4;
+    transition: height 0.2s ease;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .clare-chat-send {
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+
+  .clare-chat-send:hover {
+    background: #f3f4f6;
+  }
+
+  .clare-chat-send-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* Prevent zoom on input focus for mobile */
+  .clare-chat-input {
+    font-size: 16px !important;
+  }
+
+  /* Safari-specific fixes for mobile */
+  @supports (-webkit-touch-callout: none) {
+    .clare-chat-drawer {
+      -webkit-overflow-scrolling: touch !important;
+      overflow: hidden !important;
+    }
+    
+    .clare-chat-messages {
+      -webkit-overflow-scrolling: touch !important;
+      padding-bottom: 80px !important;
+    }
+    
+    .clare-chat-input-area {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 10005 !important;
+      background: #f5f7fc !important;
+      border-top: 1px solid #e5e7eb !important;
+      padding: 0.75rem 1rem !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .clare-chat-btn {
+    bottom: 0.75rem;
+    right: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .clare-chat-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .clare-chat-text {
+    font-size: 0.75rem;
+  }
+
+  .clare-chat-messages {
+    padding: 0.5rem 0.75rem 0.5rem 0.75rem;
+  }
+
+  .clare-chat-message-user {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    max-width: 90%;
+  }
+
+  .clare-chat-message-bot {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    max-width: 95%;
+    gap: 0.5rem;
+  }
+
+  .clare-chat-bot-avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+  }
+
+  .clare-chat-input-area {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .clare-chat-input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .clare-chat-send {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  .clare-chat-send-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* File Upload Dropzone Styles */
+.file-upload-dropzone {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  background: #f9fafb;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin: 1rem 0;
+}
+
+.file-upload-dropzone:hover {
+  border-color: #06382F;
+  background: #f0f9f6;
+}
+
+.file-upload-dropzone.dragover {
+  border-color: #06382F;
+  background: #f0f9f6;
+  transform: scale(1.02);
+}
+
+.file-upload-icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  color: #6b7280;
+}
+
+.file-upload-text {
+  font-size: 1rem;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.file-upload-hint {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.file-upload-input {
+  display: none;
+}
+
+.file-preview-container {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.bag-preview {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  border: 2px solid #D8501C;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(216, 80, 28, 0.2);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.upload-success {
+  color: #15803d;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.upload-error {
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+/* Logo upload spinner styles */
+.logo-upload-spinner {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10001;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-upload-spinner-content {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
+}
+
+.logo-upload-spinner.show {
+  display: flex;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #06382F;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner-text {
+  color: #374151;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Mobile responsive for file upload */
+@media (max-width: 768px) {
+  .file-upload-dropzone {
+    padding: 1.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .file-upload-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .file-upload-text {
+    font-size: 0.875rem;
+  }
+
+  .file-upload-hint {
+    font-size: 0.75rem;
+  }
+
+  .bag-preview {
+    width: 150px;
+    height: 150px;
+  }
+}

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViaNexta Wizard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="public/vianexta-logo.png" alt="ViaNexta Logo" class="logo">
+            <span class="brand">ViaNexta</span>
+        </div>
+        <nav class="navbar-center">
+            <a href="#" class="nav-link">Why Choose Us</a>
+            <a href="#" class="nav-link">Testimonials</a>
+            <a href="#" class="nav-link">Careers</a>
+        </nav>
+        <div class="navbar-right">
+            <button class="btn btn-outline">Sign In</button>
+            <button class="btn btn-primary">Get in touch</button>
+        </div>
+    </header>
+    <main class="wizard-main">
+        <h1 class="wizard-question">What type of coffee bean are you looking for?</h1>
+        <div class="wizard-options" id="step1-options">
+            <div class="wizard-option-card" id="roasted-card">
+                <img src="public/roasted.svg" alt="Roasted" class="option-icon">
+                <div class="option-label">Roasted</div>
+            </div>
+            <div class="wizard-option-card" id="wholesale-card">
+                <img src="public/wholesale-brands.svg" alt="Wholesale Brands" class="option-icon">
+                <div class="option-label">Wholesale Brands</div>
+            </div>
+        </div>
+        <div id="step2" class="wizard-step" style="display: none;">
+            <h2 class="wizard-question">How do you want your coffee?</h2>
+            <div class="wizard-options">
+                <div class="wizard-option-card" id="single-origin-card">
+                    <img src="public/single-origin.svg" alt="Single Origin" class="option-icon">
+                    <div class="option-label">Single Origin</div>
+                </div>
+                <div class="wizard-option-card" id="blend-card">
+                    <img src="public/blend.svg" alt="Blend" class="option-icon">
+                    <div class="option-label">Blend</div>
+                </div>
+            </div>
+        </div>
+        <div id="single-origin-section" class="wizard-step" style="display: none;">
+        <h2 class="wizard-question">Single origin</h2>
+        <div class="bean-card-grid" id="bean-card-grid">
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">BRAZIL</div>
+                <div class="bean-card-meta">
+                  <img src="public/BR - Brazil.png" alt="Brazil Flag" class="bean-flag">
+                  <span class="bean-region">BR BRAZIL</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">93</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">COLOMBIA</div>
+                <div class="bean-card-meta">
+                  <img src="public/colombia-flag.svg" alt="Colombia Flag" class="bean-flag">
+                  <span class="bean-region">CO COLOMBIA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">91</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">ETHIOPIA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/et.png" alt="Ethiopia Flag" class="bean-flag">
+                  <span class="bean-region">ET ETHIOPIA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">94</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">GUATEMALA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/gt.png" alt="Guatemala Flag" class="bean-flag">
+                  <span class="bean-region">GT GUATEMALA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">89</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">COSTA RICA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/cr.png" alt="Costa Rica Flag" class="bean-flag">
+                  <span class="bean-region">CR COSTA RICA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">92</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">KENYA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/ke.png" alt="Kenya Flag" class="bean-flag">
+                  <span class="bean-region">KE KENYA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">90</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">PERU</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/pe.png" alt="Peru Flag" class="bean-flag">
+                  <span class="bean-region">PE PERU</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">88</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">HONDURAS</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/hn.png" alt="Honduras Flag" class="bean-flag">
+                  <span class="bean-region">HN HONDURAS</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">87</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">NICARAGUA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/ni.png" alt="Nicaragua Flag" class="bean-flag">
+                  <span class="bean-region">NI NICARAGUA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">86</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">EL SALVADOR</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/sv.png" alt="El Salvador Flag" class="bean-flag">
+                  <span class="bean-region">SV EL SALVADOR</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">85</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">MEXICO</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/mx.png" alt="Mexico Flag" class="bean-flag">
+                  <span class="bean-region">MX MEXICO</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">84</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">TANZANIA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/tz.png" alt="Tanzania Flag" class="bean-flag">
+                  <span class="bean-region">TZ TANZANIA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">83</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <!-- Extra cards for load more functionality -->
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">UGANDA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/ug.png" alt="Uganda Flag" class="bean-flag">
+                  <span class="bean-region">UG UGANDA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">82</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">RWANDA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/rw.png" alt="Rwanda Flag" class="bean-flag">
+                  <span class="bean-region">RW RWANDA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">81</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">BURUNDI</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/bi.png" alt="Burundi Flag" class="bean-flag">
+                  <span class="bean-region">BI BURUNDI</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">80</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+          <div class="bean-card">
+            <img src="public/green-been.png" alt="Green Bean" class="bean-img">
+            <div class="bean-card-info">
+              <div class="bean-card-main">
+                <div class="bean-card-title">INDIA</div>
+                <div class="bean-card-meta">
+                  <img src="https://flagcdn.com/w40/in.png" alt="India Flag" class="bean-flag">
+                  <span class="bean-region">IN INDIA</span>
+                </div>
+                <div class="bean-type">Arabica</div>
+              </div>
+              <div class="bean-card-score">
+                <div class="score-box">79</div>
+                <div class="score-label">Score</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline load-more-btn">Load more</button>
+      </div>
+      <div id="roast-type-section" class="wizard-step" style="display: none;">
+        <h2 class="wizard-question">Select your roast type</h2>
+        <div class="roast-type-grid">
+          <div class="roast-type-card">
+            <img src="public/light.svg" alt="Light Roast" class="roast-type-icon">
+            <div class="roast-type-label">Light</div>
+          </div>
+          <div class="roast-type-card">
+            <img src="public/medium.svg" alt="Medium Roast" class="roast-type-icon">
+            <div class="roast-type-label">Medium</div>
+          </div>
+          <div class="roast-type-card">
+            <img src="public/medium-dark.svg" alt="Medium-Dark Roast" class="roast-type-icon">
+            <div class="roast-type-label">Medium-Dark</div>
+          </div>
+          <div class="roast-type-card">
+            <img src="public/dark.svg" alt="Dark Roast" class="roast-type-icon">
+            <div class="roast-type-label">Dark</div>
+          </div>
+        </div>
+      </div>
+      <div id="grind-type-section" class="wizard-step" style="display: none;">
+        <h2 class="wizard-question">Select your grind type</h2>
+        <div class="grind-type-grid">
+          <div class="grind-type-card">
+            <img src="public/whole-bean.svg" alt="Whole bean" class="grind-type-icon">
+            <div class="grind-type-label">Whole bean</div>
+          </div>
+          <div class="grind-type-card">
+            <img src="public/coarse.svg" alt="Coarse" class="grind-type-icon">
+            <div class="grind-type-label">Coarse</div>
+          </div>
+          <div class="grind-type-card">
+            <img src="public/grind-medium.svg" alt="Medium" class="grind-type-icon">
+            <div class="grind-type-label">Medium</div>
+          </div>
+          <div class="grind-type-card">
+            <img src="public/fine.svg" alt="Fine" class="grind-type-icon">
+            <div class="grind-type-label">Fine</div>
+          </div>
+          <div class="grind-type-card">
+            <img src="public/extra-fine.svg" alt="Extra fine" class="grind-type-icon">
+            <div class="grind-type-label">Extra fine</div>
+          </div>
+        </div>
+      </div>
+      <div id="blend-product-section" class="wizard-step" style="display: none;">
+        <h2 class="wizard-question">Select Product</h2>
+        <div class="blend-product-grid">
+          <div class="blend-product-card" id="colombian-card">
+            <img src="public/colombia-flag.svg" alt="Colombian Flag" class="blend-product-flag">
+            <div class="blend-product-label">Colombian</div>
+          </div>
+          <div class="blend-product-card" id="brazil-card">
+            <img src="public/brazil-curved.svg" alt="Brazil Flag" class="blend-product-flag">
+            <div class="blend-product-label">Brazil</div>
+          </div>
+        </div>
+      </div>
+      <div id="colombian-detail-section" class="wizard-step" style="display: none;">
+        <div class="product-detail-flex">
+          <div class="product-detail-img-col">
+            <img src="public/green-search.png" alt="Colombian Coffee" class="product-detail-img" />
+          </div>
+          <div class="product-detail-info-col">
+            <div class="product-detail-title">Colombian</div>
+            <div class="product-detail-availability">976 bags available</div>
+            <div class="product-detail-meta">
+              <div><span class="meta-label">Vendor:</span> <span class="meta-value">Win Win</span></div>
+              <div><span class="meta-label">Variety:</span> <span class="meta-value">Colombian</span></div>
+              <div><span class="meta-label">Coffee type:</span> <span class="meta-value">Arabica</span></div>
+              <div><span class="meta-label">Notes:</span> <span class="meta-value">Honey, Floral</span></div>
+              <div><span class="meta-label">Process:</span> <span class="meta-value">Natural Washed</span></div>
+            </div>
+            <div class="product-detail-cert-title">Certification(s)</div>
+            <div class="product-detail-cert-box">
+              Fair Trade | <span class="cert-green">Rainforest Alliance</span> | USDA Organic | UTZ Certified | 4C | Direct trade |<br>
+              Global Coffee Platform | Certified Naturally Grown | ISO 2200 | Bird Friendly Certified |<br>
+              Global G.A.P | IFS Food | ISO 14001 | Nespresso AAA |
+            </div>
+            <div class="product-detail-sca-title">SCA Score</div>
+            <div class="product-detail-sca-table-wrap">
+              <table class="product-detail-sca-table">
+                <thead>
+                  <tr>
+                    <th>Fragrance</th>
+                    <th>Flavor</th>
+                    <th>Acidity</th>
+                    <th>Body</th>
+                    <th>Uniformity</th>
+                    <th>Uniformity</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>8</td>
+                    <td>8.5</td>
+                    <td>8</td>
+                    <td>8</td>
+                    <td>8.5</td>
+                    <td>8</td>
+                    <td class="sca-total">8.17</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="package-section" class="wizard-step" style="display: none;">
+        <h2 class="wizard-question">Select your package size and customize it</h2>
+        <div class="package-flex">
+          <div class="package-left">
+            <div class="package-options">
+              <div class="package-option">5lb Bag <span class="package-arrow">&gt;</span></div>
+              <div class="package-option active">12oz Bag <span class="package-arrow">&gt;</span></div>
+              <div class="package-option">10oz Bag <span class="package-arrow">&gt;</span></div>
+              <div class="package-option">K Cup <span class="package-arrow">&gt;</span></div>
+            </div>
+            <div class="package-upload" id="logo-upload-card">
+              <input type="file" id="logo-upload-input" accept="image/*" style="display:none;" />
+              <div class="upload-icon" id="upload-icon">&#8682;</div>
+              <div class="upload-text" id="upload-text">Upload your logo</div>
+            </div>
+          </div>
+          <div class="package-preview">
+            <img src="public/preview.png" alt="Preview" class="preview-img" id="package-preview-img">
+          </div>
+          <div class="package-details">
+            <div class="package-title">12oz Bag</div>
+            <div class="package-product-details">
+              <div class="product-details-label">Product details</div>
+              <div class="product-details-info">
+                Size: 12oz (340g)<br>
+                Medium Roast<br>
+                Ethiopian<br>
+                Roasted in the USA
+              </div>
+            </div>
+            <div class="package-quantity">
+              <div class="quantity-label">Quantity</div>
+              <select class="quantity-select">
+                <option>6 Bags min.</option>
+                <option>12 Bags</option>
+                <option>24 Bags</option>
+                <option>48 Bags</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="done-section" class="wizard-step" style="display: none;">
+        <img src="public/checkmark.svg" alt="Checkmark" class="done-checkmark" />
+        <div class="done-title">All Done</div>
+        <div class="done-desc">We will send you an email to proceed to make payment</div>
+        <div class="order-summary-card">
+          <div class="order-summary-title">Order Summary</div>
+          <hr class="order-summary-divider" />
+          <div class="order-summary-table">
+            <div class="order-summary-row">
+              <div>Type of Coffee with details ($16.99/bag)</div>
+              <div>$33.98</div>
+            </div>
+            <div class="order-summary-row">
+              <div>Discount available</div>
+              <div>-$16.99</div>
+            </div>
+            <div class="order-summary-row">
+              <div>Shipping</div>
+              <div>Free</div>
+            </div>
+            <div class="order-summary-row order-summary-total">
+              <div>Total</div>
+              <div>$16.99</div>
+            </div>
+          </div>
+          <div class="order-summary-btn-row">
+            <button class="btn btn-primary order-summary-btn">Proceed to payment</button>
+          </div>
+        </div>
+      </div>
+      <div id="wholesale-product-section" class="wizard-step" style="display: none;">
+        <h2 class="wizard-question">Select Product</h2>
+        <div class="wholesale-product-grid">
+          <div class="wholesale-product-card">
+            <img src="public/wholesale-bag.png" alt="Brazil" class="wholesale-product-img">
+            <div class="wholesale-product-overlay">
+              <div class="wholesale-product-name">BRAZIL</div>
+              <div class="wholesale-product-price">$ 18.00</div>
+            </div>
+          </div>
+          <div class="wholesale-product-card">
+            <img src="public/wholesale-bag.png" alt="Lupara Espresso" class="wholesale-product-img">
+            <div class="wholesale-product-overlay">
+              <div class="wholesale-product-name">LUPARA ESPRESSO</div>
+              <div class="wholesale-product-price">$ 18.00</div>
+            </div>
+          </div>
+          <div class="wholesale-product-card">
+            <img src="public/wholesale-bag.png" alt="Brazil" class="wholesale-product-img">
+            <div class="wholesale-product-overlay">
+              <div class="wholesale-product-name">BRAZIL</div>
+              <div class="wholesale-product-price">$ 18.00</div>
+            </div>
+          </div>
+          <div class="wholesale-product-card">
+            <img src="public/wholesale-bag.png" alt="Brazil" class="wholesale-product-img">
+            <div class="wholesale-product-overlay">
+              <div class="wholesale-product-name">BRAZIL</div>
+              <div class="wholesale-product-price">$ 18.00</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline load-more-btn">Load more</button>
+      </div>
+      <div id="wholesale-detail-section" class="wizard-step" style="display: none;">
+        <div class="wholesale-detail-flex">
+          <div class="wholesale-detail-img-col">
+            <img src="public/wholesale-preview.png" alt="Wholesale Preview" class="wholesale-detail-img" />
+            <div style="height: 18px;"></div>
+            <div class="wholesale-detail-thumbs">
+              <img src="public/wholesale-preview.png" class="wholesale-detail-thumb" />
+              <img src="public/wholesale-preview.png" class="wholesale-detail-thumb" />
+              <img src="public/wholesale-preview.png" class="wholesale-detail-thumb" />
+              <img src="public/wholesale-preview.png" class="wholesale-detail-thumb" />
+            </div>
+          </div>
+          <div class="wholesale-detail-info-col">
+            <div class="wholesale-detail-title">LUPARA ESPRESSO</div>
+            <div class="wholesale-detail-form">
+              <div class="wholesale-detail-label">Bag Size</div>
+              <input class="wholesale-detail-input" value="12oz Retail Bag" />
+              <div class="wholesale-detail-label">Bag Price($)</div>
+              <input class="wholesale-detail-input" value="12.99" />
+              <div class="wholesale-detail-label">Case Quantity</div>
+              <input class="wholesale-detail-input" value="1" />
+              <div class="wholesale-detail-label">Amount</div>
+              <input class="wholesale-detail-input" value="$ 12.99" />
+            </div>
+            <div class="wholesale-detail-availability">1000 bags available</div>
+            <button class="wholesale-detail-proceed">Proceed</button>
+            <div class="wholesale-detail-product-table-wrap">
+              <div class="wholesale-detail-product-table-title">Product Details</div>
+              <table class="wholesale-detail-product-table">
+                <thead>
+                  <tr><th style="text-align:left; font-weight:700;">Info</th><th style="text-align:left; font-weight:700;">Description</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Vendor</td><td class="highlight">Greenstreet</td></tr>
+                  <tr><td>Variety</td><td class="highlight">Latin America, Central America, Africa</td></tr>
+                  <tr><td>Coffee Type</td><td class="highlight">93</td></tr>
+                  <tr><td>Notes</td><td class="highlight">Balanced, slightly sweet and acidic</td></tr>
+                  <tr><td>Process</td><td class="highlight">Pupled Natural and Fully Washed Beans</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html> 

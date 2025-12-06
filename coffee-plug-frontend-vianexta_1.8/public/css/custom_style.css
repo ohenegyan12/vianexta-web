@@ -1,0 +1,835 @@
+/* .transparent-header {
+            background-color: transparent !important;
+        }
+
+        .hero-section {
+            background-image: url('{{ asset('images/hero_bg1.svg') }}');
+            background-size: cover;
+
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+        } */
+
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a {
+    font-family: "Lato", sans-serif !important;
+}
+
+.accordion-flush .accordion-item .accordion-button,
+.accordion-flush .accordion-item .accordion-button.collapsed {
+    background-color: #07382f;
+    color: white;
+}
+
+.nav-link {
+    color: black;
+}
+
+.nav-link:hover {
+    color: #07382f;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: #07382f;
+    color: #fff;
+}
+
+.content {
+    display: none;
+}
+
+.content-active {
+    display: flex;
+}
+
+.register .content-active {
+    display: block;
+}
+
+.fs-0 {
+    font-size: 32px;
+}
+
+.fs-01 {
+    font-size: 28px;
+}
+
+.globe {
+    width: 100%;
+}
+
+.trading {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.get-started-row {
+    flex-direction: column-reverse;
+}
+
+.gs-logo {
+    height: 100px;
+}
+
+.register_tab.active {
+    background-color: #07382f;
+    color: #fff;
+}
+
+/* .btn-check:checked+.btn,
+  :not(.btn-check)+.btn:active,
+  .btn:first-child:active,
+  .btn.active,
+  .btn.show {
+      background-color: #07382F;
+      color: #fff;
+  } */
+
+@media (min-width: 425px) {
+    .register_tab {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 768px) {
+    .register_tab {
+        font-size: 16px;
+    }
+
+    .fs-0 {
+        font-size: 3.5rem;
+    }
+
+    .fs-01 {
+        font-size: 40px;
+    }
+
+    .md-half {
+        width: 50%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .max-w-2xl.w-100 {
+        width: 50% !important;
+        margin-left: auto !important;
+    }
+
+    .gs-logo {
+        height: 120px;
+    }
+
+    .fs-0 {
+        font-size: 3.5rem;
+    }
+
+    .fs-01 {
+        font-size: 50px;
+    }
+
+    .trading {
+        flex-direction: row;
+    }
+
+    .globe {
+        width: 60%;
+    }
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.hero-section {
+    padding: 100px 0px;
+    height: 800px;
+    /* background-image: url(../images/new_hero_bg.gif); */
+    background-color: #fff;
+    background-size: auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Adjust as needed */
+}
+
+.hero-div-only-mobile {
+    visibility: visible;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        display: block;
+        /* background-image: url(../images/hero_mobile.gif); */
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 90%;
+
+        /* .hero-div-only-mobile {
+              visibility: hidden;
+          } */
+
+        padding: 50px 0;
+
+        /* padding: 100px 10px 10px 10px;
+        height: 100%;
+        background-size: auto;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-image: url(../images/hero_mobile.gif); */
+    }
+}
+
+.login-section {
+    padding: 200px 0px;
+    height: 880px;
+    background-image: url(../images/map_bg.svg);
+    /* background-color:#fff; */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Adjust as needed */
+}
+
+@media (min-width: 1024px) {
+    .hero-section {
+        padding: 200px 0px;
+    }
+}
+
+.navbar-scrolled {
+    background-color: #06382f !important;
+}
+
+.navbar-scrolled .text-primary {
+    color: #fff !important;
+}
+
+.curve {
+    display: block;
+    position: relative;
+    top: -2px;
+    height: 600px;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1920 500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path fill="rgba(216, 80, 28, 1)" d="M 0 465 C 419.20000000000005 465 628.8 501 1048 501 L 1048 501 L 1048 0 L 0 0 Z" stroke-width="0"></path> <path fill="rgba(216, 80, 28, 1)" d="M 1047 501 C 1396.2 501 1570.8 398 1920 398 L 1920 398 L 1920 0 L 1047 0 Z" stroke-width="0"></path> </svg>');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+@media (max-width: 768px) {
+    .curve {
+        height: 700px;
+    }
+}
+
+.img-container {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.img-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.card-container {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 90%;
+    transform: translateX(-50%);
+    max-width: 400px;
+}
+
+.flag-badge {
+    max-width: 100px;
+    /* Adjust the size as needed */
+}
+
+.badges .badge {
+    margin-right: 5px;
+}
+
+.right-column {
+    border-top-left-radius: 15px;
+}
+
+#sdg_background {
+    display: block;
+    background-image: url(../images/unesco.svg);
+    background-size: auto;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    /* height: auto; */
+    height: 70%;
+}
+
+@media (max-width: 768px) {
+    #lap_background {
+        display: block;
+        /* background-image: url(../images/laptop_mobile.svg); */
+        background-size: auto;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: auto;
+    }
+}
+
+@media (min-width: 1024px) {
+    #lap_background {
+        display: block;
+        background-image: url(../images/high_speed_layer.svg);
+        background-size: auto;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 70%;
+    }
+}
+
+@media (max-width: 768px) {
+    #sdg_background {
+        display: block;
+        background-image: url(../images/sdg_mobile.svg);
+        background-size: auto;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 100%;
+    }
+}
+
+.seller_background {
+    display: block;
+    /* position: relative;
+       top: -2px;
+       height: 900px; */
+    background-image: url(../images/new_supplier_back_one.svg);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.seller_bottom_back {
+    display: block;
+    height: 450px;
+    width: 100%;
+    background-image: url(../images/seller_green_back.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+@media (min-width: 768px) {
+    .seller_bottom_back {
+        height: 350px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .seller_bottom_back {
+        height: 310px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .seller_bottom_back {
+        height: 340px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .seller_bottom_back {
+        height: 415px;
+    }
+}
+
+.supplier-img {
+    height: 100px;
+}
+
+@media (min-width: 768px) {
+    .supplier-img {
+        height: auto;
+        width: 80%;
+    }
+}
+
+.seller_bottom_back_white {
+    display: block;
+    background-image: url(../images/new_supplier_back_green.png);
+    /* background-color:#fff; */
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.imagePreview {
+    width: 100%;
+    height: 180px;
+    background-position: center center;
+    background: url(https://cliquecities.com/assets/no-image-e3699ae23f866f6cbdf8ba2443ee5c4e.jpg);
+    background-color: #fff;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: inline-block;
+    box-shadow: 0px -3px 6px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* .btn-primary {
+       display: block;
+       border-radius: 0px;
+       box-shadow: 0px 4px 6px 2px rgba(0, 0, 0, 0.2);
+       margin-top: -5px;
+   } */
+
+.imgUp {
+    margin-bottom: 15px;
+}
+
+.del {
+    position: absolute;
+    top: 0px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    background-color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+}
+
+.imgAdd {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #4bd7ef;
+    color: #fff;
+    box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    line-height: 30px;
+    margin-top: 0px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.market_head_card {
+    height: 180px;
+}
+
+.photo-gallery {
+    color: #313437;
+    background-color: #fff;
+}
+
+.photo-gallery p {
+    color: #7d8285;
+}
+
+.photo-gallery h2 {
+    font-weight: bold;
+    margin-bottom: 40px;
+    padding-top: 40px;
+    color: inherit;
+}
+
+@media (max-width: 767px) {
+    .photo-gallery h2 {
+        margin-bottom: 25px;
+        padding-top: 25px;
+        font-size: 24px;
+    }
+}
+
+.photo-gallery .intro {
+    font-size: 16px;
+    max-width: 500px;
+    margin: 0 auto 40px;
+}
+
+.photo-gallery .intro p {
+    margin-bottom: 0;
+}
+
+.photo-gallery .photos {
+    padding-bottom: 20px;
+}
+
+.photo-gallery .item {
+    padding-bottom: 30px;
+}
+
+.farmer_bottom_back {
+    display: block;
+    position: relative;
+    height: 300px;
+    background-image: url(../images/market_place/farmer_back.svg);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/*Icon progressbar*/
+#progressbar {
+    margin-bottom: 30px;
+    overflow: hidden;
+    color: #07382f;
+    padding-left: 0px;
+    margin-top: 30px;
+}
+
+#progressbar li {
+    list-style-type: none;
+    font-size: 13px;
+    width: 25%;
+    float: left;
+    position: relative;
+    font-weight: 400;
+}
+
+#progressbar .step0:before {
+    font-family: FontAwesome;
+    content: "\f10c";
+    color: #fff;
+}
+
+#progressbar li:before {
+    width: 40px;
+    height: 40px;
+    line-height: 45px;
+    display: block;
+    font-size: 20px;
+    background: #c5cae9;
+    border-radius: 50%;
+    margin: auto;
+    padding: 0px;
+}
+
+/*ProgressBar connectors*/
+#progressbar li:after {
+    content: "";
+    width: 100%;
+    height: 12px;
+    background: #c5cae9;
+    position: absolute;
+    left: 0;
+    top: 16px;
+    z-index: -1;
+}
+
+#progressbar li:last-child:after {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    position: absolute;
+    left: -50%;
+}
+
+#progressbar li:nth-child(2):after,
+#progressbar li:nth-child(3):after {
+    left: -50%;
+}
+
+#progressbar li:first-child:after {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    position: absolute;
+    left: 50%;
+}
+
+#progressbar li:last-child:after {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#progressbar li:first-child:after {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+/*Color number of the step and the connector before it*/
+#progressbar li.active:before,
+#progressbar li.active:after {
+    background: #07382f;
+}
+
+#progressbar li.active:before {
+    font-family: FontAwesome;
+    content: "\f00c";
+}
+
+nav {
+    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
+    z-index: 1;
+}
+
+.nav-list {
+    list-style: none;
+}
+
+.nav-list a {
+    color: black;
+    text-decoration: none;
+}
+
+.nav-dropdown {
+    z-index: 999999 !important;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    position: absolute !important;
+    background: white !important;
+    min-width: 200px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    pointer-events: auto !important;
+    overflow: visible !important;
+    transform: none !important;
+    will-change: auto !important;
+}
+
+/* Ensure parent container has proper positioning context */
+.position-relative {
+    position: relative !important;
+}
+
+/* Ensure navigation dropdown is above all other elements */
+#drop {
+    z-index: 999999 !important;
+    position: absolute !important;
+    background: white !important;
+    min-width: 200px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px !important;
+    pointer-events: auto !important;
+    overflow: visible !important;
+    top: 52px !important;
+    right: 0 !important;
+    transform: none !important;
+    will-change: auto !important;
+    isolation: isolate !important;
+}
+
+/* Ensure navigation header has high z-index */
+#app_header {
+    z-index: 999998 !important;
+    position: relative !important;
+}
+
+/* Prevent Select2 from creating stacking contexts */
+.select2-container {
+    z-index: 1 !important;
+}
+
+/* Override any Bootstrap or other framework z-index */
+.navbar-brand,
+.nav-icons,
+.position-relative {
+    z-index: inherit !important;
+}
+
+/* Force navigation dropdown to be above everything */
+.navbar .position-relative {
+    position: relative !important;
+    z-index: 999998 !important;
+}
+
+/* Specifically target the hamburger menu container */
+.nav-icons .position-relative {
+    z-index: 999998 !important;
+    position: relative !important;
+}
+
+/* Ensure the dropdown container has proper positioning */
+.nav-icons .position-relative {
+    position: relative !important;
+}
+
+/* Ensure the dropdown appears correctly positioned */
+#drop {
+    min-width: 200px !important;
+    white-space: nowrap !important;
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Additional Select2 overrides */
+.select2-container--open .select2-dropdown {
+    z-index: 1000 !important;
+}
+
+/* Ensure Select2 containers don't interfere */
+.select2-container--default.select2-container--open {
+    z-index: 1000 !important;
+}
+
+/* Critical: Navigation dropdown must be above EVERYTHING */
+#drop.nav-dropdown,
+#drop {
+    z-index: 2147483647 !important; /* Maximum z-index value */
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    margin-top: 5px !important;
+}
+
+/* Ensure parent navbar allows the dropdown to appear */
+.navbar {
+    overflow: visible !important;
+}
+
+.navbar .container {
+    overflow: visible !important;
+}
+
+.coffee-logo {
+    /* width: 45px; */
+    height: 40px;
+}
+
+@media (max-width: 500px) {
+    .coffee-logo {
+        height: 25px;
+    }
+
+    .hover_product:hover,
+    .hover_product:focus {
+        transform: translateY(15px);
+    }
+
+    .hover-1:hover {
+        color: red;
+        font-size: 30px;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        transition: font-size 0.3s ease-out;
+    }
+}
+
+/* Zoom In #1 */
+.hover01 figure img {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    -webkit-transition: 0.3s ease-in-out;
+    transition: 0.3s ease-in-out;
+}
+
+.hover01 figure:hover img {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+}
+
+.bg-primary {
+    background-color: #d8501c !important;
+    opacity: 100% !important;
+}
+
+.rounded-sm {
+    border-radius: 2px;
+}
+
+.rounded-sm {
+    border-radius: 4px;
+}
+
+.rounded-md {
+    border-radius: 6px;
+}
+
+.rounded-lg {
+    border-radius: 8px;
+}
+
+.bodyy {
+    background-color: #07382f;
+}
+
+.pos-title {
+    color: #d8501c;
+}
+
+.team-img {
+    margin-top: -150px;
+}
+
+.youtubecontainer {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding-top: 56.25%;
+    /* 16:9 Aspect Ratio */
+}
+
+.responsive-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+span.selection {
+    width: 100%;
+}
+
+.select2-container--default .select2-selection--single {
+    background-color: transparent;
+    /* border: none;
+      outline: none; */
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.select2-container {
+    /* border-top: 1px solid #dee2e6; */
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 3px 0;
+}
+
+.select2-container--default .select2-selection--multiple {
+    background: none;
+    width: 100%;
+    border: none;
+}
+
+.select2-container--default.select2-container--focus
+    .select2-selection--multiple {
+    border: none;
+}
+
+.select2-container--default
+    .select2-selection--multiple
+    .select2-selection__choice__display {
+    color: #444;
+}
+
+.select2-search__field::placeholder {
+    color: #444;
+}
+
+.carousel-control-next-icon {
+    background-color: #d8501c;
+}
+
+.carousel-control-prev-icon {
+    background-color: #d8501c;
+}
+
+.bg-green {
+    background-color: #07382f !important;
+    opacity: 100% !important;
+}

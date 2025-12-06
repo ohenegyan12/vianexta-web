@@ -1,0 +1,357 @@
+.btn-market {
+    border: 1px solid #d8501c;
+    color: #d8501c;
+}
+
+.btn-market:hover {
+    background: #d8501c;
+    color: #fff;
+}
+
+.bagwrapper {
+    /* font-family: "Open Sans", sans; */
+    text-align: center;
+    color: #444;
+}
+
+#threesixty {
+    margin: 0 auto;
+    user-select: none;
+}
+
+.g-hub {
+    color: #444;
+    font-size: 0.9em;
+}
+
+.preview-buttons-wrapper {
+    max-width: 200px;
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-button {
+    position: relative;
+    appearance: none;
+    border: none;
+    padding: 40px 7px 5px;
+    cursor: pointer;
+    /* background: #fff; */
+    font-size: 0;
+
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        border-left: 2px solid #000;
+        border-top: 2px solid #000;
+        width: 15px;
+        height: 15px;
+        transform: translate(-45%) rotate(-45deg);
+    }
+
+    &::after {
+        transform: translate(5%) rotate(-45deg);
+    }
+}
+
+#next {
+    &::before {
+        transform: translate(-90%) rotate(135deg);
+    }
+
+    &::after {
+        transform: translate(-50%) rotate(135deg);
+    }
+}
+
+/* New css for images preview */
+
+.product-image {
+    cursor: pointer;
+    transition: transform 0.2s;
+    max-width: 200px;
+    border: 2px solid transparent;
+}
+
+.product-image:hover {
+    transform: scale(1.05);
+}
+
+.product-image.selected {
+    /* border-color: #d8501c; */
+}
+
+#displayArea {
+    position: relative;
+    width: 100%;
+    min-height: 400px;
+    border: 2px solid #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#selectedImage {
+    max-width: 100%;
+    max-height: 400px;
+}
+
+/* #logoOverlay {
+    position: absolute;
+    max-width: 100px;
+    cursor: move;
+    user-select: none;
+} */
+.design-overlay-12oz{
+position: absolute;
+    /* max-width: 100px;*/
+    cursor: move;
+    user-select: none;
+    /* Position and size for the design area - adjust these values as needed */
+    left: 50%;
+    top: 60%;
+    transform: translate(-50%, -50%);
+    width: 20%;
+    /* Width of the design area */
+    height: 30%;
+    /* Height of the design area */
+    overflow: hidden;
+}
+
+.design-overlay-10oz{
+position: absolute;
+    /* max-width: 100px;*/
+    cursor: move;
+    user-select: none;
+    /* Position and size for the design area - adjust these values as needed */
+    left: 50%;
+    top: 64%;
+    transform: translate(-50%, -50%);
+    width: 18%;
+    /* Width of the design area */
+    height: 25%;
+    /* Height of the design area */
+    overflow: hidden;
+}
+
+.design-overlay-kcup{
+    position: absolute;
+    /* max-width: 100px;*/
+    cursor: move;
+    user-select: none; 
+
+    /* Position the oval overlay */
+    right: 22%;
+    top: 35%;
+    transform: translateY(-50%);
+    /* Create oval shape */
+    width: 28%;
+    height: 40%;
+    border-radius: 50%;
+
+    overflow: hidden;
+}
+
+.design-overlay-5lb {
+    position: absolute;
+    /* max-width: 100px;*/
+    cursor: move;
+    user-select: none;
+    /* Position and size for the design area - adjust these values as needed */
+    left: 51%;
+    top: 55%;
+    transform: translate(-50%, -50%);
+    width: 18%;
+    /* Width of the design area */
+    height: 25%;
+    /* Height of the design area */
+    overflow: hidden;
+    /* Optional - adds a subtle border to see the design area */
+    /* border: 1px dashed rgba(0, 0, 0, 0.1); */
+}
+.design-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Makes the image cover the entire area */
+    object-position: center;
+    /* Centers the image */
+    transform: scale(1.02);
+}
+
+.image-container {
+    margin: 10px;
+    text-align: center;
+}
+
+/* css for 3d preview */
+.product-image {
+    cursor: pointer;
+    transition: transform 0.2s;
+    max-width: 150px;
+    border: 2px solid transparent;
+}
+
+.product-image.selected {
+    border-color: #007bff;
+}
+
+#canvas-container {
+    width: 100%;
+    height: 400px;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    background-color: #fff;
+    position: relative;
+}
+
+.controls {
+    margin-top: 20px;
+}
+
+
+/* new preview css */
+  .package-btn {
+      text-align: left;
+      position: relative;
+      padding: 0.75rem 1rem;
+  }
+
+  .package-btn:after {
+      content: '›';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+  }
+
+  .package-btn.active {
+      background-color: #d8501c;
+      color: white;
+      border-color: #d8501c;
+  }
+
+  .upload-zone {
+      border: 2px dashed #dee2e6;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+  }
+
+  .thumbnail-preview {
+      cursor: pointer;
+      padding: 0.5rem;
+      background-color: #f8f9fa;
+      border-radius: 0.375rem;
+  }
+
+  .main-preview {
+      background-color: #f8f9fa;
+      padding: 2rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+  }
+
+  .top_space{
+    margin-top: 48px;
+  }
+
+   .thumbnail-preview {
+       cursor: pointer;
+       padding: 0.5rem;
+       background-color: #f8f9fa;
+       border-radius: 0.375rem;
+       transition: all 0.2s ease-in-out;
+   }
+
+   .thumbnail-preview:hover {
+       background-color: #e9ecef;
+   }
+
+/* Updated logo placeholder styles */
+.logo-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+    touch-action: none;
+    user-select: none;
+    min-width: 90px;
+    min-height: 50px;
+}
+
+.logo-placeholder p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+   /* Resize handle styles */
+   .resize-handle {
+       width: 10px;
+       height: 10px;
+       background-color: #d8501c;
+       border-radius: 50%;
+       position: absolute;
+   }
+
+   .resize-handle.top-left {
+       top: -5px;
+       left: -5px;
+       cursor: nw-resize;
+   }
+
+   .resize-handle.top-right {
+       top: -5px;
+       right: -5px;
+       cursor: ne-resize;
+   }
+
+   .resize-handle.bottom-left {
+       bottom: -5px;
+       left: -5px;
+       cursor: sw-resize;
+   }
+
+   .resize-handle.bottom-right {
+       bottom: -5px;
+       right: -5px;
+       cursor: se-resize;
+   }
+
+   /* Add cursor styles for dragging */
+   .logo-placeholder.dragging {
+       cursor: grabbing;
+   }
+
+   .logo-placeholder:not(.dragging) {
+       cursor: grab;
+   }
+
+   .logo-placeholder.hidden {
+       display: none;
+   }
+
+   .logo-placeholder p {
+       margin: 0;
+       color: #6c757d;
+       font-size: 14px;
+       font-weight: 500;
+   }
+
+   .logo-image {
+       max-width: 100%;
+       max-height: 100%;
+   }

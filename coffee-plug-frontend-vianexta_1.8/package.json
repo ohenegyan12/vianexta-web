@@ -1,0 +1,29 @@
+{
+    "private": true,
+    "scripts": {
+        "dev": "npm run development",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "mix watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
+        "prod": "npm run production",
+        "production": "mix --production"
+    },
+    "dependencies": {
+        "aos": "^2.3.4",
+        "flag-icons": "^6.11.1",
+        "heroku": "^8.4.2",
+        "tailwindcss-animatecss": "^3.0.4",
+        "tailwindcss-animated": "^1.0.1"
+    },
+    "devDependencies": {
+        "autoprefixer": "^10.4.15",
+        "axios": "^1.7.7",
+        "daisyui": "^3.8.3",
+        "laravel-mix": "^6.0.6",
+        "lodash": "^4.17.19",
+        "postcss": "^8.4.29",
+        "prettier": "3.0.3",
+        "tailwindcss": "^3.3.3"
+    }
+}

@@ -1,0 +1,581 @@
+/* Base styles */
+.accordion-button::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-plus' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z'/%3E%3C/svg%3E");
+    transition: all 0.5s;
+    background-color: #ffff;
+}
+
+/* Animation and interaction styles */
+[data-aos] { 
+    pointer-events: none; 
+    transition-property: transform, opacity;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-out;
+}
+
+[data-aos].aos-animate { 
+    pointer-events: auto; 
+}
+
+/* Disable complex animations on mobile */
+@media (max-width: 767px) {
+    [data-aos] {
+        transform: none !important;
+        opacity: 1 !important;
+        transition: none !important;
+    }
+    
+    .feature-card, .award-badge, .accordion-item {
+        transform: none !important;
+        transition: none !important;
+    }
+    
+    .floating-animation {
+        animation: none !important;
+    }
+}
+
+/* Adjust animation timing for better performance */
+@media (min-width: 768px) {
+    [data-aos] {
+        transition-duration: 0.8s;
+    }
+    
+    .feature-card, .award-badge, .accordion-item {
+        transition: transform 0.3s ease;
+    }
+    
+    .floating-animation { 
+        animation: float 3s ease-in-out infinite;
+    }
+}
+
+/* Optimize animations for different screen sizes */
+@media (min-width: 1024px) {
+    [data-aos] {
+        transition-duration: 1s;
+    }
+}
+
+/* Base styles */
+.hero-section {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-section .floating-animation {
+    position: relative;
+    z-index: 1;
+    margin-top: 1rem;
+}
+
+#who {
+    position: relative;
+    z-index: 3;
+    min-height: 100vh;
+    background-color: #14261C;
+}
+
+/* 13-inch screens (1280x800, 1366x768, 1440x900) */
+@media (min-width: 1024px) and (max-width: 1440px) {
+    .hero-section {
+        min-height: 90vh;
+        padding-bottom: 2rem;
+    }
+    
+    .hero-section .floating-animation {
+        margin-top: 0.5rem;
+    }
+    
+    .hero-section .floating-animation img {
+        max-height: 25vh;
+    }
+    
+    #who {
+        min-height: 90vh;
+        padding-top: 2rem;
+    }
+    
+    .feature-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Tablets and smaller laptops */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hero-section {
+        min-height: 85vh;
+        padding-bottom: 1.5rem;
+    }
+    
+    .hero-section .floating-animation {
+        margin-top: 0.25rem;
+    }
+    
+    .hero-section .floating-animation img {
+        max-height: 22vh;
+    }
+    
+    #who {
+        min-height: 85vh;
+        padding-top: 1.5rem;
+    }
+    
+    .feature-card {
+        margin-bottom: 1.25rem;
+    }
+}
+
+/* Mobile devices */
+@media (max-width: 767px) {
+    .hero-section {
+        min-height: auto;
+        padding: 2rem 0;
+    }
+    
+    .hero-section .floating-animation {
+        margin-top: 0;
+    }
+    
+    .hero-section .floating-animation img {
+        max-height: 20vh;
+    }
+    
+    #who {
+        min-height: auto;
+        padding: 2rem 0;
+    }
+    
+    .feature-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Height-based adjustments */
+@media (max-height: 800px) {
+    .hero-section {
+        min-height: auto;
+        padding: 1.5rem 0;
+    }
+    
+    .hero-section .floating-animation img {
+        max-height: 18vh;
+    }
+    
+    #who {
+        min-height: auto;
+        padding: 1.5rem 0;
+    }
+}
+
+@media (max-height: 600px) {
+    .hero-section {
+        padding: 1rem 0;
+    }
+    
+    .hero-section .floating-animation img {
+        max-height: 15vh;
+    }
+    
+    #who {
+        padding: 1rem 0;
+    }
+}
+
+/* Reviews Slider Styles */
+.reviews-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.review-row {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 1rem 0;
+}
+
+.review-card {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 0 15px;
+    background: white;
+    position: relative;
+}
+
+.review-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 15px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+.review-avatar img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.review-user h5 {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #14261C;
+}
+
+.review-card p {
+    margin: 0;
+    color: #14261C;
+    font-size: 0.85rem;
+}
+
+/* Animation Keyframes */
+@keyframes slideLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes slideRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Ensure smooth animation */
+.review-row > * {
+    flex-shrink: 0;
+}
+
+/* Review Card Gradients */
+.review-card.gradient-1 {
+    --gradient-start: #FF6B6B;
+    --gradient-end: #FFB88C;
+}
+
+.review-card.gradient-2 {
+    --gradient-start: #4E65FF;
+    --gradient-end: #92EFFD;
+}
+
+.review-card.gradient-3 {
+    --gradient-start: #A8EB12;
+    --gradient-end: #00B4DB;
+}
+
+.review-card.gradient-4 {
+    --gradient-start: #FF61D2;
+    --gradient-end: #FE9090;
+}
+
+.review-card.gradient-5 {
+    --gradient-start: #FF8008;
+    --gradient-end: #FFC837;
+}
+
+/* Review Section Responsive Styles */
+@media (max-width: 768px) {
+    .review-card {
+        min-width: 260px;
+        padding: 15px;
+    }
+
+    .review-avatar img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .review-user h5 {
+        font-size: 0.85rem;
+    }
+
+    .review-card p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Feature Card Styles */
+.feature-card {
+    background-color: #E8F3D6;
+    border-radius: 20px 100px 20px 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.feature-card .card-body {
+    position: relative;
+    z-index: 2;
+}
+
+.feature-card .card-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+}
+
+/* Feature Card Variations */
+.feature-card:nth-child(3) {
+    border-radius: 30% 20px 20px 20px;
+}
+
+.feature-card:nth-child(4) {
+    border-radius: 70px 20px 20px 20px;
+} 
+
+@keyframes slideLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes slideRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.review-row {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.review-card {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Ensure smooth animation */
+.review-row > * {
+    flex-shrink: 0;
+}
+
+.reviews-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 2rem 0;
+}
+
+.review-row {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    width: max-content;
+}
+
+.review-card {
+    flex: 0 0 300px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    background: white;
+    position: relative;
+}
+
+.scroll-left {
+    animation: scrollLeft 30s linear infinite;
+}
+
+.scroll-right {
+    animation: scrollRight 30s linear infinite;
+}
+
+@keyframes scrollLeft {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes scrollRight {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.review-avatar img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.review-user h5 {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #14261C;
+}
+
+.review-card p {
+    margin: 0;
+    color: #14261C;
+    font-size: 0.85rem;
+}
+
+/* Review Card Gradients */
+.review-card.gradient-1 {
+    --gradient-start: #FF6B6B;
+    --gradient-end: #FFB88C;
+}
+
+.review-card.gradient-2 {
+    --gradient-start: #4E65FF;
+    --gradient-end: #92EFFD;
+}
+
+.review-card.gradient-3 {
+    --gradient-start: #A8EB12;
+    --gradient-end: #00B4DB;
+}
+
+.review-card.gradient-4 {
+    --gradient-start: #FF61D2;
+    --gradient-end: #FE9090;
+}
+
+.review-card.gradient-5 {
+    --gradient-start: #FF8008;
+    --gradient-end: #FFC837;
+}
+
+.review-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 15px;
+    padding: 2px;
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+@media (max-width: 768px) {
+    .review-card {
+        flex: 0 0 260px;
+        padding: 15px;
+    }
+
+    .review-avatar img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .review-user h5 {
+        font-size: 0.85rem;
+    }
+
+    .review-card p {
+        font-size: 0.8rem;
+    }
+}
+
+
+.carousel-indicators {
+    margin-bottom: -2rem;
+}
+
+.carousel-indicators [data-bs-target] {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #14261C;
+    opacity: 0.5;
+}
+
+.carousel-indicators .active {
+    opacity: 1;
+}
+
+.step-content {
+    min-height: 300px;
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .step-content {
+        min-height: 250px;
+        padding: 1rem;
+    }
+}
+
+/* Laptop GIF Styles */ 
+.laptop-gif {
+    transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.laptop-gif.active {
+    position: relative;
+}
+
+.laptop-preview {
+    position: relative;
+    min-height: 400px;
+}
+
+@media (max-width: 768px) {
+    .laptop-preview {
+        min-height: 300px;
+    }
+}

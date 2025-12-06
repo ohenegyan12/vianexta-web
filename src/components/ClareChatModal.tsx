@@ -35,13 +35,6 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const quickOptions = [
-    "I want to buy coffee",
-    "I want to source products",
-    "I'm making enquiries",
-    "I want to build a brand"
-  ]
-
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus()
@@ -104,10 +97,6 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
     }
   }
 
-  const handleQuickOption = (option: string) => {
-    handleSendMessage(option)
-  }
-
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSendMessage()
@@ -154,29 +143,14 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
           </button>
         </div>
 
-        {/* Start Conversation Text - Only show when no messages */}
-        {messages.length === 0 && (
-          <div className="px-4 pt-6 pb-4">
-            <p className="text-sm text-gray-600 text-center">
-              Start a new conversation with CLARE
-            </p>
-          </div>
-        )}
-
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 relative min-h-0">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 relative min-h-0 flex flex-col">
           {messages.length === 0 ? (
-            /* Quick Options - Only show when no messages, positioned at bottom right */
-            <div className="absolute bottom-0 right-0 p-4 space-y-3 flex flex-col items-end">
-              {quickOptions.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleQuickOption(option)}
-                  className="max-w-[95%] bg-[#09543D] text-white px-4 py-3 rounded-full text-left hover:bg-[#09543D]/90 transition-colors text-sm font-medium whitespace-nowrap"
-                >
-                  {option}
-                </button>
-              ))}
+            /* Centered welcome message when no messages */
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-sm text-gray-600 text-center">
+                Start a new conversation with CLARE
+              </p>
             </div>
           ) : (
             /* Chat Messages */

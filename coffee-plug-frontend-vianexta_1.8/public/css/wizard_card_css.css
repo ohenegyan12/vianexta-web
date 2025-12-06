@@ -1,0 +1,158 @@
+.card-custom {
+  display: flex;
+  padding: 0;
+  background-color: #f8f9fa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 150px;
+  border-radius: 15px;
+  align-items: stretch;
+}
+.info-section {
+  flex: 2;
+  padding: 15px;
+}
+.prod_name {
+    overflow: hidden;
+    /* Hide overflowing content */
+    text-overflow: ellipsis;
+    /* Add an ellipsis (...) for overflowed text */
+    white-space: nowrap;
+    /* Prevent text from wrapping */
+    line-height: 1.2;
+    /* Line height control */
+}
+.grade-section {
+  /* flex: 1; */
+  text-align: center;
+  background-color: #e95618;
+  color: white;
+  border-radius: 0 15px 15px 0;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.tags {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: white;
+  border-radius: 20px;
+  margin-right: 5px;
+  font-size: 14px;
+}
+.country-flag {
+  width: 20px;
+  margin-right: 5px;
+}
+.roast-card {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  /* background-color: #f8f9fa; */
+  border-radius: 10px;
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+  max-width: 500px;
+  position: relative;
+  margin-top: 20px;
+}
+.roast-image {
+  flex: 1;
+  text-align: center;
+}
+.roast-image img {
+  max-width: 100px;
+  border-radius: 10px;
+}
+.roast-details {
+  flex: 2;
+  padding-left: 20px;
+}
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.divider {
+  height: 150px;
+  width: 1px;
+  background-color: #000;
+  /* margin: 0 20px; */
+}
+
+.roast-cards {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  margin-top: 20px;
+}
+.roast-images img {
+  max-width: 100px;
+  border-radius: 10px;
+}
+.info-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 10px;
+  cursor: pointer;
+  color: #ff6347;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 20px;
+  /* height: 30px; */
+  /* border-radius: 50%; */
+}
+
+.coffee-option {
+  border: none;
+  background-color: white;
+  padding: 12px;
+  border-radius: 50px 10px 10px 50px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  padding-left: 20px;
+  text-align: left;
+  height: 60px;
+  font-size: 1.1rem;
+}
+
+.coffee-option:hover {
+  background-color: #e8e8e8;
+}
+
+.coffee-option.selected {
+  background-color: #e75d24;
+  color: white;
+}
+
+.coffee-icon {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+
+.vertical-divider {
+  width: 1px;
+  background-color: #e0e0e0;
+  position: absolute;
+  top: 30px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
+        
+               

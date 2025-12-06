@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-theme="light"] {
+    background-color: white;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    @apply font-sora;
+}
+
+.hero-bg {
+    background-image: url("../../public/images/hero_bg.svg");
+    background-size: cover;
+    background-position: bottom -30rem;
+    background-repeat: no-repeat;
+}
+
+/* buttons */
+
+.btn {
+    @apply rounded-2xl;
+}
+
+.toast_margin {
+    margin-top: 70px;
+}
