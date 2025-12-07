@@ -34,7 +34,7 @@ function Header({ isBuyMode }: HeaderProps) {
     setIsMobileMenuOpen(false)
   }
   return (
-    <header>
+    <header className={`fixed top-0 left-0 right-0 z-40 w-full ${isBuyMode ? 'bg-[#09543D]' : 'bg-[#F9F7F1]'} transition-colors duration-300 shadow-sm`}>
       {/* Top dark bar */}
       <div className="bg-gray-900 h-1"></div>
       
