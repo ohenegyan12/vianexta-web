@@ -32,14 +32,28 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
     localStorage.setItem('clare_userId', newUserId)
     return newUserId
   })
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus()
+      // Reset textarea height when modal opens
+      if (inputRef.current) {
+        inputRef.current.style.height = 'auto'
+        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
+      }
     }
   }, [isOpen])
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = inputRef.current
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
+  }, [message])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -52,6 +66,12 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
     // Add user message to chat
     setMessages(prev => [...prev, { text: messageToSend, isUser: true }])
     setMessage('')
+    
+    // Reset textarea height
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto'
+    }
+    
     setIsLoading(true)
 
     try {
@@ -97,10 +117,21 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // On mobile: Enter sends, Shift+Enter creates new line
+    // On desktop: Enter sends, Shift+Enter creates new line
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
       handleSendMessage()
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value)
+    // Auto-resize textarea
+    const textarea = e.target
+    textarea.style.height = 'auto'
+    textarea.style.height = `${textarea.scrollHeight}px`
   }
 
   if (!isOpen) return null
@@ -220,20 +251,24 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
         {/* Input Area - Fixed to bottom on mobile */}
         <div className="fixed md:relative bottom-0 left-0 right-0 md:left-auto md:right-auto bg-[#F9F7F1] border-t border-[#09543D] md:border-t-0 p-4 pb-4 md:pb-4 flex-shrink-0 z-10">
           <div className="relative">
-            <input
+            <textarea
               ref={inputRef}
-              type="text"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyPress}
               placeholder={isLoading ? "Clare is typing..." : "Message..."}
               disabled={isLoading}
-              className="w-full px-4 pr-14 py-3 md:py-8 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-base md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              rows={1}
+              className="w-full px-4 pr-14 py-3 md:py-8 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-base md:text-sm disabled:opacity-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[48px] md:min-h-[64px] max-h-[200px] md:max-h-[120px]"
+              style={{ 
+                height: 'auto',
+                lineHeight: '1.5'
+              }}
             />
             <button
               onClick={() => handleSendMessage()}
               disabled={!message.trim() || isLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#09543D] text-white rounded-full flex items-center justify-center hover:bg-[#09543D]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute right-2 bottom-2 md:top-1/2 md:-translate-y-1/2 md:bottom-auto w-10 h-10 bg-[#09543D] text-white rounded-full flex items-center justify-center hover:bg-[#09543D]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
