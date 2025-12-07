@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import buyLogo from '../../assets/buy-logo.svg'
 import ChatButton from './ChatButton'
 
 const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com' // Placeholder
 
 function Recommend() {
-  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     farmerName: '',
     email: '',
