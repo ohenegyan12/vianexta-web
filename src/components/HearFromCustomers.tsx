@@ -278,7 +278,7 @@ function HearFromCustomers() {
     }, 100)
 
     // Recalculate on window resize with debounce
-    let resizeTimeout: NodeJS.Timeout
+    let resizeTimeout: ReturnType<typeof setTimeout>
     const handleResize = () => {
       clearTimeout(resizeTimeout)
       resizeTimeout = setTimeout(() => {
