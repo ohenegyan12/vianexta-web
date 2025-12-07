@@ -800,13 +800,13 @@ function SignUp() {
                       />
                       <label htmlFor="terms" className="text-sm text-gray-700">
                         I have read and agree to the{' '}
-                        <a href="#" className="text-[#09543D] font-semibold hover:underline">
+                        <Link to="/terms" className="text-[#09543D] font-semibold hover:underline">
                           ViaNexta EULA
-                        </a>{' '}
+                        </Link>{' '}
                         and{' '}
-                        <a href="#" className="text-[#09543D] font-semibold hover:underline">
+                        <Link to="/privacy" className="text-[#09543D] font-semibold hover:underline">
                           Privacy Policy
-                        </a>
+                        </Link>
                       </label>
                     </div>
                   </div>
@@ -900,9 +900,9 @@ function SignUp() {
             {/* Terms and Privacy */}
             <p className="mt-6 text-xs text-gray-500 text-center">
               By creating an account, you agree to our{' '}
-              <a href="#terms" className="text-[#09543D] hover:underline">Terms of service</a>
+              <Link to="/terms" className="text-[#09543D] hover:underline">Terms of service</Link>
               {' '}and{' '}
-              <a href="#privacy" className="text-[#09543D] hover:underline">Privacy Notice</a>
+              <Link to="/privacy" className="text-[#09543D] hover:underline">Privacy Notice</Link>
             </p>
           </div>
         </div>

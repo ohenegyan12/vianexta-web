@@ -15,11 +15,41 @@ function ChainBuilder({ isBuyMode }: ChainBuilderProps) {
   const titleLine1Ref = useRef<HTMLSpanElement>(null)
   const titleLine2Ref = useRef<HTMLSpanElement>(null)
   const descriptionRef = useRef<HTMLParagraphElement>(null)
+  const [backgroundPosition, setBackgroundPosition] = useState('top center')
+  const [backgroundSize, setBackgroundSize] = useState('110% auto')
+  const [showSvgBackground, setShowSvgBackground] = useState(false)
 
   useEffect(() => {
     // Reset selected category when tab changes
     setSelectedCategory(isBuyMode ? 'Business Type' : 'Coffee')
   }, [isBuyMode])
+
+  useEffect(() => {
+    // Handle background positioning for very wide screens
+    const updateBackground = () => {
+      const width = window.innerWidth
+      // Hide SVG background at 1280px and below
+      setShowSvgBackground(width > 1280)
+      
+      if (width > 1920) {
+        // For very wide screens, ensure background covers the full 110vw section width
+        // Account for scale(1.5) transform - need larger size to ensure full coverage
+        // Using 150vw to ensure it covers 110vw section even with scaling
+        setBackgroundPosition('top center')
+        setBackgroundSize('150vw auto')
+      } else {
+        setBackgroundPosition('top center')
+        setBackgroundSize('110% auto')
+      }
+    }
+
+    updateBackground()
+    window.addEventListener('resize', updateBackground)
+
+    return () => {
+      window.removeEventListener('resize', updateBackground)
+    }
+  }, [])
 
   useEffect(() => {
     // Animate title line 1
@@ -120,23 +150,30 @@ function ChainBuilder({ isBuyMode }: ChainBuilderProps) {
         backgroundColor: isBuyMode ? '#09543D' : '#F9F7F1'
       }}
     >
-      {/* Background SVG - overlapping FromIdeaToInventory with wavy edge - Hidden on mobile */}
+      {/* Background SVG - overlapping FromIdeaToInventory with wavy edge - Hidden at 1280px and below */}
       <div 
-        className="absolute inset-0 w-full h-full hidden md:block"
+        className="absolute"
         style={{
+          display: showSvgBackground ? 'block' : 'none',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+          height: '100%',
           backgroundImage: isBuyMode ? 'none' : `url(${chainBuilderBg})`,
           backgroundColor: isBuyMode ? '#09543D' : 'transparent',
-          backgroundSize: '110% auto',
-          backgroundPosition: 'top center',
+          backgroundSize: backgroundSize,
+          backgroundPosition: backgroundPosition,
           backgroundRepeat: 'no-repeat',
           transform: 'translateY(-15%) scale(1.5)',
           zIndex: 0,
           WebkitMaskImage: isBuyMode ? `url(${chainBuilderBg})` : 'none',
           maskImage: isBuyMode ? `url(${chainBuilderBg})` : 'none',
-          WebkitMaskSize: isBuyMode ? '110% auto' : 'auto',
-          maskSize: isBuyMode ? '110% auto' : 'auto',
-          WebkitMaskPosition: isBuyMode ? 'top center' : 'auto',
-          maskPosition: isBuyMode ? 'top center' : 'auto',
+          WebkitMaskSize: isBuyMode ? backgroundSize : 'auto',
+          maskSize: isBuyMode ? backgroundSize : 'auto',
+          WebkitMaskPosition: isBuyMode ? backgroundPosition : 'auto',
+          maskPosition: isBuyMode ? backgroundPosition : 'auto',
           WebkitMaskRepeat: isBuyMode ? 'no-repeat' : 'auto',
           maskRepeat: isBuyMode ? 'no-repeat' : 'auto'
         }}

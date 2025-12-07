@@ -297,9 +297,9 @@ function SignIn() {
             {/* Terms and Privacy */}
             <p className="mt-8 text-xs text-gray-500 text-center">
               By signing in, you agree to our{' '}
-              <a href="#terms" className="text-[#09543D] hover:underline">Terms of service</a>
+              <Link to="/terms" className="text-[#09543D] hover:underline">Terms of service</Link>
               {' '}and{' '}
-              <a href="#privacy" className="text-[#09543D] hover:underline">Privacy Notice</a>
+              <Link to="/privacy" className="text-[#09543D] hover:underline">Privacy Notice</Link>
             </p>
           </div>
         </div>

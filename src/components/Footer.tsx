@@ -24,8 +24,23 @@ function Footer() {
     }, 300) // Small delay to allow keyboard to start appearing
   }
 
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault()
+    const element = document.getElementById(targetId)
+    if (element) {
+      const headerOffset = 80 // Account for fixed header height
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   return (
-    <footer className="bg-white py-12 md:py-16">
+    <footer id="careers" className="bg-white py-12 md:py-16">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
         <div className="mb-8 md:mb-12">
@@ -39,7 +54,7 @@ function Footer() {
           </div>
 
           {/* Company and Quick Links - Side by Side on Mobile */}
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-0">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-8 md:mb-0">
             {/* Quick Links */}
             <div>
               <h3 
@@ -52,31 +67,39 @@ function Footer() {
               </h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#why-choose-us" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                  <a 
+                    href="#why-choose-us" 
+                    onClick={(e) => handleSmoothScroll(e, 'why-choose-us')}
+                    className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base"
+                  >
                     Why Choose Us
                   </a>
                 </li>
                 <li>
-                  <a href="#how-it-works" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                  <a 
+                    href="#how-it-works" 
+                    onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+                    className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base"
+                  >
                     How It Works
                   </a>
                 </li>
                 <li>
-                  <a href="#testimonials" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                  <a 
+                    href="#testimonials" 
+                    onClick={(e) => handleSmoothScroll(e, 'testimonials')}
+                    className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base"
+                  >
                     Testimonials
                   </a>
                 </li>
                 <li>
-                  <a href="#faq" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                  <a 
+                    href="#faq" 
+                    onClick={(e) => handleSmoothScroll(e, 'faq')}
+                    className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base"
+                  >
                     FAQ's
-                  </a>
-                </li>
-                <li>
-                  <a href="#forman" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base inline-flex items-center gap-2">
-                    FORMAN
-                    <span className="bg-[#09543D] text-white text-xs px-2 py-0.5 rounded-full">
-                      AI
-                    </span>
                   </a>
                 </li>
               </ul>
@@ -94,13 +117,37 @@ function Footer() {
               </h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#work-with-us" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                  <a href="/careers" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
                     Work With Us
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                  <a href="/contact" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
                     Contact Us
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Others */}
+            <div>
+              <h3 
+                className="font-bold text-gray-900 mb-4 text-base md:text-lg"
+                style={{
+                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                }}
+              >
+                Others
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="/careers" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a href="/recommend" className="text-gray-600 hover:text-[#09543D] transition-colors text-sm md:text-base">
+                    Recommend
                   </a>
                 </li>
               </ul>
@@ -181,11 +228,11 @@ function Footer() {
               2025 © ViaNexta | All Rights Reserved.
             </p>
             <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs md:text-sm">
-              <a href="#privacy" className="text-gray-500 hover:text-[#09543D] transition-colors">
+              <a href="/privacy" className="text-gray-500 hover:text-[#09543D] transition-colors">
                 Privacy Policy
               </a>
               <span className="text-gray-300">|</span>
-              <a href="#terms" className="text-gray-500 hover:text-[#09543D] transition-colors">
+              <a href="/terms" className="text-gray-500 hover:text-[#09543D] transition-colors">
                 Terms of Service
               </a>
               <span className="text-gray-300">|</span>

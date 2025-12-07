@@ -16,6 +16,11 @@ import ForgotPassword from './components/ForgotPassword'
 import SignUp from './components/SignUp'
 import BuyerWizard from './components/BuyerWizard'
 import Checkout from './components/Checkout'
+import Contact from './components/Contact'
+import Careers from './components/Careers'
+import PrivacyPolicy from './components/PrivacyPolicy'
+import TermsOfService from './components/TermsOfService'
+import Recommend from './components/Recommend'
 
 function Home() {
   const [isBuyMode, setIsBuyMode] = useState(false)
@@ -50,6 +55,11 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/buyer" element={<BuyerWizard />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/recommend" element={<Recommend />} />
       </Routes>
     </div>
   )

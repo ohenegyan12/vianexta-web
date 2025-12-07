@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import logo from '../../assets/vianexta-logo.svg'
 import buyLogo from '../../assets/buy-logo.svg'
 
@@ -8,8 +8,31 @@ interface HeaderProps {
 }
 
 function Header({ isBuyMode }: HeaderProps) {
+  const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const currentLogo = isBuyMode ? buyLogo : logo
+
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault()
+    const element = document.getElementById(targetId)
+    if (element) {
+      const headerOffset = 80 // Account for fixed header height
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+    setIsMobileMenuOpen(false)
+  }
+
+  const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    navigate('/contact')
+    setIsMobileMenuOpen(false)
+  }
   return (
     <header>
       {/* Top dark bar */}
@@ -17,7 +40,7 @@ function Header({ isBuyMode }: HeaderProps) {
       
       {/* Main navigation */}
       <div className={`${isBuyMode ? 'bg-[#09543D]' : 'bg-[#F9F7F1]'} transition-colors duration-300`}>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 xl:px-6">
           <nav className="flex items-center justify-between py-4 relative">
             {/* Mobile: Logo in top-left */}
             <div className="lg:hidden">
@@ -27,18 +50,34 @@ function Header({ isBuyMode }: HeaderProps) {
             </div>
 
             {/* Desktop: Left navigation links */}
-            <div className="hidden lg:flex items-center gap-12 -ml-16">
-              <a href="#" className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity`}>
+            <div className="hidden lg:flex items-center gap-8 xl:gap-12 lg:-ml-8 xl:-ml-16">
+              <a 
+                href="#how-it-works" 
+                onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer`}
+              >
                 How it Works
               </a>
-              <a href="#" className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity`}>
+              <a 
+                href="#why-choose-us" 
+                onClick={(e) => handleSmoothScroll(e, 'why-choose-us')}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer`}
+              >
                 Why Choose Us
               </a>
-              <a href="#" className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity`}>
+              <a 
+                href="#testimonials" 
+                onClick={(e) => handleSmoothScroll(e, 'testimonials')}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer`}
+              >
                 Testimonials
               </a>
-              <a href="#" className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity`}>
-                Careers
+              <a 
+                href="/contact" 
+                onClick={handleContactClick}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} hover:opacity-80 transition-opacity whitespace-nowrap cursor-pointer`}
+              >
+                Contact
               </a>
             </div>
 
@@ -62,8 +101,8 @@ function Header({ isBuyMode }: HeaderProps) {
             </div>
 
             {/* Desktop: Right navigation and buttons */}
-            <div className="hidden lg:flex items-center gap-12 -mr-8">
-              <div className="flex items-center gap-4 ml-8">
+            <div className="hidden lg:flex items-center gap-4 xl:gap-12 lg:-mr-4 xl:-mr-8">
+              <div className="flex items-center gap-3 xl:gap-4 lg:ml-4 xl:ml-8">
                 <Link 
                   to="/signin"
                   className={`px-6 py-2 rounded-full transition-colors ${
@@ -121,31 +160,31 @@ function Header({ isBuyMode }: HeaderProps) {
             <nav className="flex flex-col p-4 space-y-4">
               <a 
                 href="#how-it-works" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2`}
+                onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2 cursor-pointer`}
               >
                 How it Works
               </a>
               <a 
                 href="#why-choose-us" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2`}
+                onClick={(e) => handleSmoothScroll(e, 'why-choose-us')}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2 cursor-pointer`}
               >
                 Why Choose Us
               </a>
               <a 
                 href="#testimonials" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2`}
+                onClick={(e) => handleSmoothScroll(e, 'testimonials')}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2 cursor-pointer`}
               >
                 Testimonials
               </a>
               <a 
-                href="#careers" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2`}
+                href="/contact" 
+                onClick={handleContactClick}
+                className={`${isBuyMode ? 'text-white' : 'text-[#09543D]'} text-lg font-medium hover:opacity-80 transition-opacity py-2 cursor-pointer`}
               >
-                Careers
+                Contact
               </a>
             </nav>
 

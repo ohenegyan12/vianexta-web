@@ -137,7 +137,7 @@ function Hero({ onBuyClick, onBuildClick }: HeroProps) {
       </div>
 
       {/* Mobile: Tabs */}
-      <div className="absolute left-4 lg:hidden" style={{ zIndex: 10, bottom: '5rem', pointerEvents: 'auto' }}>
+      <div className="absolute left-4 md:left-1/2 md:-translate-x-1/2 lg:hidden" style={{ zIndex: 10, bottom: '5rem', pointerEvents: 'auto' }}>
         <div className="inline-flex gap-2 p-2 rounded-full bg-white" style={{ pointerEvents: 'auto' }}>
           <button 
             onClick={() => {

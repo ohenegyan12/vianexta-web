@@ -65,7 +65,7 @@ function FAQ() {
   }, [])
 
   return (
-    <section className="relative bg-[#F9F7F1] py-20 md:py-32">
+    <section id="faq" className="relative bg-[#F9F7F1] py-20 md:py-32">
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
           {/* Left Side - Title */}

@@ -26,14 +26,24 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
   const [backgroundSize, setBackgroundSize] = useState('120% 100%')
   const [backgroundPosition, setBackgroundPosition] = useState('top center')
   const [isMobile, setIsMobile] = useState(false)
+  
+  // Progress bar states
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [progressValues, setProgressValues] = useState([0, 0, 0, 0])
 
   useEffect(() => {
     // Handle responsive background size and position
     const updateBackground = () => {
-      const mobile = window.innerWidth < 768
+      const width = window.innerWidth
+      const mobile = width <= 1280  // Hide SVGs at 1280px and below
       setIsMobile(mobile)
       if (mobile) {
         setBackgroundSize('70% 80%')
+        setBackgroundPosition('center top')
+      } else if (width > 1920) {
+        // For very wide screens, ensure background covers the full 110vw section width
+        // Use a larger size to ensure no gaps on the sides
+        setBackgroundSize('120vw 100%')
         setBackgroundPosition('center top')
       } else {
         setBackgroundSize('120% 100%')
@@ -46,6 +56,89 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
 
     return () => {
       window.removeEventListener('resize', updateBackground)
+    }
+  }, [])
+
+  // Sequential progress bar animation
+  useEffect(() => {
+    const whyChooseSection = document.getElementById('why-choose-us')
+    if (!whyChooseSection) return
+
+    let animationFrameId: number | null = null
+    let startTime: number | null = null
+    let isAnimating = false
+    let currentActiveIndex = 0
+    const duration = 6000 // 6 seconds per progress bar (slow and smooth)
+    
+    const checkVisibility = () => {
+      const rect = whyChooseSection.getBoundingClientRect()
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0
+      
+      if (isVisible && !isAnimating) {
+        isAnimating = true
+        currentActiveIndex = 0
+        setActiveIndex(0)
+        startAnimation()
+      } else if (!isVisible && isAnimating) {
+        isAnimating = false
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId)
+          animationFrameId = null
+        }
+        // Reset when not visible
+        setProgressValues([0, 0, 0, 0])
+        setActiveIndex(0)
+        currentActiveIndex = 0
+        startTime = null
+      }
+    }
+    
+    const startAnimation = () => {
+      const animate = (timestamp: number) => {
+        if (!startTime) startTime = timestamp
+        const elapsed = timestamp - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        
+        // Update progress for active index
+        setProgressValues(prev => {
+          const newValues = [...prev]
+          newValues[currentActiveIndex] = progress * 100
+          return newValues
+        })
+        
+        if (progress < 1) {
+          animationFrameId = requestAnimationFrame(animate)
+        } else {
+          // Progress complete, reset current and move to next
+          setProgressValues(prev => {
+            const newValues = [...prev]
+            newValues[currentActiveIndex] = 0
+            return newValues
+          })
+          
+          // Move to next index (loop back to 0 after last)
+          currentActiveIndex = (currentActiveIndex + 1) % 4
+          setActiveIndex(currentActiveIndex)
+          startTime = null
+          animationFrameId = requestAnimationFrame(animate)
+        }
+      }
+      
+      startTime = null
+      animationFrameId = requestAnimationFrame(animate)
+    }
+    
+    // Check visibility on scroll and initially
+    checkVisibility()
+    window.addEventListener('scroll', checkVisibility)
+    window.addEventListener('resize', checkVisibility)
+    
+    return () => {
+      window.removeEventListener('scroll', checkVisibility)
+      window.removeEventListener('resize', checkVisibility)
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
     }
   }, [])
 
@@ -200,6 +293,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
 
   return (
     <section 
+      id="how-it-works"
       className="relative overflow-hidden" 
       style={{ 
         minHeight: isMobile ? 'auto' : '150vh',
@@ -208,19 +302,42 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         left: '50%',
         marginLeft: '-55vw',
         marginRight: '-55vw',
-        backgroundColor: isBuyMode ? (isMobile ? '#F8F7F1' : '#09543D') : (isMobile ? '#09543D' : 'transparent')
+        backgroundColor: 'transparent'
       }}
     >
-      {/* Background SVG - Hidden on mobile */}
+      {/* Background color layer - starts below the top shape to make it visible (or full coverage below 1024px) */}
       <div 
-        className="absolute inset-0 w-full h-full hidden md:block"
+        className="absolute"
         style={{
+          top: isBuyMode ? 0 : (isMobile ? 0 : '25%'),
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: isBuyMode ? (isMobile ? '#F8F7F1' : '#09543D') : '#09543D',
+          zIndex: 0
+        }}
+      />
+
+      {/* Background SVG - Hidden at 1280px and below */}
+      <div 
+        className="absolute"
+        style={{
+          display: isMobile ? 'none' : 'block',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          width: '100%',
+          height: '100%',
           backgroundImage: isBuyMode ? 'none' : `url(${fromIdeaBg})`,
           backgroundColor: isBuyMode ? '#F8F7F1' : 'transparent',
           backgroundSize: backgroundSize,
           backgroundPosition: backgroundPosition,
           backgroundRepeat: 'no-repeat',
           pointerEvents: 'none',
+          zIndex: 1,
           WebkitMaskImage: isBuyMode ? `url(${fromIdeaBg})` : 'none',
           maskImage: isBuyMode ? `url(${fromIdeaBg})` : 'none',
           WebkitMaskSize: isBuyMode ? backgroundSize : 'auto',
@@ -374,7 +491,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         </div>
 
         {/* Additional Section Below Cards */}
-        <div className="-mt-12 md:pt-12 pb-6 md:pb-8 flex flex-col items-center justify-center lg:min-h-[50vh]">
+        <div id="why-choose-us" className="-mt-12 md:pt-12 pb-6 md:pb-8 flex flex-col items-center justify-center lg:min-h-[50vh]">
           <div className="text-center lg:text-center max-w-4xl w-full px-4">
             {/* Title - Stacked on mobile */}
             <h2 
@@ -407,12 +524,21 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         {/* Why Brands Choose Us Content Section */}
         <div className="pt-2 pb-32 md:pb-72 lg:pb-96 max-w-7xl mx-auto px-4 lg:px-0">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-stretch">
-            {/* Placeholder Box - Appears first on mobile */}
+            {/* Image Placeholder - Appears first on mobile */}
             <div className="lg:w-1/2 order-2 lg:order-1">
               <div 
-                className="bg-gray-300 rounded-xl lg:rounded-2xl h-64 lg:h-full min-h-[300px]"
+                className="bg-gray-300 rounded-xl lg:rounded-2xl h-64 lg:h-full min-h-[300px] flex items-center justify-center transition-opacity duration-500"
+                style={{
+                  opacity: activeIndex !== null ? 1 : 0.5
+                }}
               >
-                {/* Empty card - will hold images later */}
+                {/* Image placeholder - will show corresponding image based on activeIndex */}
+                <div className="text-center text-gray-500">
+                  <svg className="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-sm font-medium">Image {activeIndex + 1}</p>
+                </div>
               </div>
             </div>
 
@@ -439,8 +565,8 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
                   <div 
-                    className="bg-[#B8F03F] rounded-full transition-all duration-500"
-                    style={{ height: '4px', width: '85%' }}
+                    className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
+                    style={{ height: '4px', width: `${progressValues[0]}%` }}
                   />
                 </div>
               </div>
@@ -466,8 +592,8 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
                   <div 
-                    className="bg-[#B8F03F] rounded-full transition-all duration-500"
-                    style={{ height: '4px', width: '70%' }}
+                    className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
+                    style={{ height: '4px', width: `${progressValues[1]}%` }}
                   />
                 </div>
               </div>
@@ -493,8 +619,8 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
                   <div 
-                    className="bg-[#B8F03F] rounded-full transition-all duration-500"
-                    style={{ height: '4px', width: '90%' }}
+                    className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
+                    style={{ height: '4px', width: `${progressValues[2]}%` }}
                   />
                 </div>
               </div>
@@ -520,8 +646,8 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
                   <div 
-                    className="bg-[#B8F03F] rounded-full transition-all duration-500"
-                    style={{ height: '4px', width: '75%' }}
+                    className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
+                    style={{ height: '4px', width: `${progressValues[3]}%` }}
                   />
                 </div>
               </div>
