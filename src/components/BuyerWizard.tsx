@@ -50,8 +50,8 @@ function BuyerWizard() {
   const [blendProducts, setBlendProducts] = useState<any[]>([])
   const [wholesaleProducts, setWholesaleProducts] = useState<any[]>([])
   const [originalWholesaleProducts, setOriginalWholesaleProducts] = useState<any[]>([]) // Store original for search reset
-  const [wholesaleBrands, setWholesaleBrands] = useState<any[]>([])
-  const [filterOptions, setFilterOptions] = useState<any>(null)
+  const [_wholesaleBrands, setWholesaleBrands] = useState<any[]>([])
+  const [_filterOptions, setFilterOptions] = useState<any>(null)
   const [selectedProductData, setSelectedProductData] = useState<any>(null)
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -67,8 +67,8 @@ function BuyerWizard() {
     'kcup': '/images/buyer/kcup.jpg',
   }
   
-  const totalPages = 3
-  const wholesaleTotalPages = 2
+  // const totalPages = 3 // Reserved for future pagination
+  // const wholesaleTotalPages = 2 // Reserved for future pagination
   const coffeeTypeSectionRef = useRef<HTMLDivElement>(null)
   const singleOriginSectionRef = useRef<HTMLDivElement>(null)
   const productSelectionSectionRef = useRef<HTMLDivElement>(null)
@@ -476,15 +476,54 @@ function BuyerWizard() {
 
   // Calculate product amount when quantity or price changes (for regular products)
   useEffect(() => {
-    if (selectedType !== 'wholesale' && quantity && selectedProductData && selectedPackageSize) {
+    if (selectedType !== 'wholesale' && quantity && selectedProductData) {
       const qty = parseFloat(quantity) || 0
-      const spotPrice = parseFloat(selectedProductData.spotPrice || selectedProductData.price || '0') || 0
-      const bagWeight = packageWeightMap[selectedPackageSize] || 1
+      
+      // Try multiple possible field names for spot price (price per pound)
+      // The API might return it as spotPrice, spot_price, price, or we need to calculate from bagPrice
+      let spotPrice = parseFloat(
+        selectedProductData.spotPrice || 
+        selectedProductData.spot_price || 
+        selectedProductData.price || 
+        '0'
+      ) || 0
+      
+      // If spotPrice is 0, try to derive from bagPrice and bagWeight
+      // bagPrice is total price for a bag, bagWeight is in pounds
+      if (spotPrice === 0 && selectedProductData.bagPrice && selectedProductData.bagWeight) {
+        const bagPrice = parseFloat(selectedProductData.bagPrice) || 0
+        const bagWeight = parseFloat(selectedProductData.bagWeight) || 1
+        spotPrice = bagWeight > 0 ? bagPrice / bagWeight : 0
+      }
+      
+      // Use selected package size or default to '12oz' (most common)
+      const packageSize = selectedPackageSize || '12oz'
+      const bagWeight = packageWeightMap[packageSize] || 0.75 // Default to 12oz weight
       
       // For regular products: quantity * (spot_price * bag_weight)
       // This matches the web version calculation: quantity * (spot_price * package_size)
-      const total = qty * (spotPrice * bagWeight)
-      setProductAmount(total.toFixed(2))
+      if (spotPrice > 0 && bagWeight > 0 && qty > 0) {
+        const total = qty * (spotPrice * bagWeight)
+        setProductAmount(total.toFixed(2))
+      } else {
+        // Debug logging
+        if (qty > 0) {
+          console.log('Amount calculation debug:', {
+            qty,
+            spotPrice,
+            bagWeight,
+            packageSize,
+            productData: {
+              spotPrice: selectedProductData.spotPrice,
+              spot_price: selectedProductData.spot_price,
+              price: selectedProductData.price,
+              bagPrice: selectedProductData.bagPrice,
+              bagWeight: selectedProductData.bagWeight
+            }
+          })
+        }
+        setProductAmount('0.00')
+      }
     } else {
       setProductAmount('0.00')
     }
@@ -2531,11 +2570,18 @@ function BuyerWizard() {
                             />
                             {/* Amount Display for Regular Products */}
                             {selectedType !== 'wholesale' && quantity && parseFloat(quantity) > 0 && (
-                              <div className="mt-3 text-right">
-                                <span className="text-sm text-gray-600">Amount: </span>
-                                <span className="text-lg font-bold text-[#09543D]">
-                                  ${parseFloat(productAmount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
+                              <div className="mt-3">
+                                {!selectedPackageSize && (
+                                  <p className="text-xs text-amber-600 mb-1">
+                                    * Please select a package size for accurate pricing
+                                  </p>
+                                )}
+                                <div className="text-right">
+                                  <span className="text-sm text-gray-600">Amount: </span>
+                                  <span className="text-lg font-bold text-[#09543D]">
+                                    ${parseFloat(productAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </span>
+                                </div>
                               </div>
                             )}
                           </div>
