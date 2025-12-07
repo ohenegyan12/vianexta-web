@@ -192,17 +192,17 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
                   className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] px-4 py-2 rounded-2xl ${
+                    className={`max-w-[80%] px-4 py-2 rounded-2xl break-words ${
                       msg.isUser
                         ? 'bg-[#09543D] text-white'
                         : 'bg-white text-gray-800 border border-gray-200'
                     }`}
                   >
                     {msg.isUser ? (
-                      <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                      <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed">{msg.text}</p>
                     ) : (
                       <div 
-                        className="text-sm clare-chat-html-content"
+                        className="text-sm clare-chat-html-content break-words overflow-wrap-anywhere leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: msg.text }}
                       />
                     )}
