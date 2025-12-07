@@ -1097,7 +1097,7 @@ function BuyerWizard() {
                         const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
                         
                         return (
-                          <div
+                    <div
                             key={product.id}
                             onClick={() => handleProductSelect(product.id, 'wholesale')}
                       className={`bg-white rounded-xl border-2 p-3 hover:shadow-lg transition-all cursor-pointer ${
@@ -1563,7 +1563,7 @@ function BuyerWizard() {
                         const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
                         
                         return (
-                          <div
+                    <div
                             key={product.id}
                             onClick={() => handleProductSelect(product.id, 'single-origin')}
                             className={`bg-white rounded-xl border-2 p-4 hover:shadow-lg transition-all cursor-pointer flex flex-col ${
@@ -2653,7 +2653,10 @@ function BuyerWizard() {
                   
                   {/* Close Button */}
                   <button
-                    onClick={() => setShowNotification(false)}
+                    onClick={() => {
+                      setShowNotification(false)
+                      window.location.reload()
+                    }}
                     className="px-8 py-3 bg-[#09543D] text-white rounded-xl font-bold hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl"
                     style={{
                       fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"

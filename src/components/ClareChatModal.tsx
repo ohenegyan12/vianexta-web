@@ -116,7 +116,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
       {/* Chat Modal - Full screen on mobile, positioned above chat button on desktop */}
       <div className="fixed inset-0 md:inset-auto md:bottom-24 md:right-4 lg:right-8 z-[101] w-full md:w-[calc(100vw-2rem)] lg:w-full lg:max-w-md h-screen md:h-[700px] md:max-h-[calc(90vh-6rem)] bg-[#F9F7F1] md:rounded-2xl md:shadow-2xl flex flex-col overflow-hidden animate-slide-up">
         {/* Header */}
-        <div className="bg-[#F9F7F1] px-4 py-3 flex items-center justify-between border-b border-gray-300">
+        <div className="bg-[#F9F7F1] px-4 py-3 flex items-center justify-between border-b border-[#09543D] flex-shrink-0">
           <div className="flex items-center gap-3">
             {/* Logo */}
             <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 relative min-h-0 flex flex-col">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 relative min-h-0 flex flex-col pb-32 md:pb-4">
           {messages.length === 0 ? (
             /* Centered welcome message when no messages */
             <div className="flex-1 flex items-center justify-center">
@@ -217,8 +217,8 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
           )}
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 pb-4 md:pb-4 flex-shrink-0">
+        {/* Input Area - Fixed to bottom on mobile */}
+        <div className="fixed md:relative bottom-0 left-0 right-0 md:left-auto md:right-auto bg-[#F9F7F1] border-t border-[#09543D] md:border-t-0 p-4 pb-4 md:pb-4 flex-shrink-0 z-10">
           <div className="relative">
             <input
               ref={inputRef}
@@ -228,7 +228,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
               onKeyPress={handleKeyPress}
               placeholder={isLoading ? "Clare is typing..." : "Message..."}
               disabled={isLoading}
-              className="w-full px-4 pr-14 py-8 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 pr-14 py-3 md:py-8 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-base md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button
               onClick={() => handleSendMessage()}
@@ -249,7 +249,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
           </div>
           
           {/* Privacy Policy */}
-          <p className="text-xs text-gray-500 mt-2 text-center">
+          <p className="text-xs text-[#09543D] mt-2 text-center">
             By chatting with Clare, you agree to our{' '}
             <a href="#privacy" className="underline font-semibold">Privacy Policy</a>
           </p>
