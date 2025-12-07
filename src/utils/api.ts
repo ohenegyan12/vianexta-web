@@ -172,9 +172,125 @@ export const wholesaleApi = {
   },
 }
 
+// Buyer Profile API
+export const buyerApi = {
+  // Get buyer profile
+  getBuyerProfile: async (): Promise<any> => {
+    return apiRequest('/api/buyer-profile', { method: 'GET' })
+  },
+
+  // Update buyer profile
+  updateBuyerProfile: async (profileData: any): Promise<any> => {
+    return apiRequest('/api/buyer-profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    })
+  },
+}
+
+// Checkout API
+export const checkoutApi = {
+  /**
+   * Checkout cart items
+   * Matches the implementation in coffee-plug-frontend-vianexta_1.8/app/Http/Controllers/PurchaseController.php
+   * 
+   * @param checkoutData - Checkout data including billing and shipping addresses
+   * @returns Promise with checkout response including approvalUrl, orderId, etc.
+   */
+  checkoutCart: async (checkoutData: {
+    billingAddress: {
+      addressLine1: string
+      addressLine2?: string | null
+      city: string
+      state: string
+      country: string
+      zipCode: string
+    }
+    shippingAddress: {
+      addressLine1: string
+      addressLine2?: string | null
+      city: string
+      state: string
+      country: string
+      zipCode: string
+    }
+    paymentType?: 'PAYPAL_CHECKOUT' | 'PAYPAL_CRYPTO'
+    delivery?: boolean
+  }): Promise<any> => {
+    // Build payload matching the PHP implementation
+    const payload = {
+      billingAddress: checkoutData.billingAddress,
+      shippingAddress: checkoutData.shippingAddress,
+      paymentType: checkoutData.paymentType || 'PAYPAL_CHECKOUT',
+      ...(checkoutData.delivery !== undefined && { delivery: checkoutData.delivery }),
+    }
+
+    return apiRequest('/api/checkout-cart', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+
+  /**
+   * Get delivery quotes for an order
+   * Matches the implementation in coffee-plug-frontend-vianexta_1.8/app/Http/Controllers/PurchaseController.php
+   * 
+   * @param quoteRequest - Delivery quote request data
+   * @returns Promise with delivery quotes response
+   */
+  getDeliveryQuotes: async (quoteRequest: {
+    orderId: number
+    totalWeight: number
+    length: number
+    height: number
+    insuranceAmount: number
+  }): Promise<any> => {
+    const payload = {
+      orderId: quoteRequest.orderId,
+      totalWeight: quoteRequest.totalWeight,
+      length: quoteRequest.length,
+      height: quoteRequest.height,
+      insuranceAmount: quoteRequest.insuranceAmount,
+    }
+
+    return apiRequest('/api/delivery-quotes', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+
+  /**
+   * Select a delivery quote for an order
+   * Matches the implementation in coffee-plug-frontend-vianexta_1.8/app/Http/Controllers/PurchaseController.php
+   * 
+   * @param selectionData - Delivery quote selection data
+   * @returns Promise with payment link response
+   */
+  selectDeliveryQuote: async (selectionData: {
+    totalOrderId: number
+    quoteId: string
+    totalAmount: number
+    paymentType?: 'PAYPAL_CHECKOUT' | 'PAYPAL_CRYPTO'
+  }): Promise<any> => {
+    const payload = {
+      totalOrderId: selectionData.totalOrderId,
+      quoteId: selectionData.quoteId,
+      totalAmount: selectionData.totalAmount,
+      ...(selectionData.paymentType && { paymentType: selectionData.paymentType }),
+    }
+
+    return apiRequest('/api/select-delivery-quote', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+}
+
 export default {
   stockPostingsApi,
   cartApi,
   wholesaleApi,
+  checkoutApi,
+  buyerApi,
 }
 

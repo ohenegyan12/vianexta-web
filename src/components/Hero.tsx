@@ -151,7 +151,7 @@ function Hero({ onBuyClick, onBuildClick }: HeroProps) {
             }`}
             style={{ pointerEvents: 'auto', position: 'relative', zIndex: 11 }}
           >
-            I will like to build a brand
+            I want to build a brand
           </button>
           <button 
             onClick={() => {
@@ -165,7 +165,7 @@ function Hero({ onBuyClick, onBuildClick }: HeroProps) {
             }`}
             style={{ pointerEvents: 'auto', position: 'relative', zIndex: 11 }}
           >
-            I will like to buy
+            I want to sell products
           </button>
         </div>
       </div>
@@ -359,7 +359,7 @@ function Hero({ onBuyClick, onBuildClick }: HeroProps) {
                   : 'text-[#09543D] bg-white hover:bg-[#09543D] hover:text-white'
               }`}
             >
-              I will like to build a brand
+              I want to build a brand
             </button>
             <button 
               onClick={() => {
@@ -372,7 +372,7 @@ function Hero({ onBuyClick, onBuildClick }: HeroProps) {
                   : 'text-[#09543D] bg-white hover:bg-[#09543D] hover:text-white'
               }`}
             >
-              I will like to buy
+              I want to sell products
             </button>
           </div>
         </div>

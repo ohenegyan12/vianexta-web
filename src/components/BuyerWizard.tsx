@@ -591,6 +591,8 @@ function BuyerWizard() {
       }
 
       const response = await cartApi.addToCart(cartItem)
+      console.log('Add to cart response:', response)
+      
       if (response?.statusCode === 200) {
         // Update cart count
         const cartResponse = await cartApi.getCartItems()
@@ -598,6 +600,13 @@ function BuyerWizard() {
           setCartItemsCount(cartResponse.data.length)
         }
         setShowNotification(true)
+        
+        // Navigate to checkout page after adding to cart (matching old implementation behavior)
+        // Small delay to show notification
+        setTimeout(() => {
+          console.log('Navigating to checkout...')
+          navigate('/checkout')
+        }, 1000)
       } else {
         alert(response?.message || 'Failed to add item to cart')
       }

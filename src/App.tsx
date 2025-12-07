@@ -15,6 +15,7 @@ import SignIn from './components/SignIn'
 import ForgotPassword from './components/ForgotPassword'
 import SignUp from './components/SignUp'
 import BuyerWizard from './components/BuyerWizard'
+import Checkout from './components/Checkout'
 
 function Home() {
   const [isBuyMode, setIsBuyMode] = useState(false)
@@ -48,6 +49,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/buyer" element={<BuyerWizard />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </div>
   )
