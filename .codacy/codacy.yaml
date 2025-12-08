@@ -1,6 +1,6 @@
 runtimes:
-    - node@22.2.0
     - dart@3.7.2
+    - node@22.2.0
 tools:
     - dartanalyzer@3.7.2
     - eslint@8.57.0
