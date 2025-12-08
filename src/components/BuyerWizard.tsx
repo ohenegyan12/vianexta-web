@@ -2222,9 +2222,8 @@ function BuyerWizard() {
                           }`}
                           style={{
                             fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500,
-                            letterSpacing: '1px'
+                            letterSpacing: '1px',
+                            fontWeight: 500
                           }}
                         >
                           {pkg.name}
@@ -2299,9 +2298,8 @@ function BuyerWizard() {
                           className="text-2xl lg:text-3xl font-medium text-gray-900 mb-2"
                           style={{
                             fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500,
-                            letterSpacing: '1px'
+                            letterSpacing: '1px',
+                            fontWeight: 500
                           }}
                         >
                           {selectedPackage.name}
