@@ -63,90 +63,41 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
 
   // Sequential progress bar animation
   useEffect(() => {
-    const whyChooseSection = document.getElementById('why-choose-us')
-    if (!whyChooseSection) return
-
     let animationFrameId: number | null = null
     let startTime: number | null = null
-    let isAnimating = false
     let currentActiveIndex = 0
-    const duration = 6000 // 6 seconds per progress bar (slow and smooth)
+    const duration = 6000 // 6 seconds per progress bar
 
-    const checkVisibility = () => {
-      const rect = whyChooseSection.getBoundingClientRect()
-      const isVisible = rect.top < window.innerHeight && rect.bottom > 0
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const elapsed = timestamp - startTime
+      const progress = Math.min(elapsed / duration, 1)
 
-      if (isVisible && !isAnimating) {
-        isAnimating = true
-        currentActiveIndex = 0
-        setActiveIndex(0)
-        startAnimation()
-      } else if (!isVisible && isAnimating) {
-        isAnimating = false
-        if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId)
-          animationFrameId = null
+      setProgressValues(prev => {
+        const newValues = [...prev]
+        newValues[currentActiveIndex] = progress * 100
+        // Reset others to 0
+        for (let i = 0; i < 4; i++) {
+          if (i !== currentActiveIndex) newValues[i] = 0
         }
-        // Reset when not visible
-        setProgressValues([0, 0, 0, 0])
-        setActiveIndex(0)
-        currentActiveIndex = 0
+        return newValues
+      })
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate)
+      } else {
+        // Move to next
+        currentActiveIndex = (currentActiveIndex + 1) % 4
+        setActiveIndex(currentActiveIndex)
         startTime = null
+        animationFrameId = requestAnimationFrame(animate)
       }
     }
 
-    const startAnimation = () => {
-      const animate = (timestamp: number) => {
-        if (!startTime) startTime = timestamp
-        const elapsed = timestamp - startTime
-        const progress = Math.min(elapsed / duration, 1)
-
-        // Update progress for active index
-        setProgressValues(prev => {
-          const newValues = [...prev]
-          newValues[currentActiveIndex] = progress * 100
-          // Ensure previous completed bars stay full
-          // This creates a "fill up one by one" effect if desired, 
-          // or we can reset others. 
-          // The request implies "smooth scrolling one after the other".
-          // Let's reset the PREVIOUS ones to 0 to keep focus on the active one,
-          // OR keep them full. 
-          // Based on typical "auto-scroll tabs", usually only the active one fills up.
-          // The issue "scrolling isn't done properly" might mean it jumps.
-          // By resetting others to 0 here we ensure clean state.
-          for (let i = 0; i < 4; i++) {
-            if (i !== currentActiveIndex) newValues[i] = 0
-          }
-          return newValues
-        })
-
-        if (progress < 1) {
-          animationFrameId = requestAnimationFrame(animate)
-        } else {
-          // Progress complete for this item
-          // Briefly hold at 100% then switch
-          // We can do this by just moving to next frame immediately or adding a small delay if needed.
-          // To be perfectly smooth, we switch index and reset start time immediately
-
-          currentActiveIndex = (currentActiveIndex + 1) % 4
-          setActiveIndex(currentActiveIndex)
-          startTime = null
-          animationFrameId = requestAnimationFrame(animate)
-        }
-      }
-
-      startTime = null
-      animationFrameId = requestAnimationFrame(animate)
-    }
-
-    // Check visibility on scroll and initially
-    checkVisibility()
-    window.addEventListener('scroll', checkVisibility)
-    window.addEventListener('resize', checkVisibility)
+    // Start animation immediately
+    animationFrameId = requestAnimationFrame(animate)
 
     return () => {
-      window.removeEventListener('scroll', checkVisibility)
-      window.removeEventListener('resize', checkVisibility)
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId)
       }
@@ -417,9 +368,9 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         <div className="pt-2 pb-32 md:pb-72 lg:pb-96 max-w-7xl mx-auto px-4 lg:px-0">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center">
             {/* Image Placeholder - Appears first on mobile */}
-            <div className="lg:w-1/2 order-2 lg:order-1">
+            <div className="w-full lg:w-1/2 order-1 lg:order-1 mb-6 lg:mb-0">
               <div
-                className="bg-gray-300 rounded-xl lg:rounded-2xl h-[400px] lg:h-[500px] w-full flex items-center justify-center transition-opacity duration-500 overflow-hidden relative shadow-lg"
+                className="bg-gray-300 rounded-xl lg:rounded-2xl h-[300px] md:h-[400px] lg:h-[500px] w-full flex items-center justify-center transition-opacity duration-500 overflow-hidden relative shadow-lg"
               >
                 {/* Images with crossfade transition */}
                 {featureImages.map((img, index) => (
