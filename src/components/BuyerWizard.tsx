@@ -46,6 +46,11 @@ function BuyerWizard() {
   const [showGrindType, setShowGrindType] = useState(false)
   const [showPackageSize, setShowPackageSize] = useState(false)
 
+  // New UI Features State
+  const [showBlendDetails, setShowBlendDetails] = useState(false)
+  const [showDoneStep, setShowDoneStep] = useState(false)
+  const [activeInfoModal, setActiveInfoModal] = useState<{ title: string, content: string, image: string } | null>(null)
+
   // Clare Panel State
   const [isChatMinimized, setIsChatMinimized] = useState(false)
 
@@ -712,8 +717,11 @@ function BuyerWizard() {
         if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
           setCartItemsCount(cartResponse.data.length)
         }
-        setNotificationType('cart')
-        setShowNotification(true)
+        if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
+          setCartItemsCount(cartResponse.data.length)
+        }
+        setShowDoneStep(true)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
         alert(response?.message || 'Failed to add item to cart')
       }
@@ -1819,8 +1827,93 @@ function BuyerWizard() {
                   </div>
                 )}
 
-                {/* Product Cards */}
-                {!loadingProducts && (
+                {/* Blend Details View */}
+                {selectedProductData && showBlendDetails && (
+                  <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg max-w-4xl mx-auto mb-8">
+                    <button
+                      onClick={() => setShowBlendDetails(false)}
+                      className="mb-6 flex items-center gap-2 text-gray-600 hover:text-[#09543D] transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      Back to products
+                    </button>
+
+                    <div className="flex flex-col md:flex-row gap-8">
+                      {/* Product Image */}
+                      <div className="w-full md:w-1/3">
+                        <div className="bg-gray-100 rounded-xl overflow-hidden shadow-md">
+                          {selectedProductData.imageUrl ? (
+                            <img src={selectedProductData.imageUrl} alt={selectedProductData.name} className="w-full h-auto object-cover" />
+                          ) : (
+                            <div className="w-full h-64 bg-gradient-to-br from-green-700 via-green-800 to-green-900 flex items-center justify-center">
+                              <div className="grid grid-cols-4 gap-1 p-4">
+                                {[...Array(16)].map((_, i) => (
+                                  <div key={i} className="w-3 h-3 bg-green-600 rounded-sm"></div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="w-full md:w-2/3">
+                        <h2 className="text-3xl font-bold text-[#09543D] mb-2" style={{ fontFamily: "'Placard Next', sans-serif" }}>
+                          {selectedProductData.name}
+                        </h2>
+                        <div className="flex flex-wrap gap-4 mb-6">
+                          <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                            {selectedProductData.coffeeType || 'Blend'}
+                          </span>
+                          {selectedProductData.process && (
+                            <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">
+                              {selectedProductData.process}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-gray-600 mb-6 italic">
+                          {selectedProductData.description || "A perfectly balanced blend crafted for exceptional taste."}
+                        </p>
+
+                        {/* SCA Score Table */}
+                        {selectedProductData.scaScoreComponents && (
+                          <div className="mb-6">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-3">SCA Score Breakdown</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                              {Object.entries(selectedProductData.scaScoreComponents).map(([key, value]) => (
+                                <div key={key} className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-center">
+                                  <span className="block text-xs uppercase text-gray-500 mb-1">{key}</span>
+                                  <span className="block text-xl font-bold text-[#D8501C]">{Number(value).toFixed(1)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            // Proceed to Roast Selection
+                            setTimeout(() => {
+                              roastTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                            }, 100)
+                          }}
+                          className="w-full bg-[#D8501C] text-white py-3 rounded-xl font-bold text-lg hover:bg-[#b73d1a] transition-all shadow-md hover:shadow-lg flex justify-center items-center gap-2"
+                        >
+                          Select Roast
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Product Cards Grid */}
+                {!loadingProducts && !showBlendDetails && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto">
                     {blendProducts.map((product: any) => {
                       const qualityScore = product.scaScoreComponents
@@ -1833,8 +1926,9 @@ function BuyerWizard() {
                           key={product.id}
                           onClick={() => {
                             handleProductSelect(product.id, 'blend')
+                            setShowBlendDetails(true)
                             setTimeout(() => {
-                              roastTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                              productSelectionSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                             }, 100)
                           }}
                           className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedProduct === String(product.id)
@@ -1942,6 +2036,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Light Roast',
+                          content: 'Light color, balanced flavor profile with moderate acidity, and subtle sweetness. Well-rounded taste with a medium body.',
+                          image: lightRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedRoastType === 'light' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -1976,6 +2084,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Medium Roast',
+                          content: 'Medium color, balanced flavor profile with moderate acidity, and subtle sweetness. Well-rounded taste with a medium body.',
+                          image: mediumRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedRoastType === 'medium' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -2010,6 +2132,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Medium-Dark Roast',
+                          content: 'Medium color, balanced flavor profile with moderate acidity, and subtle sweetness. Well-rounded taste with a medium body.',
+                          image: mediumDarkRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedRoastType === 'medium-dark' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -2044,6 +2180,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Dark Roast',
+                          content: 'Dark color, balanced flavor profile with moderate acidity, and subtle sweetness. Well-rounded taste with a medium body.',
+                          image: darkRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedRoastType === 'dark' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -2101,6 +2251,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Whole Bean',
+                          content: 'Whole bean coffee can be used in a variety of brewing methods, including drip coffee makers, pour-over & espresso machine',
+                          image: lightRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedGrindType === 'whole-bean' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -2135,6 +2299,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Coarse',
+                          content: 'Ideal for French press and cold brew methods, providing a robust flavor and hearty texture.',
+                          image: lightRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedGrindType === 'coarse' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -2169,6 +2347,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Medium',
+                          content: 'Suitable for drip coffee makers and pour-over methods, balancing between extraction and flavor clarity.',
+                          image: mediumRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedGrindType === 'medium' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -2203,6 +2395,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Fine',
+                          content: 'Perfect for espresso machines, maximizing surface area for intense extraction and rich crema.',
+                          image: mediumDarkRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedGrindType === 'fine' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -2237,6 +2443,20 @@ function BuyerWizard() {
                       : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
                       }`}
                   >
+                    {/* Info Icon */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setActiveInfoModal({
+                          title: 'Extra Fine',
+                          content: 'Used in Turkish coffee preparation, creating a smooth and velvety texture with a strong flavor profile.',
+                          image: darkRoastIcon
+                        })
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full flex items-center justify-center transition-colors z-20 shadow-sm"
+                    >
+                      <span className="text-xs font-serif font-bold italic text-gray-600">i</span>
+                    </button>
                     {/* Selection indicator */}
                     {selectedGrindType === 'extra-fine' && (
                       <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
@@ -3001,6 +3221,87 @@ function BuyerWizard() {
         isMinimized={isChatMinimized}
         onToggle={setIsChatMinimized}
       />
+      {/* Info Modal */}
+      {activeInfoModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl transform transition-all scale-100">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold text-gray-900 font-placard">{activeInfoModal.title}</h3>
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center text-center">
+              <div className="w-24 h-24 mb-4 p-2 bg-gray-50 rounded-full flex items-center justify-center">
+                <img src={activeInfoModal.image} alt={activeInfoModal.title} className="w-16 h-16 object-contain" />
+              </div>
+              <div className="w-full h-px bg-gray-100 my-4"></div>
+              <p className="text-gray-600 leading-relaxed text-lg">
+                {activeInfoModal.content}
+              </p>
+            </div>
+
+            <div className="mt-8">
+              <button
+                onClick={() => setActiveInfoModal(null)}
+                className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-xl transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Done Step Overlay */}
+      {showDoneStep && (
+        <div className="fixed inset-0 z-[50] flex flex-col items-center justify-center bg-white animate-in fade-in duration-300">
+          <div className="text-center p-8 max-w-lg w-full">
+            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
+              <svg className="w-12 h-12 text-[#09543D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+
+            <h2 className="text-4xl font-bold text-[#09543D] mb-4" style={{ fontFamily: "'Placard Next', sans-serif" }}>
+              All Done!
+            </h2>
+            <p className="text-xl text-gray-600 mb-10">
+              Your item has been successfully added to the cart.
+            </p>
+
+            <div className="space-y-4">
+              <button
+                onClick={() => {
+                  setShowDoneStep(false)
+                  fetchCartItems()
+                  setShowCart(true)
+                }}
+                className="w-full bg-[#09543D] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#07402E] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 block"
+              >
+                Proceed to Checkout
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowDoneStep(false)
+                  // Reset selections for new shopping
+                  setSelectedType('')
+                }}
+                className="w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold text-lg hover:border-[#09543D] hover:text-[#09543D] transition-all block"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

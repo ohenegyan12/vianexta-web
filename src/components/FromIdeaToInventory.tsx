@@ -10,6 +10,11 @@ import brandingIcon from '../../assets/branding.svg'
 import packagingIcon from '../../assets/packaging.svg'
 import shippingIcon from '../../assets/shipping.svg'
 
+import cacaoImg from '../../assets/cacao.jpg'
+import cashewImg from '../../assets/cashew.jpg'
+import mangoImg from '../../assets/mango.jpg'
+import templateImg from '../../assets/TEMPLATE-01.jpg'
+
 interface FromIdeaToInventoryProps {
   isBuyMode: boolean
 }
@@ -100,20 +105,29 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         setProgressValues(prev => {
           const newValues = [...prev]
           newValues[currentActiveIndex] = progress * 100
+          // Ensure previous completed bars stay full
+          // This creates a "fill up one by one" effect if desired, 
+          // or we can reset others. 
+          // The request implies "smooth scrolling one after the other".
+          // Let's reset the PREVIOUS ones to 0 to keep focus on the active one,
+          // OR keep them full. 
+          // Based on typical "auto-scroll tabs", usually only the active one fills up.
+          // The issue "scrolling isn't done properly" might mean it jumps.
+          // By resetting others to 0 here we ensure clean state.
+          for (let i = 0; i < 4; i++) {
+            if (i !== currentActiveIndex) newValues[i] = 0
+          }
           return newValues
         })
 
         if (progress < 1) {
           animationFrameId = requestAnimationFrame(animate)
         } else {
-          // Progress complete, reset current and move to next
-          setProgressValues(prev => {
-            const newValues = [...prev]
-            newValues[currentActiveIndex] = 0
-            return newValues
-          })
+          // Progress complete for this item
+          // Briefly hold at 100% then switch
+          // We can do this by just moving to next frame immediately or adding a small delay if needed.
+          // To be perfectly smooth, we switch index and reset start time immediately
 
-          // Move to next index (loop back to 0 after last)
           currentActiveIndex = (currentActiveIndex + 1) % 4
           setActiveIndex(currentActiveIndex)
           startTime = null
@@ -138,6 +152,9 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
       }
     }
   }, [])
+
+  // Image array corresponding to the 4 sections
+  const featureImages = [cacaoImg, cashewImg, mangoImg, templateImg]
 
 
 
@@ -398,22 +415,22 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
 
         {/* Why Brands Choose Us Content Section */}
         <div className="pt-2 pb-32 md:pb-72 lg:pb-96 max-w-7xl mx-auto px-4 lg:px-0">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-stretch">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-center">
             {/* Image Placeholder - Appears first on mobile */}
             <div className="lg:w-1/2 order-2 lg:order-1">
               <div
-                className="bg-gray-300 rounded-xl lg:rounded-2xl h-64 lg:h-full min-h-[300px] flex items-center justify-center transition-opacity duration-500"
-                style={{
-                  opacity: activeIndex !== null ? 1 : 0.5
-                }}
+                className="bg-gray-300 rounded-xl lg:rounded-2xl h-[400px] lg:h-[500px] w-full flex items-center justify-center transition-opacity duration-500 overflow-hidden relative shadow-lg"
               >
-                {/* Image placeholder - will show corresponding image based on activeIndex */}
-                <div className="text-center text-gray-500">
-                  <svg className="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-sm font-medium">Image {activeIndex + 1}</p>
-                </div>
+                {/* Images with crossfade transition */}
+                {featureImages.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`Feature ${index + 1}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${activeIndex === index ? 'opacity-100' : 'opacity-0'
+                      }`}
+                  />
+                ))}
               </div>
             </div>
 
