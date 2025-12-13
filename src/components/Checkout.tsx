@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { cartApi, checkoutApi, buyerApi } from '../utils/api'
-import Header from './Header'
+import buyLogo from '../../assets/buy-logo.svg'
 
 function Checkout() {
   const navigate = useNavigate()
@@ -57,13 +57,9 @@ function Checkout() {
         setError(null)
 
         // Check authentication first (matching old implementation)
-        const authToken = localStorage.getItem('authToken')
-        if (!authToken) {
-          // Redirect to sign in if not authenticated
-          console.log('No auth token, redirecting to sign in')
-          navigate('/signin')
-          return
-        }
+        // We don't force redirect here anymore to allow for session-based or guest checkout flows
+        // If the API returns 401, we'll handle it in the API error catch block
+
 
         // Fetch cart items
         try {
@@ -87,8 +83,16 @@ function Checkout() {
             setLoading(false)
             return
           }
-        } catch (cartError) {
+        } catch (cartError: any) {
           console.error('Error fetching cart:', cartError)
+
+          // Check for auth error
+          if (cartError.message && (cartError.message.includes('401') || cartError.message.toLowerCase().includes('unauthenticated'))) {
+            console.log('Cart fetch failed with 401, redirecting to sign in')
+            navigate('/signin')
+            return
+          }
+
           setError('Failed to load cart items. Please try again.')
           setLoading(false)
           return
@@ -246,12 +250,32 @@ function Checkout() {
 
   return (
     <div className="min-h-screen bg-[#F9F7F1]">
-      <Header isBuyMode={true} />
+      <header className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-[#1A4D3A] to-[#2d7a5f] py-4 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <Link to="/buyer">
+            <img src={buyLogo} alt="ViaNexta" className="h-8 brightness-0 invert" />
+          </Link>
+          <Link
+            to="/buyer"
+            className="bg-white/20 backdrop-blur-sm text-white px-6 py-2 rounded-full font-medium hover:bg-white/30 transition-all border border-white/30"
+          >
+            Marketplace
+          </Link>
+        </div>
+      </header>
 
       {/* Checkout Header */}
-      <div className="bg-gradient-to-r from-[#1A4D3A] to-[#2d7a5f] text-white py-8">
+      <div className="bg-gradient-to-r from-[#1A4D3A] to-[#2d7a5f] text-white py-8 pt-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-center mb-2">Complete Your Order</h1>
+          <h1
+            className="text-4xl font-medium text-center mb-2"
+            style={{
+              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+              letterSpacing: '1px'
+            }}
+          >
+            Complete Your Order
+          </h1>
           <p className="text-center text-lg opacity-90">Review your items and provide billing information to complete your purchase</p>
         </div>
       </div>
@@ -269,7 +293,50 @@ function Checkout() {
                 <div className="max-h-[500px] overflow-y-auto pr-2 space-y-4 mb-6">
                   {cartItems.map((item: any, index: number) => {
                     const stockPosting = item.stockPosting || {}
-                    const itemPrice = (stockPosting.bagPrice || 0) * (item.numBags || 0) * (stockPosting.bagWeight || 1)
+
+                    // Calculate price matching BuyerWizard logic
+                    let itemPrice = 0
+                    let packageDisplay = stockPosting.bagWeight ? `${stockPosting.bagWeight} lb` : ''
+
+                    if (stockPosting.productType === 'whole_sale_brand') {
+                      let basePrice = parseFloat(stockPosting.bagPrice || 0)
+                      // Apply size multipliers matching BuyerWizard
+                      if (item.bagSize === '16oz Retail Bag') basePrice *= 1.2
+                      else if (item.bagSize === '5lb Bag') basePrice *= 3.5
+
+                      itemPrice = basePrice * (item.numBags || 0)
+                      packageDisplay = item.bagSize || 'Case'
+                    } else {
+                      // Regular products (Roasted)
+                      let weight = 0.75 // Default 12oz
+
+                      // Determination weight from bagSize
+                      if (item.bagSize === '5lb') weight = 5
+                      else if (item.bagSize === '12oz') weight = 0.75
+                      else if (item.bagSize === '10oz') weight = 0.625
+                      else if (item.bagSize === 'kcup') weight = 0.75
+                      else if (item.bagSize?.startsWith('frac_pack')) {
+                        weight = item.bagSize.includes('3oz') ? 0.1875 : 0.25
+                      } else if (stockPosting.bagWeight) {
+                        weight = parseFloat(stockPosting.bagWeight)
+                      }
+
+                      // Determine spot price
+                      let spotPrice = parseFloat(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || 0)
+                      if (spotPrice === 0 && stockPosting.bagPrice && stockPosting.bagWeight) {
+                        const bp = parseFloat(stockPosting.bagPrice)
+                        const bw = parseFloat(stockPosting.bagWeight)
+                        spotPrice = bw > 0 ? bp / bw : 0
+                      }
+
+                      itemPrice = spotPrice * weight * (item.numBags || 0)
+
+                      if (item.bagSize) {
+                        packageDisplay = item.bagSize.replace('frac_pack_', '') + (item.bagSize.includes('frac') ? ' Frac Pack' : '')
+                      } else {
+                        packageDisplay = `${weight} lb`
+                      }
+                    }
 
                     return (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -292,11 +359,9 @@ function Checkout() {
                             <p className="text-sm text-gray-600 mb-1">
                               <strong>Quantity:</strong> {item.numBags} bags
                             </p>
-                            {stockPosting.productType !== 'whole_sale_brand' && (
-                              <p className="text-sm text-gray-600">
-                                <strong>Package:</strong> {stockPosting.bagWeight} lb
-                              </p>
-                            )}
+                            <p className="text-sm text-gray-600">
+                              <strong>Package:</strong> {packageDisplay}
+                            </p>
                           </div>
                           <div className="text-right">
                             <div className="text-lg font-bold text-[#1A4D3A]">
@@ -310,30 +375,88 @@ function Checkout() {
                 </div>
 
                 {/* Price Summary */}
-                {priceBreakdown && (
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-5 border border-gray-200">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center pb-2 border-b border-gray-300">
-                        <span className="font-medium">Sub Total:</span>
-                        <span className="font-semibold">
-                          ${(priceBreakdown.itemsPriceTotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center pb-2 border-b border-gray-300">
-                        <span className="font-medium">Coordination Fee:</span>
-                        <span className="font-semibold">
-                          ${(priceBreakdown.cooperativeFee || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center pt-2">
-                        <span className="text-xl font-bold">TOTAL:</span>
-                        <span className="text-xl font-bold text-[#1A4D3A]">
-                          ${(priceBreakdown.totalPrice || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </div>
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-5 border border-gray-200">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-300">
+                      <span className="font-medium">Sub Total:</span>
+                      <span className="font-semibold">
+                        ${cartItems.reduce((sum, item) => {
+                          const stockPosting = item.stockPosting || {}
+                          let itemPrice = 0
+
+                          if (stockPosting.productType === 'whole_sale_brand') {
+                            let basePrice = parseFloat(stockPosting.bagPrice || 0)
+                            if (item.bagSize === '16oz Retail Bag') basePrice *= 1.2
+                            else if (item.bagSize === '5lb Bag') basePrice *= 3.5
+                            itemPrice = basePrice * (item.numBags || 0)
+                          } else {
+                            let weight = 0.75
+                            if (item.bagSize === '5lb') weight = 5
+                            else if (item.bagSize === '12oz') weight = 0.75
+                            else if (item.bagSize === '10oz') weight = 0.625
+                            else if (item.bagSize === 'kcup') weight = 0.75
+                            else if (item.bagSize?.startsWith('frac_pack')) {
+                              weight = item.bagSize.includes('3oz') ? 0.1875 : 0.25
+                            } else if (stockPosting.bagWeight) {
+                              weight = parseFloat(stockPosting.bagWeight)
+                            }
+
+                            let spotPrice = parseFloat(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || '0')
+                            if (spotPrice === 0 && stockPosting.bagPrice && stockPosting.bagWeight) {
+                              const bPrice = parseFloat(stockPosting.bagPrice) || 0
+                              const bWeight = parseFloat(stockPosting.bagWeight) || 1
+                              spotPrice = bWeight > 0 ? bPrice / bWeight : 0
+                            }
+                            itemPrice = (item.numBags || 0) * (spotPrice * weight)
+                          }
+                          return sum + itemPrice
+                        }, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-300">
+                      <span className="font-medium">Coordination Fee:</span>
+                      <span className="font-semibold">
+                        ${(priceBreakdown?.cooperativeFee || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2">
+                      <span className="text-xl font-bold">TOTAL:</span>
+                      <span className="text-xl font-bold text-[#1A4D3A]">
+                        ${(cartItems.reduce((sum, item) => {
+                          const stockPosting = item.stockPosting || {}
+                          let itemPrice = 0
+
+                          if (stockPosting.productType === 'whole_sale_brand') {
+                            let basePrice = parseFloat(stockPosting.bagPrice || 0)
+                            if (item.bagSize === '16oz Retail Bag') basePrice *= 1.2
+                            else if (item.bagSize === '5lb Bag') basePrice *= 3.5
+                            itemPrice = basePrice * (item.numBags || 0)
+                          } else {
+                            let weight = 0.75
+                            if (item.bagSize === '5lb') weight = 5
+                            else if (item.bagSize === '12oz') weight = 0.75
+                            else if (item.bagSize === '10oz') weight = 0.625
+                            else if (item.bagSize === 'kcup') weight = 0.75
+                            else if (item.bagSize?.startsWith('frac_pack')) {
+                              weight = item.bagSize.includes('3oz') ? 0.1875 : 0.25
+                            } else if (stockPosting.bagWeight) {
+                              weight = parseFloat(stockPosting.bagWeight)
+                            }
+
+                            let spotPrice = parseFloat(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || '0')
+                            if (spotPrice === 0 && stockPosting.bagPrice && stockPosting.bagWeight) {
+                              const bPrice = parseFloat(stockPosting.bagPrice) || 0
+                              const bWeight = parseFloat(stockPosting.bagWeight) || 1
+                              spotPrice = bWeight > 0 ? bPrice / bWeight : 0
+                            }
+                            itemPrice = (item.numBags || 0) * (spotPrice * weight)
+                          }
+                          return sum + itemPrice
+                        }, 0) + (priceBreakdown?.cooperativeFee || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
                     </div>
                   </div>
-                )}
+                </div>
               </>
             ) : (
               <div className="text-center py-12">
@@ -636,7 +759,7 @@ function Checkout() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-[#D8501C] text-white py-4 rounded-lg font-bold text-lg hover:bg-[#b73d1a] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full bg-[#1A4D3A] text-white py-4 rounded-lg font-bold text-lg hover:bg-[#0d261d] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Processing...' : 'Complete Order'}
                 </button>

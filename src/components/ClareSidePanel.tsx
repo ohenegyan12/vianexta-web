@@ -13,7 +13,7 @@ interface Message {
   }>
 }
 
-const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
 interface ClareSidePanelProps {
   isMinimized?: boolean
@@ -213,8 +213,8 @@ function ClareSidePanel({ isMinimized: controlledMinimized, onToggle }: ClareSid
                 >
                   <div
                     className={`max-w-[80%] px-4 py-2 rounded-2xl break-words ${msg.isUser
-                        ? 'bg-[#09543D] text-white'
-                        : 'bg-white text-gray-800 border border-gray-200'
+                      ? 'bg-[#09543D] text-white'
+                      : 'bg-white text-gray-800 border border-gray-200'
                       }`}
                   >
                     {msg.isUser ? (

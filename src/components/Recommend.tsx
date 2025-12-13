@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import buyLogo from '../../assets/buy-logo.svg'
 import ChatButton from './ChatButton'
 
-const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com' // Placeholder
+const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com' // Placeholder
 
 function Recommend() {
   const [formData, setFormData] = useState({
@@ -91,7 +91,7 @@ function Recommend() {
         {/* Left Section - Marketing Content */}
         <div className="hidden lg:flex lg:w-1/2 bg-[#1E4637] p-12 flex-col justify-center">
           <div className="max-w-md">
-            <h1 
+            <h1
               className="text-5xl font-bold mb-6 text-white"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -104,7 +104,7 @@ function Recommend() {
             <p className="text-lg text-white mb-8 leading-relaxed">
               Know an exceptional farmer who would be a great fit for our team? Recommend them to join ViaNexta and help us build a stronger, more connected coffee community.
             </p>
-            
+
             {/* Feature Points */}
             <div className="space-y-4 mb-8">
               <div className="flex items-start gap-3">
@@ -153,7 +153,7 @@ function Recommend() {
         {/* Right Section - Recommend Form */}
         <div className="flex-1 lg:w-1/2 flex flex-col p-8 lg:p-12 bg-white justify-center items-center pt-8 lg:pt-12">
           <div className="w-full max-w-md">
-            <h2 
+            <h2
               className="text-4xl font-bold mb-2"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",

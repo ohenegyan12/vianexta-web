@@ -17,7 +17,7 @@ interface Message {
   }>
 }
 
-const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
 function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
   const [message, setMessage] = useState('')
@@ -27,7 +27,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
     // Generate or retrieve a persistent userId
     const storedUserId = localStorage.getItem('clare_userId')
     if (storedUserId) return storedUserId
-    
+
     const newUserId = `user_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
     localStorage.setItem('clare_userId', newUserId)
     return newUserId
@@ -66,12 +66,12 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
     // Add user message to chat
     setMessages(prev => [...prev, { text: messageToSend, isUser: true }])
     setMessage('')
-    
+
     // Reset textarea height
     if (inputRef.current) {
       inputRef.current.style.height = 'auto'
     }
-    
+
     setIsLoading(true)
 
     try {
@@ -139,7 +139,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
   return (
     <>
       {/* Backdrop - Hidden on mobile, shown on desktop */}
-      <div 
+      <div
         className="hidden md:block fixed inset-0 z-[100] bg-black bg-opacity-30 transition-opacity duration-300"
         onClick={onClose}
       />
@@ -152,7 +152,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
             {/* Logo */}
             <div className="flex items-center gap-2">
               <img src={vianextaLogo} alt="ViaNexta" className="h-6 w-auto" />
-              <span 
+              <span
                 className="text-[#09543D] font-bold text-lg"
                 style={{
                   fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
@@ -192,16 +192,15 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
                   className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] px-4 py-2 rounded-2xl break-words ${
-                      msg.isUser
+                    className={`max-w-[80%] px-4 py-2 rounded-2xl break-words ${msg.isUser
                         ? 'bg-[#09543D] text-white'
                         : 'bg-white text-gray-800 border border-gray-200'
-                    }`}
+                      }`}
                   >
                     {msg.isUser ? (
                       <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed">{msg.text}</p>
                     ) : (
-                      <div 
+                      <div
                         className="text-sm clare-chat-html-content break-words overflow-wrap-anywhere leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: msg.text }}
                       />
@@ -260,7 +259,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
               disabled={isLoading}
               rows={1}
               className="w-full px-4 pr-14 py-3 md:py-8 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-base md:text-sm disabled:opacity-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[48px] md:min-h-[64px] max-h-[200px] md:max-h-[120px]"
-              style={{ 
+              style={{
                 height: 'auto',
                 lineHeight: '1.5'
               }}
@@ -282,7 +281,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
               )}
             </button>
           </div>
-          
+
           {/* Privacy Policy */}
           <p className="text-xs text-[#09543D] mt-2 text-center">
             By chatting with Clare, you agree to our{' '}

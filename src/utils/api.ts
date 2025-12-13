@@ -1,4 +1,6 @@
-const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+// Use relative path for API calls to leverage Vite proxy in development
+// In production, this can be configured via environment variables
+const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -20,11 +22,16 @@ const apiRequest = async (
     headers['Authorization'] = `Bearer ${token}`
   }
 
+  // Ensure credentials are included for session cookie support
+  const fetchOptions: RequestInit = {
+    ...options,
+    headers,
+    credentials: 'include', // Important for sending/receiving cookies cross-origin
+    cache: 'no-store', // Prevent caching of API responses
+  }
+
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    })
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions)
 
     const data = await response.json()
 

@@ -7,7 +7,7 @@ import roasterArt from '../../assets/roaster-new.svg'
 import cafeArt from '../../assets/coffer-owner-new.svg'
 import ChatButton from './ChatButton'
 
-const API_BASE_URL = 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
 function SignUp() {
   const navigate = useNavigate()
@@ -70,9 +70,9 @@ function SignUp() {
 
   const handleSignup = async () => {
     // Validate required fields
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || 
-        !formData.phone || !formData.businessName || !formData.billingAddressLine1 || 
-        !formData.billingCity || !formData.billingState || !formData.billingZipCode) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password ||
+      !formData.phone || !formData.businessName || !formData.billingAddressLine1 ||
+      !formData.billingCity || !formData.billingState || !formData.billingZipCode) {
       setError('Please fill in all required fields.')
       return
     }
@@ -181,7 +181,7 @@ function SignUp() {
         {/* Left Section - Marketing Content */}
         <div className="hidden lg:flex lg:w-1/2 bg-[#1E4637] p-12 flex-col justify-center">
           <div className="max-w-md">
-            <h1 
+            <h1
               className="text-5xl font-bold mb-6 text-white"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -194,7 +194,7 @@ function SignUp() {
             <p className="text-lg text-white mb-8 leading-relaxed">
               Join ViaNexta and start building your supply chain. Get access to verified suppliers, AI-powered recommendations, and end-to-end logistics.
             </p>
-            
+
             {/* Feature Points */}
             <div className="space-y-4 mb-8">
               <div className="flex items-start gap-3">
@@ -266,7 +266,7 @@ function SignUp() {
               </p>
             </div>
 
-            <h2 
+            <h2
               className="text-4xl font-bold mb-2"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -301,11 +301,10 @@ function SignUp() {
                     <button
                       key={language.code}
                       onClick={() => handleLanguageSelect(language.code)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${
-                        selectedLanguage === language.code
+                      className={`p-4 rounded-xl border-2 transition-all text-left ${selectedLanguage === language.code
                           ? 'border-[#09543D] bg-[#09543D]/5'
                           : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{language.flag}</span>
@@ -332,11 +331,10 @@ function SignUp() {
                   {/* Buyer */}
                   <button
                     onClick={() => setSelectedAccountType('buyer')}
-                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${
-                      selectedAccountType === 'buyer'
+                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${selectedAccountType === 'buyer'
                         ? 'border-[#09543D] bg-[#09543D]/5'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <div className="w-full h-20 lg:h-32 mx-auto mb-2 lg:mb-3 flex items-center justify-center">
                       <img src={buyerArt} alt="Buyer" className="w-full h-full object-contain" />
@@ -349,11 +347,10 @@ function SignUp() {
                   {/* Seller */}
                   <button
                     onClick={() => setSelectedAccountType('seller')}
-                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${
-                      selectedAccountType === 'seller'
+                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${selectedAccountType === 'seller'
                         ? 'border-[#09543D] bg-[#09543D]/5'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <div className="w-full h-20 lg:h-32 mx-auto mb-2 lg:mb-3 flex items-center justify-center">
                       <img src={sellerArt} alt="Seller" className="w-full h-full object-contain" />
@@ -366,11 +363,10 @@ function SignUp() {
                   {/* Roaster */}
                   <button
                     onClick={() => setSelectedAccountType('roaster')}
-                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${
-                      selectedAccountType === 'roaster'
+                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${selectedAccountType === 'roaster'
                         ? 'border-[#09543D] bg-[#09543D]/5'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <div className="w-full h-20 lg:h-32 mx-auto mb-2 lg:mb-3 flex items-center justify-center">
                       <img src={roasterArt} alt="Roaster" className="w-full h-full object-contain" />
@@ -383,11 +379,10 @@ function SignUp() {
                   {/* Cafe Owner */}
                   <button
                     onClick={() => setSelectedAccountType('cafe-owner')}
-                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${
-                      selectedAccountType === 'cafe-owner'
+                    className={`p-4 lg:p-6 rounded-xl border-2 transition-all text-center ${selectedAccountType === 'cafe-owner'
                         ? 'border-[#09543D] bg-[#09543D]/5'
                         : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                      }`}
                   >
                     <div className="w-full h-20 lg:h-32 mx-auto mb-2 lg:mb-3 flex items-center justify-center">
                       <img src={cafeArt} alt="Cafe Owner" className="w-full h-full object-contain" />
@@ -420,7 +415,7 @@ function SignUp() {
             {currentStep === 3 && (
               <div className="space-y-4 lg:space-y-6">
                 {/* Title */}
-                <h3 
+                <h3
                   className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -435,21 +430,19 @@ function SignUp() {
                 <div className="flex gap-2 mb-6 w-full">
                   <button
                     onClick={() => setActiveTab('profile')}
-                    className={`flex-1 px-4 lg:px-6 py-2 rounded-lg font-medium transition-colors text-sm lg:text-base ${
-                      activeTab === 'profile'
+                    className={`flex-1 px-4 lg:px-6 py-2 rounded-lg font-medium transition-colors text-sm lg:text-base ${activeTab === 'profile'
                         ? 'bg-[#09543D] text-white'
                         : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                    }`}
+                      }`}
                   >
                     Your Profile
                   </button>
                   <button
                     onClick={() => setActiveTab('business')}
-                    className={`flex-1 px-4 lg:px-6 py-2 rounded-lg font-medium transition-colors text-sm lg:text-base ${
-                      activeTab === 'business'
+                    className={`flex-1 px-4 lg:px-6 py-2 rounded-lg font-medium transition-colors text-sm lg:text-base ${activeTab === 'business'
                         ? 'bg-[#09543D] text-white'
                         : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                    }`}
+                      }`}
                   >
                     Business Information
                   </button>
@@ -468,7 +461,7 @@ function SignUp() {
                           <input
                             type="text"
                             value={formData.firstName}
-                            onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                             placeholder="Enter your first name"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                             required
@@ -481,7 +474,7 @@ function SignUp() {
                           <input
                             type="email"
                             value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             placeholder="Enter your email"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                             required
@@ -495,7 +488,7 @@ function SignUp() {
                             <input
                               type={showPassword ? 'text' : 'password'}
                               value={formData.password}
-                              onChange={(e) => setFormData({...formData, password: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                               placeholder="Create a password"
                               className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                               required
@@ -529,7 +522,7 @@ function SignUp() {
                           <input
                             type="text"
                             value={formData.lastName}
-                            onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                             placeholder="Enter your last name"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                             required
@@ -542,7 +535,7 @@ function SignUp() {
                           <input
                             type="tel"
                             value={formData.phone}
-                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             placeholder="Enter your phone number"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                             required
@@ -556,7 +549,7 @@ function SignUp() {
                             <input
                               type={showConfirmPassword ? 'text' : 'password'}
                               value={formData.confirmPassword}
-                              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                               placeholder="Confirm your password"
                               className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                               required
@@ -588,7 +581,7 @@ function SignUp() {
                         type="checkbox"
                         id="newsletter"
                         checked={formData.subscribeNewsletter}
-                        onChange={(e) => setFormData({...formData, subscribeNewsletter: e.target.checked})}
+                        onChange={(e) => setFormData({ ...formData, subscribeNewsletter: e.target.checked })}
                         className="mt-1 w-4 h-4 text-[#09543D] border-gray-300 rounded focus:ring-[#09543D]"
                       />
                       <label htmlFor="newsletter" className="text-sm text-gray-700">
@@ -614,7 +607,7 @@ function SignUp() {
                           <input
                             type="text"
                             value={formData.businessName}
-                            onChange={(e) => setFormData({...formData, businessName: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                             placeholder="Enter your business name"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                             required
@@ -627,7 +620,7 @@ function SignUp() {
                           <input
                             type="text"
                             value={formData.billingAddressLine1}
-                            onChange={(e) => setFormData({...formData, billingAddressLine1: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, billingAddressLine1: e.target.value })}
                             placeholder="Enter billing address"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                             required
@@ -640,7 +633,7 @@ function SignUp() {
                           <div className="relative">
                             <select
                               value={formData.billingCountry}
-                              onChange={(e) => setFormData({...formData, billingCountry: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, billingCountry: e.target.value })}
                               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent appearance-none bg-white pr-10"
                               required
                             >
@@ -652,7 +645,7 @@ function SignUp() {
                             {formData.billingCountry && (
                               <button
                                 type="button"
-                                onClick={() => setFormData({...formData, billingCountry: ''})}
+                                onClick={() => setFormData({ ...formData, billingCountry: '' })}
                                 className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -674,7 +667,7 @@ function SignUp() {
                           <div className="relative">
                             <select
                               value={formData.billingCity}
-                              onChange={(e) => setFormData({...formData, billingCity: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, billingCity: e.target.value })}
                               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent appearance-none bg-white pr-10"
                               required
                             >
@@ -702,7 +695,7 @@ function SignUp() {
                           <div className="relative">
                             <select
                               value={formData.businessType}
-                              onChange={(e) => setFormData({...formData, businessType: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
                               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent appearance-none bg-white pr-10"
                               required
                             >
@@ -726,7 +719,7 @@ function SignUp() {
                           <input
                             type="text"
                             value={formData.billingAddressLine2}
-                            onChange={(e) => setFormData({...formData, billingAddressLine2: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, billingAddressLine2: e.target.value })}
                             placeholder="Enter additional address details"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                           />
@@ -738,7 +731,7 @@ function SignUp() {
                           <div className="relative">
                             <select
                               value={formData.billingState}
-                              onChange={(e) => setFormData({...formData, billingState: e.target.value})}
+                              onChange={(e) => setFormData({ ...formData, billingState: e.target.value })}
                               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent appearance-none bg-white pr-10"
                               required
                             >
@@ -763,7 +756,7 @@ function SignUp() {
                           <input
                             type="text"
                             value={formData.billingZipCode}
-                            onChange={(e) => setFormData({...formData, billingZipCode: e.target.value})}
+                            onChange={(e) => setFormData({ ...formData, billingZipCode: e.target.value })}
                             placeholder="Enter zip code"
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                             required
@@ -780,7 +773,7 @@ function SignUp() {
                       <input
                         type="text"
                         value={formData.taxIdNumber}
-                        onChange={(e) => setFormData({...formData, taxIdNumber: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, taxIdNumber: e.target.value })}
                         placeholder="Tax ID Number"
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] focus:border-transparent"
                       />
@@ -795,7 +788,7 @@ function SignUp() {
                         type="checkbox"
                         id="terms"
                         checked={formData.agreeToTerms}
-                        onChange={(e) => setFormData({...formData, agreeToTerms: e.target.checked})}
+                        onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
                         className="mt-1 w-4 h-4 text-[#09543D] border-gray-300 rounded focus:ring-[#09543D]"
                       />
                       <label htmlFor="terms" className="text-sm text-gray-700">

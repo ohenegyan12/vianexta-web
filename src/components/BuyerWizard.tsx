@@ -10,7 +10,7 @@ import mediumRoastIcon from '../../assets/medium.svg'
 import mediumDarkRoastIcon from '../../assets/medium-dark.svg'
 import darkRoastIcon from '../../assets/dark.svg'
 import ClareSidePanel from './ClareSidePanel'
-import { stockPostingsApi, cartApi, wholesaleApi } from '../utils/api'
+import { stockPostingsApi, cartApi, wholesaleApi, buyerApi } from '../utils/api'
 
 function BuyerWizard() {
   const navigate = useNavigate()
@@ -29,6 +29,7 @@ function BuyerWizard() {
   const [quantity, setQuantity] = useState<string>('')
   const [logoPreview, setLogoPreview] = useState<string>('')
   const [showNotification, setShowNotification] = useState(false)
+  const [notificationType, setNotificationType] = useState<'cart' | 'payment'>('cart')
   const [fracPackSize, setFracPackSize] = useState<string>('3oz') // For frac pack size selection
   const [productAmount, setProductAmount] = useState<string>('0.00') // For regular product amount calculation
   const [bagPreviewImages, setBagPreviewImages] = useState<string[]>([]) // For bag preview thumbnails
@@ -61,6 +62,12 @@ function BuyerWizard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [cartItemsCount, setCartItemsCount] = useState(0)
   const [currentBagImage, setCurrentBagImage] = useState<string>('')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [userProfile, setUserProfile] = useState<any>(null)
+
+  const [showCart, setShowCart] = useState(false)
+  const [loadingCartItems, setLoadingCartItems] = useState(false)
+  const [cartItemsList, setCartItemsList] = useState<any[]>([])
 
   // Bag image mapping based on package size - using local images from public folder
   const bagImageMap: { [key: string]: string } = {
@@ -84,31 +91,83 @@ function BuyerWizard() {
   const wholesaleProductDetailRef = useRef<HTMLDivElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
 
+  // Fetch Cart Items for Modal
+  const fetchCartItems = async () => {
+    try {
+      setLoadingCartItems(true)
+      const response = await cartApi.getCartItems()
+      if (response?.statusCode === 200 && Array.isArray(response.data)) {
+        setCartItemsList(response.data)
+      }
+    } catch (error) {
+      console.error('Error fetching cart items:', error)
+    } finally {
+      setLoadingCartItems(false)
+    }
+  }
+
   // Fetch products and filter options on mount
   useEffect(() => {
     const fetchInitialData = async () => {
-      try {
-        setLoadingProducts(true)
+      setLoadingProducts(true)
 
-        // Fetch filter options
+      // 1. Handle Auth & Profile
+      try {
+        const token = localStorage.getItem('authToken')
+        const userStr = localStorage.getItem('user')
+        const isAuth = !!token || !!userStr
+        setIsAuthenticated(isAuth)
+
+        if (isAuth) {
+          // Try to get user profile from localStorage first for immediate display
+          if (userStr) {
+            try {
+              setUserProfile(JSON.parse(userStr))
+            } catch (e) {
+              console.error('Error parsing user profile from local storage', e)
+            }
+          }
+
+          // Fetch fresh profile data from API
+          try {
+            const profileResponse = await buyerApi.getBuyerProfile()
+            if (profileResponse?.statusCode === 200 && profileResponse.data) {
+              setUserProfile(profileResponse.data)
+              localStorage.setItem('user', JSON.stringify(profileResponse.data))
+            }
+          } catch (apiError) {
+            console.error('Error fetching fresh user profile:', apiError)
+          }
+        }
+      } catch (authError) {
+        console.error('Error in auth check:', authError)
+      }
+
+      // 2. Fetch Filter Options (Independent)
+      try {
         const filterResponse = await stockPostingsApi.getFilterOptions()
         if (filterResponse?.statusCode === 200) {
           setFilterOptions(filterResponse.data)
         }
-
-        // Fetch cart items count
-        const cartResponse = await cartApi.getCartItems()
-        if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
-          setCartItemsCount(cartResponse.data.length)
-        }
-      } catch (error) {
-        console.error('Error fetching initial data:', error)
-      } finally {
-        setLoadingProducts(false)
+      } catch (filterError) {
+        console.error('Error fetching filter options:', filterError)
       }
+
+      // 3. Fetch Cart Items (Independent)
+      try {
+        const cartResponse = await cartApi.getCartItems()
+        if (cartResponse?.statusCode === 200) {
+          const items = Array.isArray(cartResponse.data) ? cartResponse.data : []
+          setCartItemsCount(items.length)
+          setCartItemsList(items) // Also populate list
+        }
+      } catch (cartError) {
+        console.error('Error fetching cart items:', cartError)
+      }
+
+      setLoadingProducts(false)
     }
 
-    fetchInitialData()
     fetchInitialData()
   }, [])
 
@@ -116,6 +175,7 @@ function BuyerWizard() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('payment_success') === 'true' || params.get('success') === 'true') {
+      setNotificationType('payment')
       setShowNotification(true)
       // Clear query params without refresh
       window.history.replaceState({}, '', window.location.pathname)
@@ -206,9 +266,27 @@ function BuyerWizard() {
 
   useEffect(() => {
     if (selectedType === 'roasted') {
+      // Show roasted options
       setTimeout(() => setShowCoffeeType(true), 50)
+
+      // Hide wholesale options
+      setShowWholesaleBrands(false)
+      setSelectedWholesaleProduct('')
     } else if (selectedType === 'wholesale') {
+      // Show wholesale options
       setTimeout(() => setShowWholesaleBrands(true), 50)
+
+      // Hide roasted options
+      setShowCoffeeType(false)
+      setShowSingleOrigin(false)
+      setShowProductSelection(false)
+      setShowRoastType(false)
+      setShowGrindType(false)
+      setShowPackageSize(false)
+
+      // Reset roasted selections
+      setSelectedCoffeeType('')
+
       // Scroll to wholesale brands section after it's rendered
       setTimeout(() => {
         if (wholesaleBrandsSectionRef.current) {
@@ -229,9 +307,14 @@ function BuyerWizard() {
         }
       }, 600)
     } else {
+      // Reset all if nothing selected
       setShowCoffeeType(false)
       setShowSingleOrigin(false)
+      setShowProductSelection(false)
       setShowWholesaleBrands(false)
+      setShowRoastType(false)
+      setShowGrindType(false)
+      setShowPackageSize(false)
     }
   }, [selectedType])
 
@@ -587,6 +670,14 @@ function BuyerWizard() {
       return
     }
 
+    // Require login before adding to cart
+    if (!isAuthenticated) {
+      if (confirm('You must be signed in to add items to your cart.')) {
+        navigate('/signin')
+      }
+      return
+    }
+
     // For wholesale, use caseQuantity; for others, use quantity
     const qty = selectedType === 'wholesale' ? caseQuantity : quantity
     if (!qty) {
@@ -621,9 +712,7 @@ function BuyerWizard() {
         if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
           setCartItemsCount(cartResponse.data.length)
         }
-        setShowNotification(true)
-
-        // Show notification (modal handles navigation)
+        setNotificationType('cart')
         setShowNotification(true)
       } else {
         alert(response?.message || 'Failed to add item to cart')
@@ -736,18 +825,27 @@ function BuyerWizard() {
             </Link>
             <div className="flex items-center gap-4 z-10 relative ml-4 lg:ml-8">
               {/* User name */}
-              <div className="bg-gradient-to-r from-[#09543D] to-[#0d6b4f] rounded-full px-5 py-2.5 shadow-md hover:shadow-lg transition-all duration-200">
-                <span
-                  className="text-white font-medium text-sm lg:text-base tracking-wide"
-                  style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                    letterSpacing: '1px',
-                    fontWeight: 500
-                  }}
+              {/* User name or Sign In */}
+              {isAuthenticated ? (
+                <div className="bg-gradient-to-r from-[#09543D] to-[#0d6b4f] rounded-full px-5 py-2.5 shadow-md">
+                  <span
+                    className="text-white font-medium text-sm lg:text-base tracking-wide"
+                    style={{
+                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                      letterSpacing: '0.5px'
+                    }}
+                  >
+                    Hi, {userProfile?.userFullName || userProfile?.name || userProfile?.firstName || userProfile?.businessName || 'User'}
+                  </span>
+                </div>
+              ) : (
+                <Link
+                  to="/signin"
+                  className="bg-white border-2 border-[#09543D] text-[#09543D] rounded-full px-5 py-2 hover:bg-[#09543D] hover:text-white transition-all duration-200 font-medium"
                 >
-                  Ohene Gyan
-                </span>
-              </div>
+                  Sign In
+                </Link>
+              )}
 
               {/* Dashboard icon */}
               <button
@@ -761,6 +859,10 @@ function BuyerWizard() {
 
               {/* Cart icon with count */}
               <button
+                onClick={() => {
+                  fetchCartItems()
+                  setShowCart(true)
+                }}
                 className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all duration-200 shadow-sm hover:shadow-md group"
                 aria-label="Shopping Cart"
               >
@@ -2608,12 +2710,14 @@ function BuyerWizard() {
                       letterSpacing: '1px'
                     }}
                   >
-                    All Done
+                    {notificationType === 'payment' ? 'Order Successful!' : 'All Done'}
                   </h3>
 
                   {/* Message */}
                   <p className="text-gray-600 text-lg mb-6">
-                    Item added to cart successfully. Proceed to checkout to complete your order.
+                    {notificationType === 'payment'
+                      ? 'Your order has been placed successfully. Thank you for your purchase!'
+                      : 'Item added to cart successfully. Proceed to checkout to complete your order.'}
                   </p>
 
                   {/* Action Buttons */}
@@ -2621,14 +2725,20 @@ function BuyerWizard() {
                     <button
                       onClick={() => {
                         setShowNotification(false)
-                        navigate('/checkout')
+                        if (notificationType === 'cart') {
+                          // Fetch cart items and show cart modal instead of navigating
+                          fetchCartItems()
+                          setShowCart(true)
+                        } else {
+                          navigate('/')
+                        }
                       }}
                       className="w-full px-8 py-3 bg-[#09543D] text-white rounded-xl font-medium hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl"
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
                       }}
                     >
-                      Proceed to Checkout
+                      {notificationType === 'payment' ? 'Return to Home' : 'View Cart'}
                     </button>
 
                     <button
@@ -2646,6 +2756,188 @@ function BuyerWizard() {
             </div>
           )}
 
+          {/* Cart Modal */}
+          {showCart && (
+            <div
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              onClick={() => setShowCart(false)}
+            >
+              <div
+                className="bg-white rounded-2xl p-6 lg:p-8 max-w-2xl w-full shadow-2xl transform transition-all max-h-[90vh] flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+                  <h3
+                    className="text-2xl lg:text-3xl font-medium text-gray-900"
+                    style={{
+                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                      letterSpacing: '1px'
+                    }}
+                  >
+                    Your Cart ({cartItemsList.length})
+                  </h3>
+                  <button
+                    onClick={() => setShowCart(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {loadingCartItems ? (
+                  <div className="flex-1 flex justify-center items-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#09543D]"></div>
+                  </div>
+                ) : cartItemsList.length > 0 ? (
+                  <>
+                    <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-6">
+                      {cartItemsList.map((item: any, index: number) => {
+                        const stockPosting = item.stockPosting || {}
+                        const isWholesale = stockPosting.productType === 'whole_sale_brand'
+
+                        // Calculate price (logic matching Checkout.tsx)
+                        let itemPrice = 0
+                        let packageDisplay = stockPosting.bagWeight ? `${stockPosting.bagWeight} lb` : ''
+
+                        if (isWholesale) {
+                          let basePrice = parseFloat(stockPosting.bagPrice || 0)
+                          if (item.bagSize === '16oz Retail Bag') basePrice *= 1.2
+                          else if (item.bagSize === '5lb Bag') basePrice *= 3.5
+                          itemPrice = basePrice * (item.numBags || 0)
+                          packageDisplay = item.bagSize || 'Case'
+                        } else {
+                          let weight = 0.75
+                          if (item.bagSize === '5lb') weight = 5
+                          else if (item.bagSize === '12oz') weight = 0.75
+                          else if (item.bagSize === '10oz') weight = 0.625
+                          else if (item.bagSize === 'kcup') weight = 0.75
+                          else if (item.bagSize?.startsWith('frac_pack')) {
+                            weight = item.bagSize.includes('3oz') ? 0.1875 : 0.25
+                          } else if (stockPosting.bagWeight) {
+                            weight = parseFloat(stockPosting.bagWeight)
+                          }
+
+                          let spotPrice = parseFloat(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || '0')
+                          if (spotPrice === 0 && stockPosting.bagPrice && stockPosting.bagWeight) {
+                            const bgPrice = parseFloat(stockPosting.bagPrice) || 0
+                            const bgWeight = parseFloat(stockPosting.bagWeight) || 1
+                            spotPrice = bgWeight > 0 ? bgPrice / bgWeight : 0
+                          }
+                          itemPrice = (item.numBags || 0) * (spotPrice * weight)
+                          packageDisplay = item.bagSize
+                            ? (item.bagSize === 'frac' ? `Frac Pack (${item.bagSize.replace('frac_pack_', '')})` : item.bagSize)
+                            : '12oz'
+                        }
+
+                        return (
+                          <div key={index} className="flex gap-4 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/50">
+                            <div className="w-20 h-20 bg-white rounded-lg border border-gray-200 overflow-hidden flex-shrink-0 p-2">
+                              <img
+                                src={item.bagImage || stockPosting.imgUrl || vianextaLogo}
+                                alt={stockPosting.productName || 'Coffee Product'}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-gray-900 truncate">
+                                {stockPosting.productName || 'Roasted Coffee'}
+                              </h4>
+                              <p className="text-sm text-gray-500 mb-1 line-clamp-1">
+                                {isWholesale
+                                  ? `${stockPosting.originCountry || ''} ${stockPosting.process || ''}`.trim()
+                                  : `${stockPosting.originCountry || 'Blend'} - ${stockPosting.process || 'Light Roast'}`
+                                }
+                              </p>
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#1A4D3A]/10 text-[#1A4D3A]">
+                                  {packageDisplay}
+                                </span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                  Qty: {item.numBags || 1}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right flex flex-col justify-between">
+                              <span className="font-bold text-[#1A4D3A] text-lg">
+                                ${itemPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="border-t border-gray-100 pt-6 mt-auto">
+                      <div className="flex justify-between items-center mb-6">
+                        <span className="text-gray-600 font-medium">Total Est.</span>
+                        <span className="text-2xl font-bold text-[#1A4D3A]">
+                          ${cartItemsList.reduce((sum, item) => {
+                            // Quick recalculate for total (ideal to use same function but keeping inline for brevity)
+                            const stockPosting = item.stockPosting || {}
+                            let price = 0
+                            if (stockPosting.productType === 'whole_sale_brand') {
+                              let base = parseFloat(stockPosting.bagPrice || 0)
+                              if (item.bagSize === '16oz Retail Bag') base *= 1.2
+                              else if (item.bagSize === '5lb Bag') base *= 3.5
+                              price = base * (item.numBags || 0)
+                            } else {
+                              let w = 0.75
+                              if (item.bagSize === '5lb') w = 5
+                              else if (item.bagSize === '12oz') w = 0.75
+                              else if (item.bagSize === '10oz') w = 0.625
+                              else if (item.bagSize?.startsWith('frac')) w = item.bagSize.includes('3oz') ? 0.1875 : 0.25
+                              else if (stockPosting.bagWeight) w = parseFloat(stockPosting.bagWeight)
+
+                              let s = parseFloat(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || '0')
+                              if (s === 0 && stockPosting.bagPrice && stockPosting.bagWeight) {
+                                s = (parseFloat(stockPosting.bagPrice) || 0) / (parseFloat(stockPosting.bagWeight) || 1)
+                              }
+                              price = (item.numBags || 0) * (s * w)
+                            }
+                            return sum + price
+                          }, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          onClick={() => setShowCart(false)}
+                          className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
+                        >
+                          Keep Shopping
+                        </button>
+                        <button
+                          onClick={() => navigate('/checkout')}
+                          className="px-6 py-3 bg-[#D8501C] text-white rounded-xl font-medium hover:bg-[#b73d1a] transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                          Proceed to Checkout
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col justify-center items-center py-12 text-center">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                    </div>
+                    <h4 className="text-xl font-medium text-gray-900 mb-2">Your cart is empty</h4>
+                    <p className="text-gray-500 mb-8">Looks like you haven't added any coffee yet.</p>
+                    <button
+                      onClick={() => setShowCart(false)}
+                      className="px-8 py-3 bg-[#09543D] text-white rounded-xl font-medium hover:bg-[#0d6b4f] transition-all duration-200"
+                    >
+                      Start Shopping
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Logout Confirmation Modal */}
           {showLogoutConfirm && (
             <div
@@ -2657,13 +2949,6 @@ function BuyerWizard() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="text-center">
-                  {/* Warning Icon */}
-                  <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
-                    <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-
                   {/* Title */}
                   <h3
                     className="text-3xl lg:text-4xl font-medium text-gray-900 mb-4"
