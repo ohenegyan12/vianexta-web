@@ -32,7 +32,7 @@ function Contact() {
       // TODO: Replace with actual contact API endpoint when available
       // For now, we'll simulate a successful submission
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
+
       setSuccess(true)
       setFormData({
         name: '',
@@ -41,7 +41,7 @@ function Contact() {
         subject: '',
         message: ''
       })
-      
+
       // Reset success message after 5 seconds
       setTimeout(() => {
         setSuccess(false)
@@ -91,7 +91,7 @@ function Contact() {
         {/* Left Section - Marketing Content */}
         <div className="hidden lg:flex lg:w-1/2 bg-[#1E4637] p-12 flex-col justify-center">
           <div className="max-w-md">
-            <h1 
+            <h1
               className="text-5xl font-bold mb-6 text-white"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -104,7 +104,7 @@ function Contact() {
             <p className="text-lg text-white mb-8 leading-relaxed">
               Have questions about our services? Want to learn more about how ViaNexta can help your business? We're here to help.
             </p>
-            
+
             {/* Feature Points */}
             <div className="space-y-4 mb-8">
               <div className="flex items-start gap-3">
@@ -154,9 +154,9 @@ function Contact() {
         </div>
 
         {/* Right Section - Contact Form */}
-        <div className="flex-1 lg:w-1/2 flex flex-col p-8 lg:p-12 bg-white justify-center items-center pt-8 lg:pt-12 overflow-y-auto">
+        <div className="flex-1 lg:w-1/2 flex flex-col p-8 lg:p-12 bg-white items-center overflow-y-auto">
           <div className="w-full max-w-md">
-            <h2 
+            <h2
               className="text-4xl font-bold mb-2"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -320,6 +320,7 @@ function Contact() {
 }
 
 export default Contact
+
 
 
 

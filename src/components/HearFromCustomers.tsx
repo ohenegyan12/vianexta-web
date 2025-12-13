@@ -1,12 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
 
-gsap.registerPlugin(ScrollTrigger)
 
 function HearFromCustomers() {
-  const titleRef = useRef<HTMLHeadingElement>(null)
   const leftColumnRef = useRef<HTMLDivElement>(null)
   const rightColumnRef = useRef<HTMLDivElement>(null)
   const leftColumnDesktopRef = useRef<HTMLDivElement>(null)
@@ -120,9 +116,9 @@ function HearFromCustomers() {
   // Duplicate testimonials multiple times for seamless infinite loop
   // Using 20 sets to ensure both columns always have content visible and smooth scrolling
   const duplicatedTestimonials = [
-    ...testimonials, 
-    ...testimonials, 
-    ...testimonials, 
+    ...testimonials,
+    ...testimonials,
+    ...testimonials,
     ...testimonials,
     ...testimonials,
     ...testimonials,
@@ -142,38 +138,12 @@ function HearFromCustomers() {
     ...testimonials
   ]
 
-  useEffect(() => {
-    // Animate title
-    if (titleRef.current) {
-      const titleSplit = new SplitType(titleRef.current, {
-        types: 'words,chars',
-        lineClass: 'split-line'
-      })
 
-      gsap.from(titleSplit.chars, {
-        scrollTrigger: {
-          trigger: titleRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        },
-        duration: 0.4,
-        ease: 'circ.out',
-        y: 80,
-        opacity: 0,
-        stagger: 0.01
-      })
-
-      // Cleanup
-      return () => {
-        titleSplit.revert()
-      }
-    }
-  }, [])
 
   useEffect(() => {
     const setupAnimation = () => {
       const isMobile = window.innerWidth < 768
-      
+
       // Kill existing timeline
       if (animationTimelineRef.current) {
         animationTimelineRef.current.kill()
@@ -203,11 +173,11 @@ function HearFromCustomers() {
           gsap.set(rightColumnRef.current, { x: 0, force3D: true })
 
           // Horizontal scrolling on mobile - columns move in opposite directions
-          animationTimelineRef.current = gsap.timeline({ 
+          animationTimelineRef.current = gsap.timeline({
             repeat: -1,
             paused: false
           })
-          
+
           animationTimelineRef.current
             .to(leftColumnRef.current, {
               x: -scrollDistance,
@@ -248,11 +218,11 @@ function HearFromCustomers() {
           gsap.set(rightColumnDesktopRef.current, { y: -scrollDistance, force3D: true })
 
           // Vertical scrolling on desktop - columns move in opposite directions
-          animationTimelineRef.current = gsap.timeline({ 
+          animationTimelineRef.current = gsap.timeline({
             repeat: -1,
             paused: false
           })
-          
+
           animationTimelineRef.current
             .to(leftColumnDesktopRef.current, {
               y: -scrollDistance,
@@ -311,8 +281,7 @@ function HearFromCustomers() {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
           {/* Left Side - Title */}
           <div className="lg:w-1/2 w-full">
-            <h2 
-              ref={titleRef}
+            <h2
               className="font-bold mb-4 overflow-hidden text-center lg:text-left"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",

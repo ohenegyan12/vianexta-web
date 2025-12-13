@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
+
 
 gsap.registerPlugin(ScrollTrigger)
 const fromIdeaBg = '/assets/from-idea.svg'
@@ -15,10 +15,7 @@ interface FromIdeaToInventoryProps {
 }
 
 function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const descriptionRef = useRef<HTMLParagraphElement>(null)
-  const whyBrandsTitleRef = useRef<HTMLHeadingElement>(null)
-  const whyBrandsDesc1Ref = useRef<HTMLParagraphElement>(null)
+
   const sourcingCardRef = useRef<HTMLDivElement>(null)
   const brandingCardRef = useRef<HTMLDivElement>(null)
   const packagingCardRef = useRef<HTMLDivElement>(null)
@@ -26,7 +23,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
   const [backgroundSize, setBackgroundSize] = useState('120% 100%')
   const [backgroundPosition, setBackgroundPosition] = useState('top center')
   const [isMobile, setIsMobile] = useState(false)
-  
+
   // Progress bar states
   const [activeIndex, setActiveIndex] = useState(0)
   const [progressValues, setProgressValues] = useState([0, 0, 0, 0])
@@ -69,11 +66,11 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
     let isAnimating = false
     let currentActiveIndex = 0
     const duration = 6000 // 6 seconds per progress bar (slow and smooth)
-    
+
     const checkVisibility = () => {
       const rect = whyChooseSection.getBoundingClientRect()
       const isVisible = rect.top < window.innerHeight && rect.bottom > 0
-      
+
       if (isVisible && !isAnimating) {
         isAnimating = true
         currentActiveIndex = 0
@@ -92,20 +89,20 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         startTime = null
       }
     }
-    
+
     const startAnimation = () => {
       const animate = (timestamp: number) => {
         if (!startTime) startTime = timestamp
         const elapsed = timestamp - startTime
         const progress = Math.min(elapsed / duration, 1)
-        
+
         // Update progress for active index
         setProgressValues(prev => {
           const newValues = [...prev]
           newValues[currentActiveIndex] = progress * 100
           return newValues
         })
-        
+
         if (progress < 1) {
           animationFrameId = requestAnimationFrame(animate)
         } else {
@@ -115,7 +112,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
             newValues[currentActiveIndex] = 0
             return newValues
           })
-          
+
           // Move to next index (loop back to 0 after last)
           currentActiveIndex = (currentActiveIndex + 1) % 4
           setActiveIndex(currentActiveIndex)
@@ -123,16 +120,16 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
           animationFrameId = requestAnimationFrame(animate)
         }
       }
-      
+
       startTime = null
       animationFrameId = requestAnimationFrame(animate)
     }
-    
+
     // Check visibility on scroll and initially
     checkVisibility()
     window.addEventListener('scroll', checkVisibility)
     window.addEventListener('resize', checkVisibility)
-    
+
     return () => {
       window.removeEventListener('scroll', checkVisibility)
       window.removeEventListener('resize', checkVisibility)
@@ -142,131 +139,13 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
     }
   }, [])
 
-  useEffect(() => {
-    let titleSplit: SplitType | null = null
-    
-    // Use requestAnimationFrame to ensure DOM is ready after key change
-    const timer = requestAnimationFrame(() => {
-      if (titleRef.current) {
-        titleSplit = new SplitType(titleRef.current, {
-          types: 'words,chars',
-          lineClass: 'split-line'
-        })
 
-        gsap.from(titleSplit.chars, {
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          },
-          duration: 0.4,
-          ease: 'circ.out',
-          y: 80,
-          opacity: 0,
-          stagger: 0.01
-        })
-      }
-    })
 
-    // Cleanup
-    return () => {
-      cancelAnimationFrame(timer)
-      if (titleSplit) {
-        titleSplit.revert()
-      }
-    }
-  }, [isBuyMode])
 
-  useEffect(() => {
-    let descriptionSplit: SplitType | null = null
-    
-    // Use requestAnimationFrame to ensure DOM is ready after key change
-    const timer = requestAnimationFrame(() => {
-      if (descriptionRef.current) {
-        descriptionSplit = new SplitType(descriptionRef.current, {
-          types: 'words,chars',
-          lineClass: 'split-line'
-        })
 
-        gsap.from(descriptionSplit.chars, {
-          scrollTrigger: {
-            trigger: descriptionRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none reverse'
-          },
-          duration: 0.4,
-          ease: 'circ.out',
-          y: 80,
-          opacity: 0,
-          stagger: 0.01
-        })
-      }
-    })
 
-    // Cleanup
-    return () => {
-      cancelAnimationFrame(timer)
-      if (descriptionSplit) {
-        descriptionSplit.revert()
-      }
-    }
-  }, [isBuyMode])
 
-  useEffect(() => {
-    // Animate why brands title
-    if (whyBrandsTitleRef.current) {
-      const titleSplit = new SplitType(whyBrandsTitleRef.current, {
-        types: 'words,chars',
-        lineClass: 'split-line'
-      })
 
-      gsap.from(titleSplit.chars, {
-        scrollTrigger: {
-          trigger: whyBrandsTitleRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        },
-        duration: 0.4,
-        ease: 'circ.out',
-        y: 80,
-        opacity: 0,
-        stagger: 0.01
-      })
-
-      // Cleanup
-      return () => {
-        titleSplit.revert()
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    // Animate why brands description
-    if (whyBrandsDesc1Ref.current) {
-      const descSplit = new SplitType(whyBrandsDesc1Ref.current, {
-        types: 'words,chars',
-        lineClass: 'split-line'
-      })
-
-      gsap.from(descSplit.chars, {
-        scrollTrigger: {
-          trigger: whyBrandsDesc1Ref.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        },
-        duration: 0.4,
-        ease: 'circ.out',
-        y: 80,
-        opacity: 0,
-        stagger: 0.01
-      })
-
-      // Cleanup
-      return () => {
-        descSplit.revert()
-      }
-    }
-  }, [])
 
   useEffect(() => {
     const cards = [
@@ -281,9 +160,9 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
     // Set initial z-index and rotation (only on desktop) - no scroll animations
     const isDesktop = window.innerWidth >= 768
     const rotations = [3.7, -2.89, 3.7, -2.89]
-    
+
     cards.forEach((card, index) => {
-      gsap.set(card, { 
+      gsap.set(card, {
         zIndex: cards.length - index,
         rotation: isDesktop ? rotations[index] : 0,
         transformOrigin: 'center center'
@@ -292,10 +171,10 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
   }, [])
 
   return (
-    <section 
+    <section
       id="how-it-works"
-      className="relative overflow-hidden" 
-      style={{ 
+      className="relative overflow-hidden"
+      style={{
         minHeight: isMobile ? 'auto' : '150vh',
         width: '110vw',
         position: 'relative',
@@ -306,7 +185,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
       }}
     >
       {/* Background color layer - starts below the top shape to make it visible (or full coverage below 1024px) */}
-      <div 
+      <div
         className="absolute"
         style={{
           top: isBuyMode ? 0 : (isMobile ? 0 : '25%'),
@@ -321,7 +200,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
       />
 
       {/* Background SVG - Hidden at 1280px and below */}
-      <div 
+      <div
         className="absolute"
         style={{
           display: isMobile ? 'none' : 'block',
@@ -355,9 +234,8 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         <div className={`pb-20 flex flex-col items-center ${isMobile ? 'pt-12 justify-start' : 'pt-32 justify-center'}`} style={{ minHeight: isMobile ? 'auto' : '100vh' }}>
           <div className={`text-center max-w-4xl ${isMobile ? 'mt-8' : ''}`}>
             {/* Main Heading */}
-            <h2 
+            <h2
               key={isBuyMode ? 'buy' : 'build'}
-              ref={titleRef}
               className="text-6xl md:text-7xl lg:text-8xl font-bold mb-8 text-white overflow-hidden"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -385,12 +263,11 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 </>
               )}
             </h2>
-            
+
             {/* Description */}
             <div className={`px-6 py-4 rounded-lg inline-block mb-2 ${isBuyMode ? 'bg-transparent' : 'bg-[#09543D]'}`}>
-              <p 
+              <p
                 key={isBuyMode ? 'buy-desc' : 'build-desc'}
-                ref={descriptionRef}
                 className={`text-lg md:text-xl text-center overflow-hidden ${isBuyMode ? 'text-[#09543D]' : 'text-white'}`}
               >
                 {isBuyMode ? (
@@ -410,7 +287,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         {/* Steps Section */}
         <div className="pb-48 md:pb-32 space-y-3 md:space-y-6 max-w-4xl mx-auto mt-8 md:-mt-16 px-4 md:px-0">
           {/* Step 1: Sourcing */}
-          <div 
+          <div
             ref={sourcingCardRef}
             className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 md:shadow-lg flex flex-row items-start gap-3 md:gap-6"
           >
@@ -419,7 +296,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {isBuyMode ? 'Product Selection' : 'Sourcing'}
               </h3>
               <p className="text-gray-700 text-xs md:text-base lg:text-lg leading-tight md:leading-normal">
-                {isBuyMode 
+                {isBuyMode
                   ? 'Choose from a curated range of ready-to-sell, high-quality products across multiple categories.'
                   : 'Access a vetted network of suppliers. Filter by sustainability, location, and price instantly.'}
               </p>
@@ -430,7 +307,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
           </div>
 
           {/* Step 2: Branding */}
-          <div 
+          <div
             ref={brandingCardRef}
             className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 md:shadow-lg flex flex-row items-start gap-3 md:gap-6"
           >
@@ -439,7 +316,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {isBuyMode ? 'Wholesale Pricing' : 'Branding'}
               </h3>
               <p className="text-gray-700 text-xs md:text-base lg:text-lg leading-tight md:leading-normal">
-                {isBuyMode 
+                {isBuyMode
                   ? 'Access fair, transparent wholesale pricing with no hidden markups.'
                   : 'Clare helps generate logos, color palettes, and brand stories that resonate with your niche.'}
               </p>
@@ -450,7 +327,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
           </div>
 
           {/* Step 3: Packaging */}
-          <div 
+          <div
             ref={packagingCardRef}
             className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 md:shadow-lg flex flex-row items-start gap-3 md:gap-6"
           >
@@ -459,7 +336,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {isBuyMode ? 'Optional White-Label' : 'Packaging'}
               </h3>
               <p className="text-gray-700 text-xs md:text-base lg:text-lg leading-tight md:leading-normal">
-                {isBuyMode 
+                {isBuyMode
                   ? 'Add your logo or custom packaging where available — no full brand build required.'
                   : 'Visualize 3D mockups of your product. Select materials and get print-ready files automatically.'}
               </p>
@@ -470,7 +347,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
           </div>
 
           {/* Step 4: Shipping */}
-          <div 
+          <div
             ref={shippingCardRef}
             className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 md:shadow-lg flex flex-row items-start gap-3 md:gap-6"
           >
@@ -479,7 +356,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 {isBuyMode ? 'Reliable Delivery' : 'Shipping'}
               </h3>
               <p className="text-gray-700 text-xs md:text-base lg:text-lg leading-tight md:leading-normal">
-                {isBuyMode 
+                {isBuyMode
                   ? 'Products shipped directly to your location or fulfillment partner, on schedule.'
                   : 'Real-time logistics planning. Calculate freight costs and duties before you even place an order.'}
               </p>
@@ -494,8 +371,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         <div id="why-choose-us" className="-mt-12 md:pt-12 pb-6 md:pb-8 flex flex-col items-center justify-center lg:min-h-[50vh]">
           <div className="text-center lg:text-center max-w-4xl w-full px-4">
             {/* Title - Stacked on mobile */}
-            <h2 
-              ref={whyBrandsTitleRef}
+            <h2
               className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-4 md:mb-6 lg:mb-8 overflow-hidden"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -510,10 +386,9 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
               </span>
               <span className="block">CHOOSE US</span>
             </h2>
-            
+
             {/* Description */}
-            <p 
-              ref={whyBrandsDesc1Ref}
+            <p
               className={`text-sm md:text-sm lg:text-lg xl:text-xl text-center max-w-3xl mx-auto overflow-hidden leading-tight md:leading-normal ${isBuyMode ? 'text-[#09543D]' : 'text-[#F9F7F1]'}`}
             >
               Freshness, quality, and trust define your brand. ViaNexta ensures every bag reflects your high standards with:
@@ -526,7 +401,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 items-stretch">
             {/* Image Placeholder - Appears first on mobile */}
             <div className="lg:w-1/2 order-2 lg:order-1">
-              <div 
+              <div
                 className="bg-gray-300 rounded-xl lg:rounded-2xl h-64 lg:h-full min-h-[300px] flex items-center justify-center transition-opacity duration-500"
                 style={{
                   opacity: activeIndex !== null ? 1 : 0.5
@@ -546,7 +421,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
             <div className="lg:w-1/2 space-y-0 order-1 lg:order-2">
               {/* Section 1: Certified Manufacturers */}
               <div className="pb-4 lg:pb-4">
-                <h3 
+                <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
@@ -554,7 +429,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 >
                   Certified Manufacturers
                 </h3>
-                <p 
+                <p
                   className={`text-base md:text-base mb-3 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-[#F9F7F1]'}`}
                   style={{
                     fontFamily: "'Poppins', sans-serif"
@@ -564,7 +439,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 </p>
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
-                  <div 
+                  <div
                     className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
                     style={{ height: '4px', width: `${progressValues[0]}%` }}
                   />
@@ -573,7 +448,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
 
               {/* Section 2: Ethically Sourced Ingredients & Materials */}
               <div className="pb-4 lg:pb-4">
-                <h3 
+                <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
@@ -581,7 +456,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 >
                   Ethically Sourced Ingredients & Materials
                 </h3>
-                <p 
+                <p
                   className={`text-base md:text-base mb-3 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-[#F9F7F1]'}`}
                   style={{
                     fontFamily: "'Poppins', sans-serif"
@@ -591,7 +466,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 </p>
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
-                  <div 
+                  <div
                     className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
                     style={{ height: '4px', width: `${progressValues[1]}%` }}
                   />
@@ -600,7 +475,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
 
               {/* Section 3: Verified Warehouses & Fulfillment Partners */}
               <div className="pb-4 lg:pb-4">
-                <h3 
+                <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
@@ -608,7 +483,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 >
                   Verified Warehouses & Fulfillment Partners
                 </h3>
-                <p 
+                <p
                   className={`text-base md:text-base mb-3 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-[#F9F7F1]'}`}
                   style={{
                     fontFamily: "'Poppins', sans-serif"
@@ -618,7 +493,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 </p>
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
-                  <div 
+                  <div
                     className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
                     style={{ height: '4px', width: `${progressValues[2]}%` }}
                   />
@@ -627,7 +502,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
 
               {/* Section 4: Premium Packaging & Customization */}
               <div className="pb-4 lg:pb-4">
-                <h3 
+                <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
@@ -635,7 +510,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 >
                   Premium Packaging & Customization
                 </h3>
-                <p 
+                <p
                   className={`text-base md:text-base mb-3 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-[#F9F7F1]'}`}
                   style={{
                     fontFamily: "'Poppins', sans-serif"
@@ -645,7 +520,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 </p>
                 {/* Progress bar */}
                 <div className="w-full bg-white rounded-full" style={{ height: '4px' }}>
-                  <div 
+                  <div
                     className="bg-[#B8F03F] rounded-full transition-all duration-300 ease-out"
                     style={{ height: '4px', width: `${progressValues[3]}%` }}
                   />

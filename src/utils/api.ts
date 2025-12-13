@@ -54,7 +54,7 @@ export const stockPostingsApi = {
     producedBy?: string
   } = {}): Promise<any> => {
     const queryParams = new URLSearchParams()
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         queryParams.append(key, String(value))
@@ -63,7 +63,7 @@ export const stockPostingsApi = {
 
     const queryString = queryParams.toString()
     const endpoint = `/api/stock-postings${queryString ? `?${queryString}` : ''}`
-    
+
     return apiRequest(endpoint, { method: 'GET' })
   },
 
@@ -223,7 +223,10 @@ export const checkoutApi = {
       shippingAddress: checkoutData.shippingAddress,
       paymentType: checkoutData.paymentType || 'PAYPAL_CHECKOUT',
       ...(checkoutData.delivery !== undefined && { delivery: checkoutData.delivery }),
-    }
+      // Add return and cancel URLs for PayPal redirection
+      returnUrl: `${window.location.origin}/buyer?payment_success=true`,
+      cancelUrl: `${window.location.origin}/checkout?payment_cancel=true`,
+    } // End of payload construction
 
     return apiRequest('/api/checkout-cart', {
       method: 'POST',

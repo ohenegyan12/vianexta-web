@@ -1,13 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
+import { useState } from 'react'
 
-gsap.registerPlugin(ScrollTrigger)
 
 function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
+
 
   const faqs = [
     {
@@ -36,33 +32,7 @@ function FAQ() {
     setOpenIndex(openIndex === index ? null : index)
   }
 
-  useEffect(() => {
-    // Animate title
-    if (titleRef.current) {
-      const titleSplit = new SplitType(titleRef.current, {
-        types: 'words,chars',
-        lineClass: 'split-line'
-      })
 
-      gsap.from(titleSplit.chars, {
-        scrollTrigger: {
-          trigger: titleRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        },
-        duration: 0.4,
-        ease: 'circ.out',
-        y: 80,
-        opacity: 0,
-        stagger: 0.01
-      })
-
-      // Cleanup
-      return () => {
-        titleSplit.revert()
-      }
-    }
-  }, [])
 
   return (
     <section id="faq" className="relative bg-[#F9F7F1] py-20 md:py-32">
@@ -70,8 +40,7 @@ function FAQ() {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
           {/* Left Side - Title */}
           <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start">
-            <h2 
-              ref={titleRef}
+            <h2
               className="font-bold mb-4 overflow-hidden text-center lg:text-left"
               style={{
                 fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -97,18 +66,16 @@ function FAQ() {
                     <span className="text-gray-700 text-base md:text-lg font-medium pr-4">
                       {faq.question}
                     </span>
-                    <span 
-                      className={`flex-shrink-0 text-gray-400 transition-transform duration-300 ${
-                        openIndex === index ? 'rotate-180' : ''
-                      }`}
+                    <span
+                      className={`flex-shrink-0 text-gray-400 transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''
+                        }`}
                     >
                       ▼
                     </span>
                   </button>
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`}
                   >
                     <div className="pb-4 md:pb-6">
                       <p className="text-gray-600 text-sm md:text-base leading-relaxed">

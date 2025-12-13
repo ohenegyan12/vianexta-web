@@ -44,7 +44,11 @@ function BuyerWizard() {
   const [showRoastType, setShowRoastType] = useState(false)
   const [showGrindType, setShowGrindType] = useState(false)
   const [showPackageSize, setShowPackageSize] = useState(false)
-  
+
+  // Clare Panel State
+  const [isChatMinimized, setIsChatMinimized] = useState(false)
+
+
   // API Data States
   const [singleOriginProducts, setSingleOriginProducts] = useState<any[]>([])
   const [blendProducts, setBlendProducts] = useState<any[]>([])
@@ -57,7 +61,7 @@ function BuyerWizard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [cartItemsCount, setCartItemsCount] = useState(0)
   const [currentBagImage, setCurrentBagImage] = useState<string>('')
-  
+
   // Bag image mapping based on package size - using local images from public folder
   const bagImageMap: { [key: string]: string } = {
     '5lb': '/images/buyer/5lb_1.jpg',
@@ -66,7 +70,7 @@ function BuyerWizard() {
     'frac': '/images/buyer/frac_pack.png',
     'kcup': '/images/buyer/kcup.jpg',
   }
-  
+
   // const totalPages = 3 // Reserved for future pagination
   // const wholesaleTotalPages = 2 // Reserved for future pagination
   const coffeeTypeSectionRef = useRef<HTMLDivElement>(null)
@@ -85,7 +89,7 @@ function BuyerWizard() {
     const fetchInitialData = async () => {
       try {
         setLoadingProducts(true)
-        
+
         // Fetch filter options
         const filterResponse = await stockPostingsApi.getFilterOptions()
         if (filterResponse?.statusCode === 200) {
@@ -105,7 +109,25 @@ function BuyerWizard() {
     }
 
     fetchInitialData()
+    fetchInitialData()
   }, [])
+
+  // Check for success message from payment redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('payment_success') === 'true' || params.get('success') === 'true') {
+      setShowNotification(true)
+      // Clear query params without refresh
+      window.history.replaceState({}, '', window.location.pathname)
+      // Refresh cart count
+      cartApi.getCartItems().then(response => {
+        if (response?.statusCode === 200 && Array.isArray(response.data)) {
+          setCartItemsCount(response.data.length)
+        }
+      })
+    }
+  }, [])
+
 
   // Fetch single origin products when selected
   useEffect(() => {
@@ -163,7 +185,7 @@ function BuyerWizard() {
             stockPostingsApi.getStockPostings({ productType: 'whole_sale_brand' }),
             wholesaleApi.getWholesaleBrands()
           ])
-          
+
           if (productsResponse?.statusCode === 200) {
             const products = productsResponse.data || []
             setWholesaleProducts(products)
@@ -196,7 +218,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -230,7 +252,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -263,7 +285,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120 // Offset from top of container
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -296,7 +318,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120 // Offset from top of container
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -327,7 +349,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120 // Offset from top of container
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -358,7 +380,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120 // Offset from top of container
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -386,7 +408,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120 // Offset from top of container
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -411,7 +433,7 @@ function BuyerWizard() {
             const containerRect = scrollContainer.getBoundingClientRect()
             const offset = 120 // Offset from top of container
             const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - offset
-            
+
             scrollContainer.scrollTo({
               top: Math.max(0, scrollTop),
               behavior: 'smooth'
@@ -452,7 +474,7 @@ function BuyerWizard() {
       console.log('Setting bag image for package size:', selectedPackageSize, 'Image URL:', bagImage)
       setCurrentBagImage(bagImage)
       setSelectedPreviewImage(bagImage)
-      
+
       // Set preview images based on package size (using same image for now, can be expanded)
       const previewImages = [bagImage, bagImage, bagImage, bagImage]
       setBagPreviewImages(previewImages)
@@ -478,16 +500,16 @@ function BuyerWizard() {
   useEffect(() => {
     if (selectedType !== 'wholesale' && quantity && selectedProductData) {
       const qty = parseFloat(quantity) || 0
-      
+
       // Try multiple possible field names for spot price (price per pound)
       // The API might return it as spotPrice, spot_price, price, or we need to calculate from bagPrice
       let spotPrice = parseFloat(
-        selectedProductData.spotPrice || 
-        selectedProductData.spot_price || 
-        selectedProductData.price || 
+        selectedProductData.spotPrice ||
+        selectedProductData.spot_price ||
+        selectedProductData.price ||
         '0'
       ) || 0
-      
+
       // If spotPrice is 0, try to derive from bagPrice and bagWeight
       // bagPrice is total price for a bag, bagWeight is in pounds
       if (spotPrice === 0 && selectedProductData.bagPrice && selectedProductData.bagWeight) {
@@ -495,11 +517,11 @@ function BuyerWizard() {
         const bagWeight = parseFloat(selectedProductData.bagWeight) || 1
         spotPrice = bagWeight > 0 ? bagPrice / bagWeight : 0
       }
-      
+
       // Use selected package size or default to '12oz' (most common)
       const packageSize = selectedPackageSize || '12oz'
       const bagWeight = packageWeightMap[packageSize] || 0.75 // Default to 12oz weight
-      
+
       // For regular products: quantity * (spot_price * bag_weight)
       // This matches the web version calculation: quantity * (spot_price * package_size)
       if (spotPrice > 0 && bagWeight > 0 && qty > 0) {
@@ -592,7 +614,7 @@ function BuyerWizard() {
 
       const response = await cartApi.addToCart(cartItem)
       console.log('Add to cart response:', response)
-      
+
       if (response?.statusCode === 200) {
         // Update cart count
         const cartResponse = await cartApi.getCartItems()
@@ -600,13 +622,9 @@ function BuyerWizard() {
           setCartItemsCount(cartResponse.data.length)
         }
         setShowNotification(true)
-        
-        // Navigate to checkout page after adding to cart (matching old implementation behavior)
-        // Small delay to show notification
-        setTimeout(() => {
-          console.log('Navigating to checkout...')
-          navigate('/checkout')
-        }, 1000)
+
+        // Show notification (modal handles navigation)
+        setShowNotification(true)
       } else {
         alert(response?.message || 'Failed to add item to cart')
       }
@@ -719,7 +737,7 @@ function BuyerWizard() {
             <div className="flex items-center gap-4 z-10 relative ml-4 lg:ml-8">
               {/* User name */}
               <div className="bg-gradient-to-r from-[#09543D] to-[#0d6b4f] rounded-full px-5 py-2.5 shadow-md hover:shadow-lg transition-all duration-200">
-                <span 
+                <span
                   className="text-white font-medium text-sm lg:text-base tracking-wide"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -732,7 +750,7 @@ function BuyerWizard() {
               </div>
 
               {/* Dashboard icon */}
-              <button 
+              <button
                 className="w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all duration-200 shadow-sm hover:shadow-md group"
                 aria-label="Dashboard"
               >
@@ -742,7 +760,7 @@ function BuyerWizard() {
               </button>
 
               {/* Cart icon with count */}
-              <button 
+              <button
                 className="relative w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all duration-200 shadow-sm hover:shadow-md group"
                 aria-label="Shopping Cart"
               >
@@ -757,7 +775,7 @@ function BuyerWizard() {
               </button>
 
               {/* Order history icon */}
-              <button 
+              <button
                 className="w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all duration-200 shadow-sm hover:shadow-md group"
                 aria-label="Order History"
               >
@@ -767,7 +785,7 @@ function BuyerWizard() {
               </button>
 
               {/* Logout icon */}
-              <button 
+              <button
                 onClick={() => setShowLogoutConfirm(true)}
                 className="w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-red-400 hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow-md group"
                 aria-label="Logout"
@@ -781,14 +799,16 @@ function BuyerWizard() {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="h-screen flex flex-col pt-16 lg:pt-0 overflow-hidden">
         {/* Wizard Content - Adjusted for right panel */}
-        <div className="flex-1 flex flex-col p-8 lg:p-12 bg-white justify-start items-center overflow-y-auto pt-8 lg:pt-24 relative mr-0 lg:mr-[400px]">
+        <div
+          className={`flex-1 flex flex-col p-8 lg:p-12 bg-white justify-start items-center overflow-y-auto pt-8 lg:pt-24 relative transition-all duration-300 ${isChatMinimized ? 'mr-0' : 'mr-0 lg:mr-[400px]'
+            }`}
+        >
           <div className="w-full max-w-6xl">
             {/* Question */}
             <div className="text-center mb-6 lg:mb-8">
-              <h1 
+              <h1
                 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-gray-900 mb-3 leading-tight"
                 style={{
                   fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -799,7 +819,7 @@ function BuyerWizard() {
               >
                 What type of coffee bean
               </h1>
-              <h1 
+              <h1
                 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-[#09543D] leading-tight"
                 style={{
                   fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -822,11 +842,10 @@ function BuyerWizard() {
                     coffeeTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                   }, 100)
                 }}
-                className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                  selectedType === 'roasted'
-                    ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                    : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                }`}
+                className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedType === 'roasted'
+                  ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                  : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                  }`}
               >
                 {/* Selection indicator */}
                 {selectedType === 'roasted' && (
@@ -836,14 +855,13 @@ function BuyerWizard() {
                     </svg>
                   </div>
                 )}
-                
+
                 <div className="flex justify-center mb-3 lg:mb-4">
                   <img src={roastedIcon} alt="Roasted" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-110" />
                 </div>
-                <h3 
-                  className={`text-base lg:text-lg font-medium transition-colors ${
-                    selectedType === 'roasted' ? 'text-[#09543D]' : 'text-gray-800'
-                  }`}
+                <h3
+                  className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'roasted' ? 'text-[#09543D]' : 'text-gray-800'
+                    }`}
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                     letterSpacing: '1px',
@@ -857,11 +875,10 @@ function BuyerWizard() {
               {/* Wholesale Brands Card */}
               <button
                 onClick={() => setSelectedType('wholesale')}
-                className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                  selectedType === 'wholesale'
-                    ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                    : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                }`}
+                className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedType === 'wholesale'
+                  ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                  : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                  }`}
               >
                 {/* Selection indicator */}
                 {selectedType === 'wholesale' && (
@@ -871,14 +888,13 @@ function BuyerWizard() {
                     </svg>
                   </div>
                 )}
-                
+
                 <div className="flex justify-center mb-3 lg:mb-4">
                   <img src={wholesaleBrandsIcon} alt="Wholesale Brands" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-110" />
                 </div>
-                <h3 
-                  className={`text-base lg:text-lg font-medium transition-colors ${
-                    selectedType === 'wholesale' ? 'text-[#09543D]' : 'text-gray-800'
-                  }`}
+                <h3
+                  className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'wholesale' ? 'text-[#09543D]' : 'text-gray-800'
+                    }`}
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                     letterSpacing: '1px',
@@ -892,13 +908,12 @@ function BuyerWizard() {
 
             {/* Second Question - How do you want your coffee? */}
             {selectedType === 'roasted' && (
-              <div 
-                ref={coffeeTypeSectionRef} 
-                className={`mt-8 lg:mt-10 transition-all duration-500 ${
-                  showCoffeeType ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+              <div
+                ref={coffeeTypeSectionRef}
+                className={`mt-8 lg:mt-10 transition-all duration-500 ${showCoffeeType ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
               >
-                <h2 
+                <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -919,11 +934,10 @@ function BuyerWizard() {
                         singleOriginSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                       }, 100)
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedCoffeeType === 'single-origin'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedCoffeeType === 'single-origin'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedCoffeeType === 'single-origin' && (
@@ -933,14 +947,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-3 lg:mb-4">
                       <img src={singleOriginIcon} alt="Single Origin" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-base lg:text-lg font-medium transition-colors ${
-                        selectedCoffeeType === 'single-origin' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-base lg:text-lg font-medium transition-colors ${selectedCoffeeType === 'single-origin' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -958,11 +971,10 @@ function BuyerWizard() {
                         productSelectionSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                       }, 100)
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedCoffeeType === 'blend'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedCoffeeType === 'blend'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedCoffeeType === 'blend' && (
@@ -972,14 +984,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-3 lg:mb-4">
                       <img src={blendIcon} alt="Blend" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-base lg:text-lg font-medium transition-colors ${
-                        selectedCoffeeType === 'blend' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-base lg:text-lg font-medium transition-colors ${selectedCoffeeType === 'blend' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -994,14 +1005,13 @@ function BuyerWizard() {
 
             {/* Wholesale Brands View */}
             {selectedType === 'wholesale' && !selectedWholesaleProduct && (
-              <div 
-                ref={wholesaleBrandsSectionRef} 
-                className={`mt-8 lg:mt-10 transition-all duration-500 ${
-                  showWholesaleBrands ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+              <div
+                ref={wholesaleBrandsSectionRef}
+                className={`mt-8 lg:mt-10 transition-all duration-500 ${showWholesaleBrands ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
               >
                 {/* Heading */}
-                <h2 
+                <h2
                   className="text-xl lg:text-2xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -1040,76 +1050,75 @@ function BuyerWizard() {
 
                 {/* Product Cards Grid */}
                 {!loadingProducts && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5 mb-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5 mb-6">
                     {wholesaleProducts
-                  .slice((wholesalePage - 1) * 8, wholesalePage * 8)
+                      .slice((wholesalePage - 1) * 8, wholesalePage * 8)
                       .map((product: any) => {
-                        const qualityScore = product.scaScoreComponents 
+                        const qualityScore = product.scaScoreComponents
                           ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
                           : 0
                         const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
-                        
+
                         return (
-                    <div
+                          <div
                             key={product.id}
                             onClick={() => handleProductSelect(product.id, 'wholesale')}
-                      className={`bg-white rounded-xl border-2 p-3 hover:shadow-lg transition-all cursor-pointer ${
-                              selectedWholesaleProduct === String(product.id)
-                          ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg'
-                          : 'border-gray-200 hover:border-[#09543D]'
-                      }`}
-                    >
-                      {/* Coffee Bag Image */}
-                      <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                            className={`bg-white rounded-xl border-2 p-3 hover:shadow-lg transition-all cursor-pointer ${selectedWholesaleProduct === String(product.id)
+                              ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg'
+                              : 'border-gray-200 hover:border-[#09543D]'
+                              }`}
+                          >
+                            {/* Coffee Bag Image */}
+                            <div className="w-full h-32 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                               {product.imageUrl ? (
                                 <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                               ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 flex items-center justify-center relative">
-                          {/* Coffee bag representation */}
-                          <div className="w-20 h-24 bg-amber-700 rounded-lg shadow-lg relative">
-                            {/* Circular label on bag */}
-                            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full"></div>
-                            </div>
-                          </div>
-                        </div>
+                                <div className="w-full h-full bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 flex items-center justify-center relative">
+                                  {/* Coffee bag representation */}
+                                  <div className="w-20 h-24 bg-amber-700 rounded-lg shadow-lg relative">
+                                    {/* Circular label on bag */}
+                                    <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                                      <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-full"></div>
+                                    </div>
+                                  </div>
+                                </div>
                               )}
-                      </div>
+                            </div>
 
-                      {/* Product Name */}
-                      <h3 
-                        className="text-xs font-medium text-gray-900 mb-2 uppercase truncate text-center"
-                        style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                        }}
-                      >
+                            {/* Product Name */}
+                            <h3
+                              className="text-xs font-medium text-gray-900 mb-2 uppercase truncate text-center"
+                              style={{
+                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                                letterSpacing: '0.8px',
+                                fontWeight: 500
+                              }}
+                            >
                               {product.name || 'Unnamed Product'}
-                      </h3>
+                            </h3>
 
-                      {/* Origin */}
-                      <div className="flex items-center justify-center gap-1.5 mb-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
+                            {/* Origin */}
+                            <div className="flex items-center justify-center gap-1.5 mb-2">
+                              <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
                               <span className="text-[10px] text-gray-600 truncate">{originCountry}</span>
-                      </div>
+                            </div>
 
-                      {/* Coffee Type */}
+                            {/* Coffee Type */}
                             <p className="text-[10px] text-gray-600 text-center mb-2">{product.coffeeType || 'Arabica'}</p>
 
-                      {/* Score */}
+                            {/* Score */}
                             {qualityScore > 0 && (
-                      <div className="flex flex-col items-center">
-                        <div className="bg-[#09543D] text-white px-2 py-1 rounded text-[10px] font-medium">
+                              <div className="flex flex-col items-center">
+                                <div className="bg-[#09543D] text-white px-2 py-1 rounded text-[10px] font-medium">
                                   {Math.round(qualityScore)}
-                        </div>
-                        <span className="text-[9px] text-gray-500 mt-0.5">Score</span>
-                      </div>
+                                </div>
+                                <span className="text-[9px] text-gray-500 mt-0.5">Score</span>
+                              </div>
                             )}
-                    </div>
+                          </div>
                         )
                       })}
-                </div>
+                  </div>
                 )}
 
                 {/* No Products Message */}
@@ -1121,77 +1130,74 @@ function BuyerWizard() {
 
                 {/* Pagination */}
                 {wholesaleProducts.length > 8 && (
-                <div className="flex flex-col items-center gap-4">
-                  {/* Page indicator */}
-                  <p 
-                    className="text-sm text-gray-600"
-                    style={{
-                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
-                    }}
-                  >
+                  <div className="flex flex-col items-center gap-4">
+                    {/* Page indicator */}
+                    <p
+                      className="text-sm text-gray-600"
+                      style={{
+                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                      }}
+                    >
                       Page {wholesalePage} of {Math.ceil(wholesaleProducts.length / 8)}
-                  </p>
+                    </p>
 
-                  {/* Page number buttons */}
-                  <div className="flex gap-2">
+                    {/* Page number buttons */}
+                    <div className="flex gap-2">
                       {Array.from({ length: Math.ceil(wholesaleProducts.length / 8) }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => setWholesalePage(page)}
-                        className={`w-10 h-10 rounded-lg font-medium transition-all ${
-                          wholesalePage === page
+                        <button
+                          key={page}
+                          onClick={() => setWholesalePage(page)}
+                          className={`w-10 h-10 rounded-lg font-medium transition-all ${wholesalePage === page
                             ? 'bg-[#09543D] text-white shadow-md'
                             : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
-                        }`}
-                        style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                        }}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
+                            }`}
+                          style={{
+                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            letterSpacing: '0.8px',
+                            fontWeight: 500
+                          }}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
 
-                  {/* Navigation buttons */}
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setWholesalePage(prev => Math.max(1, prev - 1))}
-                      disabled={wholesalePage === 1}
-                      className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${
-                        wholesalePage === 1
+                    {/* Navigation buttons */}
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => setWholesalePage(prev => Math.max(1, prev - 1))}
+                        disabled={wholesalePage === 1}
+                        className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${wholesalePage === 1
                           ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                      }`}
-                      style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
-                      }}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                      Previous
-                    </button>
-                    <button
+                          }`}
+                        style={{
+                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                      </button>
+                      <button
                         onClick={() => setWholesalePage(prev => Math.min(Math.ceil(wholesaleProducts.length / 8), prev + 1))}
                         disabled={wholesalePage >= Math.ceil(wholesaleProducts.length / 8)}
-                      className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${
-                          wholesalePage >= Math.ceil(wholesaleProducts.length / 8)
+                        className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${wholesalePage >= Math.ceil(wholesaleProducts.length / 8)
                           ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-white border-[#09543D] text-[#09543D] hover:bg-[#09543D]/5 hover:border-[#09543D]/80'
-                      }`}
-                      style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
-                      }}
-                    >
-                      Next
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
+                          }`}
+                        style={{
+                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        }}
+                      >
+                        Next
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
                 )}
               </div>
             )}
@@ -1223,25 +1229,25 @@ function BuyerWizard() {
                     {/* Main Product Image */}
                     <div className="bg-gray-100 rounded-xl p-8 mb-4 flex items-center justify-center min-h-[400px]">
                       {selectedProductData?.imageUrl ? (
-                        <img 
-                          src={selectedProductData.imageUrl} 
-                          alt={selectedProductData.name || 'Product'} 
+                        <img
+                          src={selectedProductData.imageUrl}
+                          alt={selectedProductData.name || 'Product'}
                           className="w-full h-full max-h-[400px] object-contain rounded-lg"
                         />
                       ) : (
-                      <div className="relative">
-                        {/* Coffee bag representation */}
-                        <div className="w-48 h-64 bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 rounded-lg shadow-2xl relative">
-                          {/* Circular label on bag */}
-                          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
-                            <div className="w-28 h-28 bg-gradient-to-br from-[#09543D] to-[#1E4637] rounded-full flex flex-col items-center justify-center text-white p-4 text-center">
-                              <div className="text-xs font-medium mb-1">GREENSTREET</div>
+                        <div className="relative">
+                          {/* Coffee bag representation */}
+                          <div className="w-48 h-64 bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 rounded-lg shadow-2xl relative">
+                            {/* Circular label on bag */}
+                            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
+                              <div className="w-28 h-28 bg-gradient-to-br from-[#09543D] to-[#1E4637] rounded-full flex flex-col items-center justify-center text-white p-4 text-center">
+                                <div className="text-xs font-medium mb-1">GREENSTREET</div>
                                 <div className="text-lg font-medium">{(selectedProductData?.name || selectedWholesaleProduct).split(' ')[0]}</div>
                                 <div className="text-xs mt-1">{(selectedProductData?.name || selectedWholesaleProduct).split(' ').slice(1).join(' ')}</div>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
                       )}
                     </div>
 
@@ -1253,17 +1259,17 @@ function BuyerWizard() {
                           className="bg-gray-100 rounded-lg p-3 cursor-pointer hover:border-2 hover:border-[#09543D] transition-all"
                         >
                           {selectedProductData?.imageUrl ? (
-                            <img 
-                              src={selectedProductData.imageUrl} 
+                            <img
+                              src={selectedProductData.imageUrl}
                               alt={`Thumbnail ${thumb}`}
                               className="w-full h-24 object-cover rounded"
                             />
                           ) : (
-                          <div className="w-full h-24 bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 rounded flex items-center justify-center">
-                            <div className="w-12 h-16 bg-amber-700 rounded relative">
-                              <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rounded-full"></div>
+                            <div className="w-full h-24 bg-gradient-to-br from-amber-800 via-amber-900 to-amber-950 rounded flex items-center justify-center">
+                              <div className="w-12 h-16 bg-amber-700 rounded relative">
+                                <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-white rounded-full"></div>
+                              </div>
                             </div>
-                          </div>
                           )}
                         </div>
                       ))}
@@ -1287,34 +1293,34 @@ function BuyerWizard() {
                     <div className="space-y-4 mb-6">
                       {/* Bag Size and Bag Price Row */}
                       <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label
-                          className="block text-sm font-semibold text-gray-700 mb-2"
-                          style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                          }}
-                        >
-                          Bag Size
-                        </label>
-                        <select
-                          value={bagSize}
-                            onChange={(e) => updateWholesaleBagSize(e.target.value)}
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
-                        >
-                            <option value="12oz Retail Bag">12oz Retail Bag</option>
-                            <option value="16oz Retail Bag">16oz Retail Bag</option>
-                            <option value="5lb Bag">5lb Bag</option>
-                        </select>
-                      </div>
                         <div>
                           <label
                             className="block text-sm font-semibold text-gray-700 mb-2"
                             style={{
                               fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Bag Size
+                          </label>
+                          <select
+                            value={bagSize}
+                            onChange={(e) => updateWholesaleBagSize(e.target.value)}
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
+                          >
+                            <option value="12oz Retail Bag">12oz Retail Bag</option>
+                            <option value="16oz Retail Bag">16oz Retail Bag</option>
+                            <option value="5lb Bag">5lb Bag</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                            style={{
+                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
                             }}
                           >
                             Bag Price($)
@@ -1335,8 +1341,8 @@ function BuyerWizard() {
                             className="block text-sm font-semibold text-gray-700 mb-2"
                             style={{
                               fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
                             }}
                           >
                             Case Quantity(8 units)
@@ -1352,23 +1358,23 @@ function BuyerWizard() {
                             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#09543D] focus:outline-none transition-colors"
                           />
                         </div>
-                      <div>
-                        <label
-                          className="block text-sm font-semibold text-gray-700 mb-2"
-                          style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                          }}
-                        >
-                          Amount
-                        </label>
-                        <input
-                          type="text"
+                        <div>
+                          <label
+                            className="block text-sm font-semibold text-gray-700 mb-2"
+                            style={{
+                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Amount
+                          </label>
+                          <input
+                            type="text"
                             value={`$ ${parseFloat(amount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                          readOnly
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50"
-                        />
+                            readOnly
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50"
+                          />
                         </div>
                       </div>
 
@@ -1422,8 +1428,8 @@ function BuyerWizard() {
                                 className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200"
                                 style={{
                                   fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
+                                  letterSpacing: '0.8px',
+                                  fontWeight: 500
                                 }}
                               >
                                 Info
@@ -1432,8 +1438,8 @@ function BuyerWizard() {
                                 className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200"
                                 style={{
                                   fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
+                                  letterSpacing: '0.8px',
+                                  fontWeight: 500
                                 }}
                               >
                                 Description
@@ -1456,7 +1462,7 @@ function BuyerWizard() {
                             <tr className="border-b border-gray-200">
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Quality</td>
                               <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">
-                                {selectedProductData?.scaScoreComponents 
+                                {selectedProductData?.scaScoreComponents
                                   ? Math.round(Object.values(selectedProductData.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9)
                                   : selectedProductData?.quality || 'Premium'}
                               </td>
@@ -1480,14 +1486,13 @@ function BuyerWizard() {
 
             {/* Single Origin View - Coffee Cards */}
             {selectedCoffeeType === 'single-origin' && (
-              <div 
-                ref={singleOriginSectionRef} 
-                className={`mt-8 lg:mt-10 transition-all duration-500 ${
-                  showSingleOrigin ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+              <div
+                ref={singleOriginSectionRef}
+                className={`mt-8 lg:mt-10 transition-all duration-500 ${showSingleOrigin ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
               >
                 {/* Heading */}
-                <h2 
+                <h2
                   className="text-xl lg:text-2xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -1530,61 +1535,60 @@ function BuyerWizard() {
                     {singleOriginProducts
                       .slice((currentPage - 1) * 9, currentPage * 9)
                       .map((product: any) => {
-                        const qualityScore = product.scaScoreComponents 
+                        const qualityScore = product.scaScoreComponents
                           ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
                           : 0
                         const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
-                        
+
                         return (
-                    <div
+                          <div
                             key={product.id}
                             onClick={() => handleProductSelect(product.id, 'single-origin')}
-                            className={`bg-white rounded-xl border-2 p-4 hover:shadow-lg transition-all cursor-pointer flex flex-col ${
-                              selectedCoffee === String(product.id)
-                          ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                          : 'border-gray-200 hover:border-[#09543D]'
-                      }`}
-                    >
-                      {/* Coffee Bean Image */}
+                            className={`bg-white rounded-xl border-2 p-4 hover:shadow-lg transition-all cursor-pointer flex flex-col ${selectedCoffee === String(product.id)
+                              ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                              : 'border-gray-200 hover:border-[#09543D]'
+                              }`}
+                          >
+                            {/* Coffee Bean Image */}
                             <div className="w-full h-32 lg:h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden flex-shrink-0">
                               {product.imageUrl ? (
                                 <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                               ) : (
                                 <div className="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-lg"></div>
                               )}
-                      </div>
+                            </div>
 
-                      {/* Coffee Name */}
-                      <h3 
+                            {/* Coffee Name */}
+                            <h3
                               className="text-sm lg:text-base font-medium text-gray-900 mb-2 uppercase line-clamp-2 leading-tight flex-grow"
-                        style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                        }}
-                      >
+                              style={{
+                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                                letterSpacing: '0.8px',
+                                fontWeight: 500
+                              }}
+                            >
                               {product.name || 'Unnamed Product'}
-                      </h3>
+                            </h3>
 
-                      {/* Bottom Section */}
+                            {/* Bottom Section */}
                             <div className="flex items-center justify-between mt-auto">
-                        {/* Left: Flag and Country */}
-                        <div className="flex items-center gap-1.5">
+                              {/* Left: Flag and Country */}
+                              <div className="flex items-center gap-1.5">
                                 <div className="w-3 h-3 bg-green-500 rounded-sm flex-shrink-0"></div>
                                 <span className="text-xs text-gray-600 truncate">{originCountry}</span>
-                        </div>
+                              </div>
 
-                        {/* Right: Score */}
+                              {/* Right: Score */}
                               {qualityScore > 0 && (
                                 <div className="bg-[#D8501C] text-white px-2 py-1 rounded text-xs font-medium flex-shrink-0">
                                   {Math.round(qualityScore)}
-                        </div>
+                                </div>
                               )}
-                      </div>
-                    </div>
+                            </div>
+                          </div>
                         )
                       })}
-                </div>
+                  </div>
                 )}
 
                 {/* No Products Message */}
@@ -1596,90 +1600,86 @@ function BuyerWizard() {
 
                 {/* Pagination */}
                 {singleOriginProducts.length > 9 && (
-                <div className="flex flex-col items-center gap-4">
-                  {/* Page indicator */}
-                  <p 
-                    className="text-sm text-gray-600"
-                    style={{
-                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
-                    }}
-                  >
+                  <div className="flex flex-col items-center gap-4">
+                    {/* Page indicator */}
+                    <p
+                      className="text-sm text-gray-600"
+                      style={{
+                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                      }}
+                    >
                       Page {currentPage} of {Math.ceil(singleOriginProducts.length / 9)}
-                  </p>
+                    </p>
 
-                  {/* Page number buttons */}
-                  <div className="flex gap-2">
+                    {/* Page number buttons */}
+                    <div className="flex gap-2">
                       {Array.from({ length: Math.ceil(singleOriginProducts.length / 9) }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`w-10 h-10 rounded-lg font-medium transition-all ${
-                          currentPage === page
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-10 h-10 rounded-lg font-medium transition-all ${currentPage === page
                             ? 'bg-[#D8501C] text-white shadow-md'
                             : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
-                        }`}
-                        style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                        }}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
+                            }`}
+                          style={{
+                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            letterSpacing: '0.8px',
+                            fontWeight: 500
+                          }}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
 
-                  {/* Navigation buttons */}
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${
-                        currentPage === 1
+                    {/* Navigation buttons */}
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${currentPage === 1
                           ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
-                      }`}
-                      style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
-                      }}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(Math.ceil(singleOriginProducts.length / 9), prev + 1))}
-                      disabled={currentPage >= Math.ceil(singleOriginProducts.length / 9)}
-                      className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${
-                        currentPage >= Math.ceil(singleOriginProducts.length / 9)
+                          }`}
+                        style={{
+                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(Math.ceil(singleOriginProducts.length / 9), prev + 1))}
+                        disabled={currentPage >= Math.ceil(singleOriginProducts.length / 9)}
+                        className={`px-6 py-2.5 rounded-xl border font-semibold transition-all flex items-center gap-2 ${currentPage >= Math.ceil(singleOriginProducts.length / 9)
                           ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
                           : 'bg-white border-[#09543D] text-[#09543D] hover:bg-[#09543D]/5 hover:border-[#09543D]/80'
-                      }`}
-                      style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
-                      }}
-                    >
-                      Next
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
+                          }`}
+                        style={{
+                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        }}
+                      >
+                        Next
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
                 )}
               </div>
             )}
 
             {/* Product Selection - For Blend */}
             {selectedCoffeeType === 'blend' && (
-              <div 
-                ref={productSelectionSectionRef} 
-                className={`mt-8 lg:mt-10 transition-all duration-500 ${
-                  showProductSelection ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+              <div
+                ref={productSelectionSectionRef}
+                className={`mt-8 lg:mt-10 transition-all duration-500 ${showProductSelection ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
               >
-                <h2 
+                <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -1719,88 +1719,86 @@ function BuyerWizard() {
 
                 {/* Product Cards */}
                 {!loadingProducts && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto">
                     {blendProducts.map((product: any) => {
-                      const qualityScore = product.scaScoreComponents 
+                      const qualityScore = product.scaScoreComponents
                         ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
                         : 0
                       const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
-                      
-                      return (
-                    <button
-                      key={product.id}
-                      onClick={() => {
-                            handleProductSelect(product.id, 'blend')
-                        setTimeout(() => {
-                          roastTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                        }, 100)
-                      }}
-                      className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                            selectedProduct === String(product.id)
-                          ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                          : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                      }`}
-                    >
-                      {/* Selection indicator */}
-                          {selectedProduct === String(product.id) && (
-                        <div className="absolute top-2 right-2 w-5 h-5 bg-[#09543D] rounded-full flex items-center justify-center z-10">
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-          </div>
-                      )}
 
-                      {/* Product Image */}
-                      <div className="w-full h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                      return (
+                        <button
+                          key={product.id}
+                          onClick={() => {
+                            handleProductSelect(product.id, 'blend')
+                            setTimeout(() => {
+                              roastTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                            }, 100)
+                          }}
+                          className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedProduct === String(product.id)
+                            ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                            : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                            }`}
+                        >
+                          {/* Selection indicator */}
+                          {selectedProduct === String(product.id) && (
+                            <div className="absolute top-2 right-2 w-5 h-5 bg-[#09543D] rounded-full flex items-center justify-center z-10">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+
+                          {/* Product Image */}
+                          <div className="w-full h-40 bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                             {product.imageUrl ? (
                               <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                             ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-green-700 via-green-800 to-green-900 flex items-center justify-center">
-                          <div className="grid grid-cols-4 gap-1 p-4">
-                            {[...Array(16)].map((_, i) => (
-                              <div key={i} className="w-3 h-3 bg-green-600 rounded-sm"></div>
-                            ))}
-                          </div>
-                        </div>
+                              <div className="w-full h-full bg-gradient-to-br from-green-700 via-green-800 to-green-900 flex items-center justify-center">
+                                <div className="grid grid-cols-4 gap-1 p-4">
+                                  {[...Array(16)].map((_, i) => (
+                                    <div key={i} className="w-3 h-3 bg-green-600 rounded-sm"></div>
+                                  ))}
+                                </div>
+                              </div>
                             )}
-                      </div>
+                          </div>
 
-                      {/* Product Name */}
-                      <h3 
-                        className={`text-sm lg:text-base font-medium text-gray-900 mb-2 uppercase text-center ${
-                              selectedProduct === String(product.id) ? 'text-[#09543D]' : ''
-                        }`}
-                        style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                        }}
-                      >
+                          {/* Product Name */}
+                          <h3
+                            className={`text-sm lg:text-base font-medium text-gray-900 mb-2 uppercase text-center ${selectedProduct === String(product.id) ? 'text-[#09543D]' : ''
+                              }`}
+                            style={{
+                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
+                            }}
+                          >
                             {product.name || 'Unnamed Product'}
-                      </h3>
+                          </h3>
 
-                      {/* Origin */}
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <div className="w-4 h-4 bg-green-500 rounded-sm"></div>
+                          {/* Origin */}
+                          <div className="flex items-center justify-center gap-2 mb-2">
+                            <div className="w-4 h-4 bg-green-500 rounded-sm"></div>
                             <span className="text-xs text-gray-600">{originCountry}</span>
-                      </div>
+                          </div>
 
-                      {/* Coffee Type */}
+                          {/* Coffee Type */}
                           <p className="text-xs text-gray-600 text-center mb-3">{product.coffeeType || 'Arabica'}</p>
 
-                      {/* Score */}
+                          {/* Score */}
                           {qualityScore > 0 && (
-                      <div className="flex flex-col items-center">
-                        <div className="bg-[#D8501C] text-white px-3 py-1.5 rounded-lg text-sm font-medium">
+                            <div className="flex flex-col items-center">
+                              <div className="bg-[#D8501C] text-white px-3 py-1.5 rounded-lg text-sm font-medium">
                                 {Math.round(qualityScore)}
-                        </div>
-                        <span className="text-xs text-gray-500 mt-1">Score</span>
-                      </div>
+                              </div>
+                              <span className="text-xs text-gray-500 mt-1">Score</span>
+                            </div>
                           )}
-                    </button>
+                        </button>
                       )
                     })}
-                </div>
+                  </div>
                 )}
 
                 {/* No Products Message */}
@@ -1814,13 +1812,12 @@ function BuyerWizard() {
 
             {/* Roast Type Selection */}
             {(selectedCoffee || selectedProduct) && (
-              <div 
-                ref={roastTypeSectionRef} 
-                className={`mt-8 lg:mt-10 transition-all duration-500 ${
-                  showRoastType ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+              <div
+                ref={roastTypeSectionRef}
+                className={`mt-8 lg:mt-10 transition-all duration-500 ${showRoastType ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
               >
-                <h2 
+                <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -1838,11 +1835,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedRoastType('light')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedRoastType === 'light'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedRoastType === 'light'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedRoastType === 'light' && (
@@ -1852,14 +1848,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={lightRoastIcon} alt="Light Roast" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedRoastType === 'light' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'light' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -1874,11 +1869,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedRoastType('medium')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedRoastType === 'medium'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedRoastType === 'medium'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedRoastType === 'medium' && (
@@ -1888,14 +1882,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={mediumRoastIcon} alt="Medium Roast" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedRoastType === 'medium' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'medium' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -1910,11 +1903,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedRoastType('medium-dark')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedRoastType === 'medium-dark'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedRoastType === 'medium-dark'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedRoastType === 'medium-dark' && (
@@ -1924,14 +1916,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={mediumDarkRoastIcon} alt="Medium-Dark Roast" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedRoastType === 'medium-dark' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'medium-dark' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -1946,11 +1937,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedRoastType('dark')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedRoastType === 'dark'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedRoastType === 'dark'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedRoastType === 'dark' && (
@@ -1960,14 +1950,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={darkRoastIcon} alt="Dark Roast" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedRoastType === 'dark' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'dark' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -1982,13 +1971,12 @@ function BuyerWizard() {
 
             {/* Grind Type Selection */}
             {selectedRoastType && (
-              <div 
-                ref={grindTypeSectionRef} 
-                className={`mt-8 lg:mt-10 transition-all duration-500 ${
-                  showGrindType ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+              <div
+                ref={grindTypeSectionRef}
+                className={`mt-8 lg:mt-10 transition-all duration-500 ${showGrindType ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
               >
-                <h2 
+                <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -2006,11 +1994,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedGrindType('whole-bean')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedGrindType === 'whole-bean'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedGrindType === 'whole-bean'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedGrindType === 'whole-bean' && (
@@ -2020,14 +2007,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={lightRoastIcon} alt="Whole Bean" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedGrindType === 'whole-bean' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'whole-bean' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -2042,11 +2028,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedGrindType('coarse')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedGrindType === 'coarse'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedGrindType === 'coarse'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedGrindType === 'coarse' && (
@@ -2056,14 +2041,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={lightRoastIcon} alt="Coarse" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedGrindType === 'coarse' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'coarse' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -2078,11 +2062,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedGrindType('medium')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedGrindType === 'medium'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedGrindType === 'medium'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedGrindType === 'medium' && (
@@ -2092,14 +2075,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={mediumRoastIcon} alt="Medium" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedGrindType === 'medium' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'medium' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -2114,11 +2096,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedGrindType('fine')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedGrindType === 'fine'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedGrindType === 'fine'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedGrindType === 'fine' && (
@@ -2128,14 +2109,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={mediumDarkRoastIcon} alt="Fine" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedGrindType === 'fine' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'fine' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -2150,11 +2130,10 @@ function BuyerWizard() {
                     onClick={() => {
                       setSelectedGrindType('extra-fine')
                     }}
-                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${
-                      selectedGrindType === 'extra-fine'
-                        ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                        : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                    }`}
+                    className={`group relative bg-white rounded-xl border-2 p-3 lg:p-4 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedGrindType === 'extra-fine'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
                   >
                     {/* Selection indicator */}
                     {selectedGrindType === 'extra-fine' && (
@@ -2164,14 +2143,13 @@ function BuyerWizard() {
                         </svg>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-center mb-2 lg:mb-3">
                       <img src={darkRoastIcon} alt="Extra Fine" className="w-12 h-12 lg:w-16 lg:h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                    <h3 
-                      className={`text-sm lg:text-base font-medium transition-colors ${
-                        selectedGrindType === 'extra-fine' ? 'text-[#09543D]' : 'text-gray-800'
-                      }`}
+                    <h3
+                      className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'extra-fine' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
                       style={{
                         fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                         letterSpacing: '1px'
@@ -2186,13 +2164,12 @@ function BuyerWizard() {
 
             {/* Package Size Selection */}
             {selectedGrindType && (
-              <div 
-                ref={packageSizeSectionRef} 
-                className={`mt-8 lg:mt-10 transition-all duration-500 w-full ${
-                  showPackageSize ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+              <div
+                ref={packageSizeSectionRef}
+                className={`mt-8 lg:mt-10 transition-all duration-500 w-full ${showPackageSize ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
               >
-                <h2 
+                <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-8 lg:mb-10"
                   style={{
                     fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -2210,16 +2187,14 @@ function BuyerWizard() {
                       <button
                         key={pkg.id}
                         onClick={() => setSelectedPackageSize(pkg.id)}
-                        className={`relative text-center p-4 lg:p-5 rounded-xl border-2 transition-all duration-300 transform hover:scale-[1.02] ${
-                          selectedPackageSize === pkg.id
-                            ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                            : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-md bg-white'
-                        }`}
-                      >
-                        <h3 
-                          className={`font-medium text-sm lg:text-base transition-colors ${
-                            selectedPackageSize === pkg.id ? 'text-[#09543D]' : 'text-gray-800'
+                        className={`relative text-center p-4 lg:p-5 rounded-xl border-2 transition-all duration-300 transform hover:scale-[1.02] ${selectedPackageSize === pkg.id
+                          ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                          : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-md bg-white'
                           }`}
+                      >
+                        <h3
+                          className={`font-medium text-sm lg:text-base transition-colors ${selectedPackageSize === pkg.id ? 'text-[#09543D]' : 'text-gray-800'
+                            }`}
                           style={{
                             fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
                             letterSpacing: '1px',
@@ -2241,7 +2216,7 @@ function BuyerWizard() {
 
                   {/* Logo Upload Dropzone - Horizontal */}
                   {selectedPackageSize && selectedPackage && (
-                    <label 
+                    <label
                       ref={dropzoneSectionRef}
                       className="block w-full p-6 lg:p-8 rounded-2xl border-2 border-dashed border-gray-300 hover:border-[#09543D] cursor-pointer transition-all bg-white hover:bg-gray-50 group relative"
                     >
@@ -2294,7 +2269,7 @@ function BuyerWizard() {
                     <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
                       {/* Package Title */}
                       <div className="mb-6 pb-6 border-b border-gray-200">
-                        <h3 
+                        <h3
                           className="text-2xl lg:text-3xl font-medium text-gray-900 mb-2"
                           style={{
                             fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -2307,9 +2282,9 @@ function BuyerWizard() {
                         <p className="text-gray-500 text-sm">Customize your packaging</p>
                       </div>
 
-                          {/* Bag Image Preview with Logo Overlay */}
+                      {/* Bag Image Preview with Logo Overlay */}
                       <div className="flex flex-col items-center gap-4">
-                        <div 
+                        <div
                           className="relative"
                           style={{
                             minWidth: '300px',
@@ -2328,9 +2303,9 @@ function BuyerWizard() {
                         >
                           {/* Main Bag Image */}
                           {selectedPreviewImage || currentBagImage ? (
-                            <img 
-                              src={selectedPreviewImage || currentBagImage} 
-                              alt="Coffee bag preview" 
+                            <img
+                              src={selectedPreviewImage || currentBagImage}
+                              alt="Coffee bag preview"
                               className="preview-img"
                               style={{
                                 maxWidth: '100%',
@@ -2357,10 +2332,10 @@ function BuyerWizard() {
                               </div>
                             </div>
                           )}
-                          
+
                           {/* Logo Overlay - Only show for non-K-cup bags */}
                           {logoPreview && selectedPackageSize !== 'kcup' && (
-                            <div 
+                            <div
                               className="absolute"
                               style={{
                                 top: 0,
@@ -2371,9 +2346,9 @@ function BuyerWizard() {
                                 zIndex: 5
                               }}
                             >
-                              <img 
-                                src={logoPreview} 
-                                alt="Your logo" 
+                              <img
+                                src={logoPreview}
+                                alt="Your logo"
                                 className="design-image"
                                 style={{
                                   position: 'absolute',
@@ -2412,10 +2387,10 @@ function BuyerWizard() {
                                   })
                                 }}
                               />
-                              </div>
-                          )}
                             </div>
-                        
+                          )}
+                        </div>
+
                         {/* Preview Thumbnails */}
                         {bagPreviewImages.length > 0 && (
                           <div className="flex gap-2 justify-center">
@@ -2423,14 +2398,13 @@ function BuyerWizard() {
                               <button
                                 key={index}
                                 onClick={() => setSelectedPreviewImage(img)}
-                                className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${
-                                  selectedPreviewImage === img || (index === 0 && !selectedPreviewImage)
-                                    ? 'border-[#09543D] ring-2 ring-[#09543D]/20'
-                                    : 'border-gray-200 hover:border-[#09543D]/50'
-                                }`}
+                                className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${selectedPreviewImage === img || (index === 0 && !selectedPreviewImage)
+                                  ? 'border-[#09543D] ring-2 ring-[#09543D]/20'
+                                  : 'border-gray-200 hover:border-[#09543D]/50'
+                                  }`}
                               >
-                                <img 
-                                  src={img} 
+                                <img
+                                  src={img}
                                   alt={`Preview ${index + 1}`}
                                   className="w-full h-full object-cover"
                                 />
@@ -2445,162 +2419,162 @@ function BuyerWizard() {
                   {/* Details and Quantity Card - Full Width */}
                   {selectedPackageSize && selectedPackage && (
                     <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
-                          {/* Bag Details */}
-                          <div className="mb-6">
-                            <h4 
-                              className="text-lg font-medium text-gray-800 mb-4"
-                              style={{
-                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                              }}
-                            >
-                              Bag details
-                            </h4>
-                            <div className="space-y-3 text-gray-700">
-                              <div className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                                </svg>
-                                <p><span className="font-semibold">Size:</span> {selectedPackage.details.size}</p>
-                              </div>
-                              <div className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                                </svg>
-                                <p><span className="font-semibold">Color:</span> {selectedPackage.details.color}</p>
-                              </div>
-                              <div className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                <p>Roasted in the USA</p>
-                              </div>
-                              <div className="flex items-start gap-2">
-                                <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <p><span className="font-semibold">Label size:</span> {selectedPackage.details.labelSize}</p>
-                              </div>
-                            </div>
+                      {/* Bag Details */}
+                      <div className="mb-6">
+                        <h4
+                          className="text-lg font-medium text-gray-800 mb-4"
+                          style={{
+                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            letterSpacing: '0.8px',
+                            fontWeight: 500
+                          }}
+                        >
+                          Bag details
+                        </h4>
+                        <div className="space-y-3 text-gray-700">
+                          <div className="flex items-start gap-2">
+                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                            </svg>
+                            <p><span className="font-semibold">Size:</span> {selectedPackage.details.size}</p>
                           </div>
-
-                          {/* Frac Pack Size Selection */}
-                          {selectedPackageSize === 'frac' && (
-                            <div className="mb-6 pb-6 border-b border-gray-200">
-                              <label 
-                                className="block text-sm font-medium text-gray-700 mb-3"
-                                style={{
-                                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                                }}
-                              >
-                                Select size:
-                              </label>
-                              <div className="flex gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input
-                                    type="radio"
-                                    name="fracPackSize"
-                                    value="3oz"
-                                    checked={fracPackSize === '3oz'}
-                                    onChange={(e) => setFracPackSize(e.target.value)}
-                                    className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
-                                  />
-                                  <span className="text-gray-700 font-semibold">3oz</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input
-                                    type="radio"
-                                    name="fracPackSize"
-                                    value="4oz"
-                                    checked={fracPackSize === '4oz'}
-                                    onChange={(e) => setFracPackSize(e.target.value)}
-                                    className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
-                                  />
-                                  <span className="text-gray-700 font-semibold">4oz</span>
-                                </label>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Quantity Input */}
-                          <div>
-                            <label 
-                              className="block text-sm font-medium text-gray-700 mb-3"
-                              style={{
-                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                              }}
-                            >
-                              <span className="flex items-center gap-2">
-                                <svg className="w-5 h-5 text-[#09543D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
-                                QUANTITY (# OF BAGS) *
-                              </span>
-                            </label>
-                            <p className="text-sm text-gray-500 mb-2">Enter the number of bags you'd like to order</p>
-                            <input
-                              type="number"
-                              min="1"
-                              value={quantity}
-                              onChange={(e) => setQuantity(e.target.value)}
-                              placeholder="Enter quantity"
-                              className="w-full px-4 py-3.5 border-2 border-[#D8501C]/50 rounded-xl focus:outline-none focus:border-[#D8501C] focus:ring-2 focus:ring-[#D8501C]/20 transition-all text-lg font-semibold"
-                              style={{
-                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                              }}
-                            />
-                            {/* Amount Display for Regular Products */}
-                            {selectedType !== 'wholesale' && quantity && parseFloat(quantity) > 0 && (
-                              <div className="mt-3">
-                                {!selectedPackageSize && (
-                                  <p className="text-xs text-amber-600 mb-1">
-                                    * Please select a package size for accurate pricing
-                                  </p>
-                                )}
-                                <div className="text-right">
-                                  <span className="text-sm text-gray-600">Amount: </span>
-                                  <span className="text-lg font-medium text-[#09543D]">
-                                    ${parseFloat(productAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
+                          <div className="flex items-start gap-2">
+                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                            </svg>
+                            <p><span className="font-semibold">Color:</span> {selectedPackage.details.color}</p>
                           </div>
-
-                          {/* Confirm and Proceed Button */}
-                          <div className="mt-6 pt-6 border-t border-gray-200">
-                            <button
-                              onClick={handleAddToCart}
-                              disabled={isLoading || !quantity || !selectedProductData}
-                              className="w-full px-6 py-4 bg-[#09543D] text-white rounded-xl font-medium text-lg hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
-                              style={{
-                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
-                          letterSpacing: '0.8px',
-                          fontWeight: 500
-                              }}
-                            >
-                              {isLoading ? (
-                                <>
-                                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  <span>Processing...</span>
-                                </>
-                              ) : (
-                                'Confirm and Proceed'
-                              )}
-                            </button>
+                          <div className="flex items-start gap-2">
+                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <p>Roasted in the USA</p>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p><span className="font-semibold">Label size:</span> {selectedPackage.details.labelSize}</p>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Frac Pack Size Selection */}
+                      {selectedPackageSize === 'frac' && (
+                        <div className="mb-6 pb-6 border-b border-gray-200">
+                          <label
+                            className="block text-sm font-medium text-gray-700 mb-3"
+                            style={{
+                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Select size:
+                          </label>
+                          <div className="flex gap-4">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="fracPackSize"
+                                value="3oz"
+                                checked={fracPackSize === '3oz'}
+                                onChange={(e) => setFracPackSize(e.target.value)}
+                                className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
+                              />
+                              <span className="text-gray-700 font-semibold">3oz</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                name="fracPackSize"
+                                value="4oz"
+                                checked={fracPackSize === '4oz'}
+                                onChange={(e) => setFracPackSize(e.target.value)}
+                                className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
+                              />
+                              <span className="text-gray-700 font-semibold">4oz</span>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Quantity Input */}
+                      <div>
+                        <label
+                          className="block text-sm font-medium text-gray-700 mb-3"
+                          style={{
+                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            letterSpacing: '0.8px',
+                            fontWeight: 500
+                          }}
+                        >
+                          <span className="flex items-center gap-2">
+                            <svg className="w-5 h-5 text-[#09543D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                            QUANTITY (# OF BAGS) *
+                          </span>
+                        </label>
+                        <p className="text-sm text-gray-500 mb-2">Enter the number of bags you'd like to order</p>
+                        <input
+                          type="number"
+                          min="1"
+                          value={quantity}
+                          onChange={(e) => setQuantity(e.target.value)}
+                          placeholder="Enter quantity"
+                          className="w-full px-4 py-3.5 border-2 border-[#D8501C]/50 rounded-xl focus:outline-none focus:border-[#D8501C] focus:ring-2 focus:ring-[#D8501C]/20 transition-all text-lg font-semibold"
+                          style={{
+                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            letterSpacing: '0.8px',
+                            fontWeight: 500
+                          }}
+                        />
+                        {/* Amount Display for Regular Products */}
+                        {selectedType !== 'wholesale' && quantity && parseFloat(quantity) > 0 && (
+                          <div className="mt-3">
+                            {!selectedPackageSize && (
+                              <p className="text-xs text-amber-600 mb-1">
+                                * Please select a package size for accurate pricing
+                              </p>
+                            )}
+                            <div className="text-right">
+                              <span className="text-sm text-gray-600">Amount: </span>
+                              <span className="text-lg font-medium text-[#09543D]">
+                                ${parseFloat(productAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Confirm and Proceed Button */}
+                      <div className="mt-6 pt-6 border-t border-gray-200">
+                        <button
+                          onClick={handleAddToCart}
+                          disabled={isLoading || !quantity || !selectedProductData}
+                          className="w-full px-6 py-4 bg-[#09543D] text-white rounded-xl font-medium text-lg hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                          style={{
+                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            letterSpacing: '0.8px',
+                            fontWeight: 500
+                          }}
+                        >
+                          {isLoading ? (
+                            <>
+                              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span>Processing...</span>
+                            </>
+                          ) : (
+                            'Confirm and Proceed'
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -2610,11 +2584,11 @@ function BuyerWizard() {
 
           {/* Notification Modal - Positioned in Right Section */}
           {showNotification && (
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
               onClick={() => setShowNotification(false)}
             >
-              <div 
+              <div
                 className="bg-white rounded-2xl p-8 lg:p-10 max-w-md w-full shadow-2xl transform transition-all"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -2625,9 +2599,9 @@ function BuyerWizard() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  
+
                   {/* Title */}
-                  <h3 
+                  <h3
                     className="text-3xl lg:text-4xl font-medium text-gray-900 mb-4"
                     style={{
                       fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -2636,25 +2610,37 @@ function BuyerWizard() {
                   >
                     All Done
                   </h3>
-                  
+
                   {/* Message */}
                   <p className="text-gray-600 text-lg mb-6">
-                    We will send you an email to proceed to make payment
+                    Item added to cart successfully. Proceed to checkout to complete your order.
                   </p>
-                  
-                  {/* Close Button */}
-                  <button
-                    onClick={() => {
-                      setShowNotification(false)
-                      window.location.reload()
-                    }}
-                    className="px-8 py-3 bg-[#09543D] text-white rounded-xl font-medium hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl"
-                    style={{
-                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
-                    }}
-                  >
-                    Close
-                  </button>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={() => {
+                        setShowNotification(false)
+                        navigate('/checkout')
+                      }}
+                      className="w-full px-8 py-3 bg-[#09543D] text-white rounded-xl font-medium hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl"
+                      style={{
+                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                      }}
+                    >
+                      Proceed to Checkout
+                    </button>
+
+                    <button
+                      onClick={() => setShowNotification(false)}
+                      className="w-full px-8 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
+                      style={{
+                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                      }}
+                    >
+                      Continue Shopping
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2662,11 +2648,11 @@ function BuyerWizard() {
 
           {/* Logout Confirmation Modal */}
           {showLogoutConfirm && (
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
               onClick={() => setShowLogoutConfirm(false)}
             >
-              <div 
+              <div
                 className="bg-white rounded-2xl p-8 lg:p-10 max-w-md w-full shadow-2xl transform transition-all"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -2677,9 +2663,9 @@ function BuyerWizard() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                   </div>
-                  
+
                   {/* Title */}
-                  <h3 
+                  <h3
                     className="text-3xl lg:text-4xl font-medium text-gray-900 mb-4"
                     style={{
                       fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
@@ -2688,12 +2674,12 @@ function BuyerWizard() {
                   >
                     Confirm Logout
                   </h3>
-                  
+
                   {/* Message */}
                   <p className="text-gray-600 text-lg mb-6">
                     Are you sure you want to logout? You will need to sign in again to access your account.
                   </p>
-                  
+
                   {/* Buttons */}
                   <div className="flex gap-4 justify-center">
                     <button
@@ -2726,7 +2712,10 @@ function BuyerWizard() {
       </div>
 
       {/* Clare Side Panel */}
-      <ClareSidePanel />
+      <ClareSidePanel
+        isMinimized={isChatMinimized}
+        onToggle={setIsChatMinimized}
+      />
     </div>
   )
 }

@@ -55,7 +55,7 @@ function Checkout() {
       try {
         setLoading(true)
         setError(null)
-        
+
         // Check authentication first (matching old implementation)
         const authToken = localStorage.getItem('authToken')
         if (!authToken) {
@@ -64,16 +64,16 @@ function Checkout() {
           navigate('/signin')
           return
         }
-        
+
         // Fetch cart items
         try {
           const cartResponse = await cartApi.getCartItems()
           console.log('Cart response:', cartResponse)
-          
+
           if (cartResponse?.statusCode === 200) {
             const items = Array.isArray(cartResponse.data) ? cartResponse.data : []
             setCartItems(items)
-            
+
             // If cart is empty, redirect to buyer wizard (matching old implementation)
             if (items.length === 0) {
               console.log('Cart is empty, redirecting to buyer wizard')
@@ -109,7 +109,7 @@ function Checkout() {
           const profileResponse = await buyerApi.getBuyerProfile()
           if (profileResponse?.statusCode === 200 && profileResponse.data) {
             setProfileData(profileResponse.data)
-            
+
             // Prepopulate billing address from profile
             const profile = profileResponse.data
             if (profile.shippingAddressLine1) {
@@ -121,7 +121,7 @@ function Checkout() {
                 country: profile.shippingCountry || 'United States',
                 zipCode: profile.shippingZipCode || '',
               })
-              
+
               // Also set shipping address
               setShippingAddress({
                 addressLine1: profile.shippingAddressLine1 || '',
@@ -145,7 +145,18 @@ function Checkout() {
     }
 
     fetchCheckoutData()
+
   }, [navigate])
+
+  // Handle payment cancellation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('payment_cancel') === 'true' || params.get('cancel') === 'true') {
+      setError('Payment was cancelled. You can try again or choose a different payment method.')
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
+
 
   // Handle same as billing checkbox
   useEffect(() => {
@@ -162,15 +173,15 @@ function Checkout() {
 
     try {
       // Validate required fields
-      if (!billingAddress.addressLine1 || !billingAddress.city || 
-          !billingAddress.state || !billingAddress.country || !billingAddress.zipCode) {
+      if (!billingAddress.addressLine1 || !billingAddress.city ||
+        !billingAddress.state || !billingAddress.country || !billingAddress.zipCode) {
         setError('Please fill in all required billing address fields')
         setSubmitting(false)
         return
       }
 
-      if (!shippingAddress.addressLine1 || !shippingAddress.city || 
-          !shippingAddress.state || !shippingAddress.country || !shippingAddress.zipCode) {
+      if (!shippingAddress.addressLine1 || !shippingAddress.city ||
+        !shippingAddress.state || !shippingAddress.country || !shippingAddress.zipCode) {
         setError('Please fill in all required shipping address fields')
         setSubmitting(false)
         return
@@ -186,28 +197,28 @@ function Checkout() {
 
       if (response?.statusCode === 200 || response?.success === true) {
         const data = response.data || response
-        
+
         // If delivery is selected, redirect to delivery quotes page
         if (delivery && data.orderId) {
           // Store order data for delivery quotes page
           sessionStorage.setItem('checkout_order_id', data.orderId.toString())
           sessionStorage.setItem('checkout_total_amount', (data.totalPrice || 0).toString())
           sessionStorage.setItem('checkout_payment_type', paymentType)
-          sessionStorage.setItem('checkout_insurance_amount', 
+          sessionStorage.setItem('checkout_insurance_amount',
             (data.insuranceAmount || (data.totalPrice || 0) * 0.01).toString())
-          
+
           // Navigate to delivery quotes (we'll need to create this component later)
           // For now, redirect to order history or show success
           navigate('/buyer?delivery=true')
           return
         }
-        
+
         // If approvalUrl exists, redirect to PayPal
         if (data.approvalUrl) {
           window.location.href = data.approvalUrl
           return
         }
-        
+
         // Otherwise, clear cart and redirect to order history
         await cartApi.clearCart()
         navigate('/buyer?success=true')
@@ -236,7 +247,7 @@ function Checkout() {
   return (
     <div className="min-h-screen bg-[#F9F7F1]">
       <Header isBuyMode={true} />
-      
+
       {/* Checkout Header */}
       <div className="bg-gradient-to-r from-[#1A4D3A] to-[#2d7a5f] text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -259,7 +270,7 @@ function Checkout() {
                   {cartItems.map((item: any, index: number) => {
                     const stockPosting = item.stockPosting || {}
                     const itemPrice = (stockPosting.bagPrice || 0) * (item.numBags || 0) * (stockPosting.bagWeight || 1)
-                    
+
                     return (
                       <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <div className="flex items-center gap-4">
@@ -355,7 +366,7 @@ function Checkout() {
                 {/* Billing Details */}
                 <div>
                   <h5 className="text-lg font-bold mb-4">Billing Details</h5>
-                  
+
                   {profileData?.shippingAddressLine1 ? (
                     <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4">
                       <i className="fas fa-info-circle mr-2"></i>
