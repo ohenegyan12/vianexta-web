@@ -30,7 +30,8 @@ function SignIn() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Important for session cookies
+        // Removed credentials: 'include' because backend returns Access-Control-Allow-Origin: *
+        // which is incompatible with credentials. Token is extracted from response body instead.
         body: JSON.stringify({
           email,
           password
