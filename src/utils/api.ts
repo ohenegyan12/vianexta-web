@@ -192,16 +192,26 @@ export const cartApi = {
   // Update cart item
   updateCartItem: async (item: {
     stockPostingId: number
-    quantity?: number
+    numBags?: number
+    quantity?: number // Keep for backward compatibility
     bagSize?: string
     grindType?: string
     roastType?: string
     bagImage?: string
     isRoast?: boolean
   }): Promise<any> => {
+    // Use numBags if provided, otherwise fall back to quantity
+    const payload = {
+      ...item,
+      numBags: item.numBags || item.quantity,
+    }
+    // Remove quantity if numBags is set
+    if (payload.numBags) {
+      delete (payload as any).quantity
+    }
     return apiRequest('/api/cart-item', {
       method: 'PUT',
-      body: JSON.stringify(item),
+      body: JSON.stringify(payload),
     })
   },
 

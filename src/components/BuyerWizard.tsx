@@ -125,6 +125,28 @@ function BuyerWizard() {
   const [cartItemsList, setCartItemsList] = useState<CartItem[]>([])
   const [showComingSoonModal, setShowComingSoonModal] = useState(false)
   const [comingSoonFeature, setComingSoonFeature] = useState<string>('')
+  
+  // Delete Cart Item Confirmation State
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null)
+  const [deletingCartItem, setDeletingCartItem] = useState(false)
+  
+  // Success/Error Modal State
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [showErrorModal, setShowErrorModal] = useState(false)
+  const [modalMessage, setModalMessage] = useState<string>('')
+  
+  // Edit Cart Item State
+  const [editingCartItem, setEditingCartItem] = useState<CartItem | null>(null)
+  const [showEditCartModal, setShowEditCartModal] = useState(false)
+  const [editQuantity, setEditQuantity] = useState<number>(1)
+  const [editRoastType, setEditRoastType] = useState<string>('')
+  const [editGrindType, setEditGrindType] = useState<string>('')
+  const [editBagSize, setEditBagSize] = useState<string>('12oz')
+  const [editBagImage, setEditBagImage] = useState<string>('')
+  const [editLogoPreview, setEditLogoPreview] = useState<string>('')
+  const [editLogoOverlay, setEditLogoOverlay] = useState<string>('')
+  const [savingCartItem, setSavingCartItem] = useState(false)
 
   // Bag image mapping based on package size - using local images from public folder
   const bagImageMap: { [key: string]: string } = {
@@ -133,6 +155,16 @@ function BuyerWizard() {
     '10oz': '/images/buyer/10oz_1.png',
     'frac': '/images/buyer/frac_pack.png',
     'kcup': '/images/buyer/kcup.jpg',
+  }
+
+  // Bag preview images mapping - multiple sides of each bag
+  // Using available images only - if other sides don't exist, use the main image
+  const bagPreviewImagesMap: { [key: string]: string[] } = {
+    '5lb': ['/images/buyer/5lb_1.jpg', '/images/buyer/5lb_1.jpg', '/images/buyer/5lb_1.jpg', '/images/buyer/5lb_1.jpg'],
+    '12oz': ['/images/buyer/12oz_1.png', '/images/buyer/12oz_1.png', '/images/buyer/12oz_1.png', '/images/buyer/12oz_1.png'],
+    '10oz': ['/images/buyer/10oz_1.png', '/images/buyer/10oz_1.png', '/images/buyer/10oz_1.png', '/images/buyer/10oz_1.png'],
+    'frac': ['/images/buyer/frac_pack.png', '/images/buyer/frac_pack.png', '/images/buyer/frac_pack.png', '/images/buyer/frac_pack.png'],
+    'kcup': ['/images/buyer/kcup.jpg', '/images/buyer/kcup.jpg', '/images/buyer/kcup.jpg', '/images/buyer/kcup.jpg'],
   }
 
   // const totalPages = 3 // Reserved for future pagination
@@ -614,8 +646,8 @@ function BuyerWizard() {
       setCurrentBagImage(bagImage)
       setSelectedPreviewImage(bagImage)
 
-      // Set preview images based on package size (using same image for now, can be expanded)
-      const previewImages = [bagImage, bagImage, bagImage, bagImage]
+      // Set preview images based on package size (multiple sides of the bag)
+      const previewImages = bagPreviewImagesMap[selectedPackageSize] || bagPreviewImagesMap['12oz']
       setBagPreviewImages(previewImages)
     } else {
       // Set default image when no package is selected
@@ -783,6 +815,110 @@ function BuyerWizard() {
       alert('Failed to add item to cart. Please try again.')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // Handle remove cart item confirmation
+  const handleRemoveCartItemClick = (stockPostingId: number) => {
+    setItemToDelete(stockPostingId)
+    setShowDeleteConfirm(true)
+  }
+
+  // Handle remove cart item (after confirmation)
+  const handleRemoveCartItem = async () => {
+    if (!itemToDelete) return
+
+    setDeletingCartItem(true)
+    try {
+      await cartApi.deleteCartItem(itemToDelete)
+      
+      // Always refresh cart items after deletion attempt
+      // If deletion was successful, the item will be gone
+      // If it failed, we'll still have the current items
+      const cartResponse = await cartApi.getCartItems()
+      if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
+        const previousCount = cartItemsList.length
+        setCartItemsList(cartResponse.data)
+        setCartItemsCount(cartResponse.data.length)
+        
+        // Check if item was actually removed (count decreased)
+        if (cartResponse.data.length < previousCount) {
+          // Close delete confirmation modal
+          setShowDeleteConfirm(false)
+          setItemToDelete(null)
+          // Show success message
+          setModalMessage('Item removed from cart successfully!')
+          setShowSuccessModal(true)
+        } else {
+          // Item wasn't removed, might have already been deleted or error occurred
+          throw new Error('Item was not removed from cart')
+        }
+      } else {
+        throw new Error('Failed to refresh cart after deletion')
+      }
+    } catch (error: unknown) {
+      console.error('Error removing cart item:', error)
+      setShowDeleteConfirm(false)
+      setItemToDelete(null)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to remove item. Please try again.'
+      setModalMessage(errorMessage)
+      setShowErrorModal(true)
+    } finally {
+      setDeletingCartItem(false)
+    }
+  }
+
+  // Handle save edited cart item
+  const handleSaveCartItem = async () => {
+    if (!editingCartItem) return
+
+    setSavingCartItem(true)
+    try {
+      const stockPosting = editingCartItem.stockPosting as StockPosting
+      const stockPostingId = stockPosting?.id
+
+      if (!stockPostingId) {
+        setModalMessage('Invalid cart item. Please try again.')
+        setShowErrorModal(true)
+        setSavingCartItem(false)
+        return
+      }
+
+      const updateResponse = await cartApi.updateCartItem({
+        stockPostingId,
+        numBags: editQuantity,
+        bagSize: editBagSize,
+        grindType: editGrindType || undefined,
+        roastType: editRoastType || undefined,
+        bagImage: editLogoPreview || editBagImage || undefined,
+        isRoast: editingCartItem.isRoast || false,
+      })
+
+      // Check if update was successful
+      if (updateResponse?.statusCode === 200 || updateResponse?.status === 200) {
+        // Refresh cart items
+        const response = await cartApi.getCartItems()
+        if (response?.statusCode === 200 && Array.isArray(response.data)) {
+          setCartItemsList(response.data)
+          setCartItemsCount(response.data.length)
+        }
+
+        // Close modal
+        setShowEditCartModal(false)
+        setEditingCartItem(null)
+        // Show success message
+        setModalMessage('Cart item updated successfully!')
+        setShowSuccessModal(true)
+      } else {
+        throw new Error(updateResponse?.message || 'Failed to update cart item')
+      }
+    } catch (error: unknown) {
+      console.error('Error updating cart item:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update cart item. Please try again.'
+      setModalMessage(errorMessage)
+      setShowErrorModal(true)
+    } finally {
+      setSavingCartItem(false)
     }
   }
 
@@ -2648,40 +2784,42 @@ function BuyerWizard() {
                     </label>
                   )}
 
-                  {/* Bag Image Card - Full Width */}
+                  {/* Bag Preview and Details - Side by Side Layout */}
                   {selectedPackageSize && selectedPackage && (
-                    <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
-                      {/* Package Title */}
-                      <div className="mb-6 pb-6 border-b border-gray-200">
-                        <h3
-                          className="text-2xl lg:text-3xl font-medium text-gray-900 mb-2"
-                          style={{
-                            fontFamily: "'Poppins', sans-serif",
-                            letterSpacing: '1px',
-                            fontWeight: 500
-                          }}
-                        >
-                          {selectedPackage.name}
-                        </h3>
-                        <p className="text-gray-500 text-sm">Customize your packaging</p>
-                      </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                      {/* Left Side - Bag Preview Card */}
+                      <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
+                        {/* Package Title */}
+                        <div className="mb-6 pb-6 border-b border-gray-200">
+                          <h3
+                            className="text-2xl lg:text-3xl font-medium text-gray-900 mb-2"
+                            style={{
+                              fontFamily: "'Poppins', sans-serif",
+                              letterSpacing: '1px',
+                              fontWeight: 500
+                            }}
+                          >
+                            {selectedPackage.name}
+                          </h3>
+                          <p className="text-gray-500 text-sm">Customize your packaging</p>
+                        </div>
 
-                      {/* Bag Image Preview with Logo Overlay */}
-                      <div className="flex flex-col items-center gap-4">
+                        {/* Bag Image Preview with Logo Overlay */}
+                        <div className="flex flex-col items-center gap-4">
                         <div
-                          className="relative"
+                          className="relative mx-auto"
                           style={{
-                            minWidth: '300px',
-                            minHeight: selectedPackageSize === '5lb' ? '500px' : selectedPackageSize === 'kcup' ? '300px' : selectedPackageSize === 'frac' ? '380px' : '400px',
-                            width: '300px',
-                            height: selectedPackageSize === '5lb' ? '500px' : selectedPackageSize === 'kcup' ? '300px' : selectedPackageSize === 'frac' ? '380px' : '400px',
+                            minWidth: '250px',
+                            maxWidth: '100%',
+                            minHeight: selectedPackageSize === '5lb' ? '450px' : selectedPackageSize === 'kcup' ? '280px' : selectedPackageSize === 'frac' ? '350px' : '360px',
+                            width: '100%',
+                            height: selectedPackageSize === '5lb' ? '450px' : selectedPackageSize === 'kcup' ? '280px' : selectedPackageSize === 'frac' ? '350px' : '360px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             background: '#f8f9fa',
                             borderRadius: '16px',
-                            padding: '20px',
-                            margin: '0 auto',
+                            padding: '16px',
                             position: 'relative'
                           }}
                         >
@@ -2775,33 +2913,43 @@ function BuyerWizard() {
                           )}
                         </div>
 
-                        {/* Preview Thumbnails */}
-                        {bagPreviewImages.length > 0 && (
-                          <div className="flex gap-2 justify-center">
-                            {bagPreviewImages.map((img, index) => (
-                              <button
-                                key={index}
-                                onClick={() => setSelectedPreviewImage(img)}
-                                className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${selectedPreviewImage === img || (index === 0 && !selectedPreviewImage)
-                                  ? 'border-[#09543D] ring-2 ring-[#09543D]/20'
-                                  : 'border-gray-200 hover:border-[#09543D]/50'
-                                  }`}
-                              >
-                                <img
-                                  src={img}
-                                  alt={`Preview ${index + 1}`}
-                                  className="w-full h-full object-cover"
-                                />
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                        {/* Preview Thumbnails - Only show if we have multiple unique images */}
+                        {bagPreviewImages.length > 0 && (() => {
+                          // Filter to show only unique images
+                          const uniqueImages = Array.from(new Set(bagPreviewImages))
+                          // Only show thumbnails if we have more than one unique image
+                          if (uniqueImages.length <= 1) return null
+                          
+                          return (
+                            <div className="flex gap-2 justify-center">
+                              {bagPreviewImages.map((img, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => setSelectedPreviewImage(img)}
+                                  className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${selectedPreviewImage === img || (index === 0 && !selectedPreviewImage)
+                                    ? 'border-[#09543D] ring-2 ring-[#09543D]/20'
+                                    : 'border-gray-200 hover:border-[#09543D]/50'
+                                    }`}
+                                  onError={(e) => {
+                                    // Hide thumbnail if image fails to load
+                                    const target = e.target as HTMLImageElement
+                                    target.style.display = 'none'
+                                  }}
+                                >
+                                  <img
+                                    src={img}
+                                    alt={`Preview ${index + 1}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          )
+                        })()}
                       </div>
                     </div>
-                  )}
 
-                  {/* Details and Quantity Card - Full Width */}
-                  {selectedPackageSize && selectedPackage && (
+                    {/* Right Side - Bag Details Card */}
                     <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
                       {/* Bag Details */}
                       <div className="mb-6">
@@ -2958,6 +3106,7 @@ function BuyerWizard() {
                           )}
                         </button>
                       </div>
+                    </div>
                     </div>
                   )}
                 </div>
@@ -3141,10 +3290,37 @@ function BuyerWizard() {
                                 </span>
                               </div>
                             </div>
-                            <div className="text-right flex flex-col justify-between">
+                            <div className="text-right flex flex-col justify-between gap-2">
                               <span className="font-bold text-[#1A4D3A] text-lg">
                                 ${itemPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => {
+                                    setEditingCartItem(item)
+                                    setEditQuantity(item.numBags || item.quantity || 1)
+                                    setEditRoastType(item.roastType || '')
+                                    setEditGrindType(item.grindType || '')
+                                    setEditBagSize(item.bagSize || '12oz')
+                                    setEditBagImage(item.bagImage || '')
+                                    setEditLogoPreview(item.bagImage || '')
+                                    setEditLogoOverlay(item.bagImage || '')
+                                    setShowEditCartModal(true)
+                                  }}
+                                  className="px-3 py-1.5 text-xs font-medium text-[#09543D] border border-[#09543D] rounded-lg hover:bg-[#09543D] hover:text-white transition-all duration-200"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleRemoveCartItemClick(stockPosting.id)}
+                                  className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200"
+                                  title="Remove item"
+                                >
+                                  <svg className="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )
@@ -3216,6 +3392,475 @@ function BuyerWizard() {
                     </button>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* Edit Cart Item Modal */}
+          {showEditCartModal && editingCartItem && (
+            <div
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+              onClick={() => {
+                if (!savingCartItem) {
+                  setShowEditCartModal(false)
+                  setEditingCartItem(null)
+                }
+              }}
+            >
+              <div
+                className="bg-white rounded-2xl p-6 lg:p-8 max-w-4xl w-full shadow-2xl transform transition-all my-8"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                  <h3
+                    className="text-2xl lg:text-3xl font-medium text-gray-900"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px'
+                    }}
+                  >
+                    Edit Cart Item
+                  </h3>
+                  <button
+                    onClick={() => {
+                      if (!savingCartItem) {
+                        setShowEditCartModal(false)
+                        setEditingCartItem(null)
+                      }
+                    }}
+                    disabled={savingCartItem}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+                  >
+                    <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+                  {/* Product Info */}
+                  {(() => {
+                    const stockPosting = editingCartItem.stockPosting as StockPosting
+                    return (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex gap-4">
+                          <img
+                            src={stockPosting?.imageUrl || stockPosting?.imgUrl || vianextaLogo}
+                            alt={stockPosting?.productName || 'Product'}
+                            className="w-24 h-24 object-cover rounded-lg"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-lg text-gray-900 mb-1">
+                              {stockPosting?.productName || stockPosting?.description || 'Product'}
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {stockPosting?.coffeeType || 'N/A'} • {stockPosting?.supplierInfo?.billingCountry || 'N/A'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {/* Quantity */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Quantity (# of Bags)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setEditQuantity(Math.max(1, editQuantity - 1))}
+                        disabled={savingCartItem}
+                        className="w-10 h-10 border-2 border-[#09543D] bg-white text-[#09543D] rounded-lg font-bold hover:bg-[#09543D] hover:text-white transition-all disabled:opacity-50"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={editQuantity}
+                        onChange={(e) => setEditQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                        disabled={savingCartItem}
+                        className="flex-1 h-10 border-2 border-gray-300 rounded-lg text-center font-semibold focus:border-[#09543D] focus:ring-2 focus:ring-[#09543D]/20 disabled:opacity-50"
+                      />
+                      <button
+                        onClick={() => setEditQuantity(editQuantity + 1)}
+                        disabled={savingCartItem}
+                        className="w-10 h-10 border-2 border-[#09543D] bg-white text-[#09543D] rounded-lg font-bold hover:bg-[#09543D] hover:text-white transition-all disabled:opacity-50"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Roast Type (if applicable) */}
+                  {editingCartItem.isRoast && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Roast Type
+                      </label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {[
+                          { value: 'light', icon: lightRoastIcon, label: 'Light' },
+                          { value: 'medium', icon: mediumRoastIcon, label: 'Medium' },
+                          { value: 'medium-dark', icon: mediumDarkRoastIcon, label: 'Medium-Dark' },
+                          { value: 'dark', icon: darkRoastIcon, label: 'Dark' }
+                        ].map((roast) => (
+                          <button
+                            key={roast.value}
+                            onClick={() => setEditRoastType(roast.value)}
+                            disabled={savingCartItem}
+                            className={`p-4 rounded-xl border-2 transition-all ${
+                              editRoastType === roast.value
+                                ? 'border-[#09543D] bg-[#09543D]/10'
+                                : 'border-gray-200 hover:border-[#09543D]/50'
+                            } disabled:opacity-50`}
+                          >
+                            <img src={roast.icon} alt={roast.label} className="w-12 h-12 mx-auto mb-2" />
+                            <p className="text-sm font-medium text-gray-700">{roast.label}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Grind Type (if applicable) */}
+                  {editingCartItem.isRoast && editRoastType && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Grind Type
+                      </label>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        {[
+                          { value: 'whole-bean', label: 'Whole Bean' },
+                          { value: 'coarse', label: 'Coarse' },
+                          { value: 'medium', label: 'Medium' },
+                          { value: 'fine', label: 'Fine' },
+                          { value: 'extra-fine', label: 'Extra Fine' }
+                        ].map((grind) => (
+                          <button
+                            key={grind.value}
+                            onClick={() => setEditGrindType(grind.value)}
+                            disabled={savingCartItem}
+                            className={`px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
+                              editGrindType === grind.value
+                                ? 'border-[#09543D] bg-[#09543D]/10 text-[#09543D]'
+                                : 'border-gray-200 text-gray-700 hover:border-[#09543D]/50'
+                            } disabled:opacity-50`}
+                          >
+                            {grind.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Bag Size */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Package Size
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { value: '12oz', label: '12 oz', desc: 'Perfect for sampling' },
+                        { value: '16oz', label: '16 oz', desc: 'Most popular size' },
+                        { value: '5lb', label: '5 lb', desc: 'Great value for bulk' }
+                      ].map((size) => (
+                        <button
+                          key={size.value}
+                          onClick={() => {
+                            setEditBagSize(size.value)
+                            // Update bag image preview
+                            const bagImage = bagImageMap[size.value] || bagImageMap['12oz']
+                            setEditBagImage(bagImage)
+                          }}
+                          disabled={savingCartItem}
+                          className={`p-4 rounded-xl border-2 transition-all text-center ${
+                            editBagSize === size.value
+                              ? 'border-[#09543D] bg-[#09543D]/10'
+                              : 'border-gray-200 hover:border-[#09543D]/50'
+                          } disabled:opacity-50`}
+                        >
+                          <p className="font-semibold text-gray-900 mb-1">{size.label}</p>
+                          <p className="text-xs text-gray-600">{size.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Logo Upload */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Upload Logo (Optional)
+                    </label>
+                    <div className="flex gap-6 items-start">
+                      <div className="flex-1">
+                        <label
+                          htmlFor="edit-logo-upload"
+                          className="flex items-center justify-center gap-4 p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all"
+                        >
+                          <span className="text-4xl">📤</span>
+                          <span className="text-gray-600 font-medium">Upload your logo</span>
+                          <input
+                            id="edit-logo-upload"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                const reader = new FileReader()
+                                reader.onload = (event) => {
+                                  const result = event.target?.result as string
+                                  setEditLogoPreview(result)
+                                  setEditLogoOverlay(result)
+                                }
+                                reader.readAsDataURL(file)
+                              }
+                            }}
+                            disabled={savingCartItem}
+                          />
+                        </label>
+                        {editLogoPreview && (
+                          <button
+                            onClick={() => {
+                              setEditLogoPreview('')
+                              setEditLogoOverlay('')
+                            }}
+                            disabled={savingCartItem}
+                            className="mt-2 text-sm text-red-600 hover:text-red-700 disabled:opacity-50"
+                          >
+                            Remove logo
+                          </button>
+                        )}
+                      </div>
+                      <div className="w-48 h-48 bg-gray-100 rounded-xl overflow-hidden relative flex-shrink-0">
+                        {editBagImage ? (
+                          <>
+                            <img
+                              src={editBagImage}
+                              alt="Bag preview"
+                              className="w-full h-full object-contain"
+                            />
+                            {editLogoOverlay && (
+                              <img
+                                src={editLogoOverlay}
+                                alt="Logo overlay"
+                                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-[60%] max-h-[30%] object-contain pointer-events-none"
+                              />
+                            )}
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            Preview
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 mt-6 pt-6 border-t border-gray-200">
+                  <button
+                    onClick={() => {
+                      if (!savingCartItem) {
+                        setShowEditCartModal(false)
+                        setEditingCartItem(null)
+                      }
+                    }}
+                    disabled={savingCartItem}
+                    className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveCartItem}
+                    disabled={savingCartItem}
+                    className="flex-1 px-6 py-3 bg-[#09543D] text-white rounded-xl font-medium hover:bg-[#0d6b4f] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {savingCartItem ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delete Cart Item Confirmation Modal */}
+          {showDeleteConfirm && (
+            <div
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              onClick={() => {
+                setShowDeleteConfirm(false)
+                setItemToDelete(null)
+              }}
+            >
+              <div
+                className="bg-white rounded-2xl p-8 lg:p-10 max-w-md w-full shadow-2xl transform transition-all"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-center">
+                  {/* Icon */}
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </div>
+
+                  {/* Title */}
+                  <h3
+                    className="text-2xl lg:text-3xl font-medium text-gray-900 mb-4"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px'
+                    }}
+                  >
+                    Remove Item
+                  </h3>
+
+                  {/* Message */}
+                  <p className="text-gray-600 text-lg mb-6">
+                    Are you sure you want to remove this item from your cart? This action cannot be undone.
+                  </p>
+
+                  {/* Buttons */}
+                  <div className="flex gap-4 justify-center">
+                    <button
+                      onClick={() => {
+                        setShowDeleteConfirm(false)
+                        setItemToDelete(null)
+                      }}
+                      className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all duration-200"
+                      style={{
+                        fontFamily: "'Poppins', sans-serif"
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleRemoveCartItem}
+                      disabled={deletingCartItem}
+                      className="px-6 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      style={{
+                        fontFamily: "'Poppins', sans-serif"
+                      }}
+                    >
+                      {deletingCartItem ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          Removing...
+                        </>
+                      ) : (
+                        'Remove Item'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Success Modal */}
+          {showSuccessModal && (
+            <div
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              onClick={() => setShowSuccessModal(false)}
+            >
+              <div
+                className="bg-white rounded-2xl p-8 lg:p-10 max-w-md w-full shadow-2xl transform transition-all"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-center">
+                  {/* Success Icon */}
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+
+                  {/* Title */}
+                  <h3
+                    className="text-2xl lg:text-3xl font-medium text-gray-900 mb-4"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px'
+                    }}
+                  >
+                    Success
+                  </h3>
+
+                  {/* Message */}
+                  <p className="text-gray-600 text-lg mb-6">
+                    {modalMessage}
+                  </p>
+
+                  {/* Button */}
+                  <button
+                    onClick={() => setShowSuccessModal(false)}
+                    className="px-6 py-3 bg-[#09543D] text-white rounded-xl font-medium hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif"
+                    }}
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Error Modal */}
+          {showErrorModal && (
+            <div
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              onClick={() => setShowErrorModal(false)}
+            >
+              <div
+                className="bg-white rounded-2xl p-8 lg:p-10 max-w-md w-full shadow-2xl transform transition-all"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-center">
+                  {/* Error Icon */}
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+
+                  {/* Title */}
+                  <h3
+                    className="text-2xl lg:text-3xl font-medium text-gray-900 mb-4"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px'
+                    }}
+                  >
+                    Error
+                  </h3>
+
+                  {/* Message */}
+                  <p className="text-gray-600 text-lg mb-6">
+                    {modalMessage}
+                  </p>
+
+                  {/* Button */}
+                  <button
+                    onClick={() => setShowErrorModal(false)}
+                    className="px-6 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif"
+                    }}
+                  >
+                    OK
+                  </button>
+                </div>
               </div>
             </div>
           )}
