@@ -3,6 +3,17 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
   (import.meta.env.DEV ? '' : 'https://coffeeplug-api-b982ba0e7659.herokuapp.com')
 
+// Log API configuration in production for debugging
+if (import.meta.env.PROD) {
+  console.log('API Configuration:', {
+    API_BASE_URL,
+    MODE: import.meta.env.MODE,
+    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+    DEV: import.meta.env.DEV,
+    PROD: import.meta.env.PROD
+  })
+}
+
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
   return localStorage.getItem('authToken')
@@ -32,7 +43,10 @@ const apiRequest = async (
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions)
+    const fullUrl = `${API_BASE_URL}${endpoint}`
+    console.log('API Request:', fullUrl, fetchOptions)
+    
+    const response = await fetch(fullUrl, fetchOptions)
 
     // Check if response is ok before trying to parse
     if (!response.ok) {
@@ -68,8 +82,16 @@ const apiRequest = async (
     return text || {}
   } catch (error) {
     console.error('API request error:', error)
-    if (error instanceof TypeError && error.message === 'Failed to fetch') {
-      throw new Error('Network error: Unable to connect to the server. Please check your internet connection.')
+    console.error('API_BASE_URL:', API_BASE_URL)
+    console.error('Endpoint:', endpoint)
+    console.error('Full URL:', `${API_BASE_URL}${endpoint}`)
+    
+    if (error instanceof TypeError) {
+      if (error.message === 'Failed to fetch' || error.message.includes('fetch')) {
+        // This usually means CORS blocked the request or network error
+        throw new Error('Network error: Unable to connect to the server. This may be due to CORS restrictions or network issues. Please check your internet connection and try again.')
+      }
+      throw new Error(`Network error: ${error.message}`)
     }
     throw error
   }

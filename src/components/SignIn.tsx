@@ -20,7 +20,12 @@ function SignIn() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/login`, {
+      const loginUrl = `${API_BASE_URL}/api/login`
+      console.log('Login request URL:', loginUrl)
+      console.log('API_BASE_URL:', API_BASE_URL)
+      console.log('Environment:', import.meta.env.MODE)
+      
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,6 +36,9 @@ function SignIn() {
           password
         })
       })
+      
+      console.log('Login response status:', response.status)
+      console.log('Login response headers:', Object.fromEntries(response.headers.entries()))
 
       // Check if response is ok before trying to parse
       if (!response.ok) {
@@ -89,8 +97,16 @@ function SignIn() {
       }
     } catch (error) {
       console.error('Login error:', error)
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        setError('Network error: Unable to connect to the server. Please check your internet connection and try again.')
+      console.error('Error type:', error instanceof TypeError ? 'TypeError' : typeof error)
+      console.error('Error message:', error instanceof Error ? error.message : String(error))
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
+      
+      if (error instanceof TypeError) {
+        if (error.message === 'Failed to fetch' || error.message.includes('fetch')) {
+          setError('Network error: Unable to connect to the server. This may be a CORS issue. Please check the browser console for more details.')
+        } else {
+          setError(`Network error: ${error.message}`)
+        }
       } else {
         setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
       }
