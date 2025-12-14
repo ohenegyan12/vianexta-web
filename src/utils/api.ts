@@ -1,6 +1,6 @@
 // Use relative path for API calls to leverage Vite proxy in development
 // In production, this can be configured via environment variables
-const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {

@@ -7,7 +7,7 @@ import roasterArt from '../../assets/roaster-new.svg'
 import cafeArt from '../../assets/coffer-owner-new.svg'
 import ChatButton from './ChatButton'
 
-const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
 function SignUp() {
   const navigate = useNavigate()

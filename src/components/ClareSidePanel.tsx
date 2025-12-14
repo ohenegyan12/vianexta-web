@@ -13,7 +13,7 @@ interface Message {
   }>
 }
 
-const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
 const CHAT_HISTORY_KEY = 'clare_chat_history'
 const MAX_HISTORY_MESSAGES = 100
@@ -396,6 +396,7 @@ function ClareSidePanel({ isMinimized: controlledMinimized, onToggle }: ClareSid
 }
 
 export default ClareSidePanel
+
 
 
 
