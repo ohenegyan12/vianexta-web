@@ -3,11 +3,11 @@ import vianextaLogo from '../../assets/vianexta-logo.svg'
 
 interface BuyerSidebarProps {
   isCollapsed: boolean
-  onToggle: () => void
+  onToggle?: () => void
   userType?: string
 }
 
-function BuyerSidebar({ isCollapsed, onToggle, userType = 'Buyer' }: BuyerSidebarProps) {
+function BuyerSidebar({ isCollapsed, userType = 'Buyer' }: BuyerSidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
 

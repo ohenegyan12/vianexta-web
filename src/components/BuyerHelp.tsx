@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { buyerApi } from '../utils/api'
 import BuyerSidebar from './BuyerSidebar'
 import BuyerTopNav from './BuyerTopNav'
 
 function BuyerHelp() {
-  const navigate = useNavigate()
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [userProfile, setUserProfile] = useState<any>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeModal, setActiveModal] = useState<string | null>(null)
@@ -17,7 +14,6 @@ function BuyerHelp() {
         const token = localStorage.getItem('authToken')
         const userStr = localStorage.getItem('user')
         const isAuth = !!token || !!userStr
-        setIsAuthenticated(isAuth)
 
         if (isAuth) {
           if (userStr) {
