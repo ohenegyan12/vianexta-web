@@ -195,6 +195,49 @@ export const buyerApi = {
   },
 }
 
+// Buyer Dashboard API
+export const buyerDashboardApi = {
+  // Get order data for dashboard (total purchases, pending orders, completed orders, most frequent orders)
+  getOrderData: async (): Promise<any> => {
+    return apiRequest('/api/order-data', { method: 'GET' })
+  },
+
+  // Get coffee prices (Arabica and Robusta)
+  getCoffeePrices: async (): Promise<any> => {
+    return apiRequest('/api/coffee-prices', { method: 'GET' })
+  },
+
+  // Get buyer monthly analytics
+  getMonthlyAnalytics: async (): Promise<any> => {
+    return apiRequest('/api/buyer-monthly-analytics', { method: 'GET' })
+  },
+}
+
+// Buyer Orders API
+export const buyerOrdersApi = {
+  // Get order list
+  getOrderList: async (): Promise<any> => {
+    return apiRequest('/api/order-lists', { method: 'GET' })
+  },
+
+  // Get orders for DataTable (server-side)
+  getOrdersDataTable: async (params: {
+    draw?: number
+    start?: number
+    length?: number
+    search?: string
+  } = {}): Promise<any> => {
+    const queryParams = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, String(value))
+      }
+    })
+    const queryString = queryParams.toString()
+    return apiRequest(`/api/orders/datatable${queryString ? `?${queryString}` : ''}`, { method: 'GET' })
+  },
+}
+
 // Checkout API
 export const checkoutApi = {
   /**
@@ -302,5 +345,7 @@ export default {
   wholesaleApi,
   checkoutApi,
   buyerApi,
+  buyerDashboardApi,
+  buyerOrdersApi,
 }
 

@@ -47,7 +47,7 @@ function ChainBuilder({ isBuyMode }: ChainBuilderProps) {
 
 
   return (
-    <section
+    <section id="chain-builder"
       className="relative overflow-visible"
       style={{
         minHeight: '100vh',

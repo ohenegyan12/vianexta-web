@@ -16,7 +16,7 @@ function Hero({ onBuyClick, onBuildClick }: HeroProps) {
 
 
   return (
-    <section className={`${activeTab === 'buy' ? 'bg-[#09543D]' : 'bg-[#F9F7F1]'} mt-[65px] py-8 lg:mt-[73px] lg:py-20 relative overflow-hidden transition-colors duration-300`}>
+    <section id="hero" className={`${activeTab === 'buy' ? 'bg-[#09543D]' : 'bg-[#F9F7F1]'} mt-[65px] py-8 lg:mt-[73px] lg:py-20 relative overflow-hidden transition-colors duration-300`}>
       {/* Left dashed line - Desktop only */}
       <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-y-28 translate-x-64 hidden lg:block" style={{ zIndex: 1 }}>
         <img src={dashesLeft} alt="Left dashed line" className="h-auto w-60" />

@@ -15,6 +15,9 @@ interface Message {
 
 const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
+const CHAT_HISTORY_KEY = 'clare_chat_history'
+const MAX_HISTORY_MESSAGES = 100
+
 interface ClareSidePanelProps {
   isMinimized?: boolean
   onToggle?: (minimized: boolean) => void
@@ -32,6 +35,17 @@ function ClareSidePanel({ isMinimized: controlledMinimized, onToggle }: ClareSid
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showQuestionCards, setShowQuestionCards] = useState(true)
+
+  // Buyer Wizard specific questions
+  const buyerQuestions = [
+    'What type of coffee do you have?',
+    'How do I place an order?',
+    'What are your shipping options?',
+    'Can I customize my order?',
+    'What payment methods do you accept?',
+    'How long does delivery take?'
+  ]
   const [userId] = useState(() => {
     // Generate or retrieve a persistent userId
     const storedUserId = localStorage.getItem('clare_userId')
@@ -68,9 +82,53 @@ function ClareSidePanel({ isMinimized: controlledMinimized, onToggle }: ClareSid
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Load chat history when panel opens
+  useEffect(() => {
+    if (!isMinimized) {
+      try {
+        const savedHistory = localStorage.getItem(`${CHAT_HISTORY_KEY}_${userId}`)
+        if (savedHistory) {
+          const parsedHistory = JSON.parse(savedHistory)
+          if (Array.isArray(parsedHistory) && parsedHistory.length > 0) {
+            setMessages(parsedHistory)
+            setShowQuestionCards(false) // Don't show cards if there's history
+          } else {
+            setShowQuestionCards(true) // Show cards if no history
+          }
+        } else {
+          setShowQuestionCards(true) // Show cards if no history
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error)
+        setShowQuestionCards(true)
+      }
+    } else {
+      // Reset when panel closes
+      setShowQuestionCards(true)
+    }
+  }, [isMinimized, userId])
+
+  // Save chat history whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        // Keep only last MAX_HISTORY_MESSAGES messages
+        const messagesToSave = messages.slice(-MAX_HISTORY_MESSAGES)
+        localStorage.setItem(`${CHAT_HISTORY_KEY}_${userId}`, JSON.stringify(messagesToSave))
+      } catch (error) {
+        console.error('Error saving chat history:', error)
+      }
+    }
+  }, [messages, userId])
+
   const handleSendMessage = async (text?: string) => {
     const messageToSend = text || message.trim()
     if (!messageToSend || isLoading) return
+
+    // Hide question cards when user sends a message
+    if (showQuestionCards) {
+      setShowQuestionCards(false)
+    }
 
     // Add user message to chat
     setMessages(prev => [...prev, { text: messageToSend, isUser: true }])
@@ -196,14 +254,38 @@ function ClareSidePanel({ isMinimized: controlledMinimized, onToggle }: ClareSid
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 relative min-h-0 flex flex-col">
-          {messages.length === 0 ? (
-            /* Centered welcome message when no messages */
+          {/* Ask Me Anything Header */}
+          <div className="text-center mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#09543D]">
+              ASK CLARE ANYTHING
+            </h2>
+          </div>
+
+          {/* Question Cards - Show when no messages */}
+          {showQuestionCards && buyerQuestions.length > 0 && (
+            <div className="mb-4 flex justify-center items-center w-full">
+              <div className="grid grid-cols-1 gap-3 max-w-md mx-auto w-full">
+                {buyerQuestions.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSendMessage(question)}
+                    className="w-full text-center px-4 py-3 bg-[#09543D] text-white rounded-2xl hover:bg-[#07382F] transition-all duration-200 text-sm font-medium hover:shadow-md"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.length === 0 && !showQuestionCards ? (
+            /* Centered welcome message when no messages and no cards */
             <div className="flex-1 flex items-center justify-center">
               <p className="text-sm text-gray-600 text-center">
                 Start a new conversation with CLARE
               </p>
             </div>
-          ) : (
+          ) : messages.length > 0 ? (
             /* Chat Messages */
             <div className="space-y-4">
               {messages.map((msg, index) => (
@@ -264,7 +346,7 @@ function ClareSidePanel({ isMinimized: controlledMinimized, onToggle }: ClareSid
               )}
               <div ref={messagesEndRef} />
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Input Area */}
@@ -314,6 +396,7 @@ function ClareSidePanel({ isMinimized: controlledMinimized, onToggle }: ClareSid
 }
 
 export default ClareSidePanel
+
 
 
 

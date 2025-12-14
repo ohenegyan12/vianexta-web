@@ -161,7 +161,7 @@ function MeetClareAndForman({ isBuyMode }: MeetClareAndFormanProps) {
   }, [activeTab])
 
   return (
-    <section className={`relative py-20 md:py-32 ${isBuyMode ? 'bg-[#09543D]' : 'bg-[#F9F7F1]'}`}>
+    <section id="meet-clare-forman" className={`relative py-20 md:py-32 ${isBuyMode ? 'bg-[#09543D]' : 'bg-[#F9F7F1]'}`}>
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 xl:gap-32 items-start">
           {/* Left Side - Title, Description, Tabs */}

@@ -139,8 +139,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
   }, [])
 
   return (
-    <section
-      id="how-it-works"
+    <section id="from-idea-to-inventory"
       className="relative overflow-hidden"
       style={{
         minHeight: isMobile ? 'auto' : '150vh',
@@ -199,7 +198,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4">
         {/* Title Section */}
-        <div className={`pb-20 flex flex-col items-center ${isMobile ? 'pt-12 justify-start' : 'pt-32 justify-center'}`} style={{ minHeight: isMobile ? 'auto' : '100vh' }}>
+        <div className={`pb-8 md:pb-12 flex flex-col items-center ${isMobile ? 'pt-12 justify-start' : 'pt-32 justify-center'}`} style={{ minHeight: isMobile ? 'auto' : '100vh' }}>
           <div className={`text-center max-w-4xl ${isMobile ? 'mt-8' : ''}`}>
             {/* Main Heading */}
             <h2
@@ -233,7 +232,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
             </h2>
 
             {/* Description */}
-            <div className={`px-6 py-4 rounded-lg inline-block mb-2 ${isBuyMode ? 'bg-transparent' : 'bg-[#09543D]'}`}>
+            <div className={`px-6 py-4 rounded-lg inline-block mb-0 ${isBuyMode ? 'bg-transparent' : 'bg-[#09543D]'}`}>
               <p
                 key={isBuyMode ? 'buy-desc' : 'build-desc'}
                 className={`text-lg md:text-xl text-center overflow-hidden ${isBuyMode ? 'text-[#09543D]' : 'text-white'}`}
@@ -253,7 +252,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
         </div>
 
         {/* Steps Section */}
-        <div className="pb-48 md:pb-32 space-y-3 md:space-y-6 max-w-4xl mx-auto mt-8 md:-mt-16 px-4 md:px-0">
+        <div className="pb-48 md:pb-32 space-y-3 md:space-y-6 max-w-4xl mx-auto mt-0 md:-mt-12 px-4 md:px-0">
           {/* Step 1: Sourcing */}
           <div
             ref={sourcingCardRef}
@@ -358,6 +357,9 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
             {/* Description */}
             <p
               className={`text-sm md:text-sm lg:text-lg xl:text-xl text-center max-w-3xl mx-auto overflow-hidden leading-tight md:leading-normal ${isBuyMode ? 'text-[#09543D]' : 'text-[#F9F7F1]'}`}
+              style={{
+                fontFamily: "'Poppins', sans-serif"
+              }}
             >
               Freshness, quality, and trust define your brand. ViaNexta ensures every bag reflects your high standards with:
             </p>
@@ -392,7 +394,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                    fontFamily: "'Poppins', sans-serif"
                   }}
                 >
                   Certified Manufacturers
@@ -419,7 +421,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                    fontFamily: "'Poppins', sans-serif"
                   }}
                 >
                   Ethically Sourced Ingredients & Materials
@@ -446,7 +448,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                    fontFamily: "'Poppins', sans-serif"
                   }}
                 >
                   Verified Warehouses & Fulfillment Partners
@@ -473,7 +475,7 @@ function FromIdeaToInventory({ isBuyMode }: FromIdeaToInventoryProps) {
                 <h3
                   className={`text-xl md:text-xl lg:text-2xl font-bold mb-2 ${isBuyMode ? 'text-[#09543D]' : 'text-white lg:text-white'}`}
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                    fontFamily: "'Poppins', sans-serif"
                   }}
                 >
                   Premium Packaging & Customization

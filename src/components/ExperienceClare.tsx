@@ -10,7 +10,7 @@ function ExperienceClare({ isBuyMode }: ExperienceClareProps) {
 
 
   return (
-    <section
+    <section id="experience-clare"
       className="relative py-20 md:py-32"
       style={{
         background: isBuyMode

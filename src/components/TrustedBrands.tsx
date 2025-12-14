@@ -7,6 +7,9 @@ import brandLogo4 from '../../assets/brand-logo-4.png'
 import brandLogo5 from '../../assets/brand-logo-5.png'
 import brandLogo6 from '../../assets/brand-logo-6.png'
 import brandLogo7 from '../../assets/brand-logo-7.png'
+import brandLogo8 from '../../assets/8.png'
+import brandLogo9 from '../../assets/9.png'
+import brandLogo10 from '../../assets/10.png'
 
 function TrustedBrands() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -19,7 +22,10 @@ function TrustedBrands() {
     brandLogo4,
     brandLogo5,
     brandLogo6,
-    brandLogo7
+    brandLogo7,
+    brandLogo8,
+    brandLogo9,
+    brandLogo10
   ]
 
   useEffect(() => {
@@ -53,7 +59,7 @@ function TrustedBrands() {
   }
 
   return (
-    <section className="relative bg-[#F9F7F1] py-20 md:py-32">
+    <section id="trusted-brands" className="relative bg-[#F9F7F1] py-20 md:py-32">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center mb-12 md:mb-16">
           {/* Title */}

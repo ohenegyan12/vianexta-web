@@ -9,107 +9,67 @@ function HearFromCustomers() {
   const rightColumnDesktopRef = useRef<HTMLDivElement>(null)
   const animationTimelineRef = useRef<gsap.core.Timeline | null>(null)
 
-  // Sample testimonials - you can replace with actual data
+  // Real customer testimonials
   const testimonials = [
     {
-      name: 'Parth Mangukiya',
+      name: '@danieraezorsharp',
       rating: 5,
-      text: 'Tried several features, very impressive. Used it to host my images to get them served via CDN. A great feature to have!'
+      text: 'Ooouuu!!! This is TOP TIER!!!'
     },
     {
-      name: 'Anand Singh',
+      name: '@mrwld101',
       rating: 5,
-      text: 'Super lucid interface. It\'s a joy to work with!'
+      text: 'That\'s the way you do it! Big things'
     },
     {
-      name: 'Swathi Kartha',
+      name: '@designgym.co',
       rating: 5,
-      text: 'The product is well suited to transform catalog images for e-commerce businesses, especially if you are on the lookout for a tool that does re-sizing and background edits in bulk in record time.'
+      text: 'Was introduced to your coffee thanks to @amplify @bphlfest'
     },
     {
-      name: 'Darpan Pathak',
+      name: '@rachboogie215',
       rating: 5,
-      text: 'Pixelbin.io has been a game-changer for me when it comes to image optimization. It\'s super easy to use, integrates smoothly with my tech stack, and saves so much time.'
+      text: 'Love this! Yes'
     },
     {
-      name: 'Shubham Srivastava',
-      rating: 4,
-      text: 'A powerful solution that caters to all my image transformation needs.'
+      name: '@angelicmolos',
+      rating: 5,
+      text: 'OMG!!!!'
     },
     {
-      name: 'Pritam Ghosh',
+      name: '@bean2beancoffeeco',
       rating: 5,
-      text: 'Easy to use with multiple editing features. My go to editing tool. Love it!'
+      text: 'It\'s so goooooddd'
     },
     {
-      name: 'Rahul Mehta',
+      name: '@thechocolatebarista',
       rating: 5,
-      text: 'The API integration was seamless and the documentation is excellent. Saved us weeks of development time!'
+      text: 'More of this!!'
     },
     {
-      name: 'Priya Sharma',
+      name: '@delhibakery',
       rating: 5,
-      text: 'Outstanding customer support and the platform is incredibly reliable. Highly recommend for any business dealing with images.'
+      text: 'So dope'
     },
     {
-      name: 'Vikram Patel',
+      name: '@browngirlsbrew',
       rating: 5,
-      text: 'The bulk processing feature is a lifesaver. We process thousands of images daily and it handles everything perfectly.'
+      text: '#winning'
     },
     {
-      name: 'Neha Desai',
+      name: '@beijaflornaturals',
       rating: 5,
-      text: 'Love how intuitive the interface is. Even our non-technical team members can use it without any training.'
+      text: 'I love this. Can\'t wait to grab a coffee.'
     },
     {
-      name: 'Arjun Kumar',
+      name: '@mznoname82',
       rating: 5,
-      text: 'The CDN delivery is incredibly fast. Our page load times improved significantly after switching to this platform.'
+      text: 'Really amazing and inspiring!'
     },
     {
-      name: 'Sneha Reddy',
+      name: '@dachickenshack',
       rating: 5,
-      text: 'Best investment we made for our e-commerce store. The image optimization features are top-notch.'
-    },
-    {
-      name: 'Karan Malhotra',
-      rating: 5,
-      text: 'The background removal tool works flawlessly. It\'s saved us so much time and money on manual editing.'
-    },
-    {
-      name: 'Meera Joshi',
-      rating: 5,
-      text: 'Excellent platform with great features. The real-time transformations are impressive and the quality is always perfect.'
-    },
-    {
-      name: 'Amit Verma',
-      rating: 5,
-      text: 'The pricing is very reasonable for what you get. We\'ve seen a huge improvement in our workflow efficiency.'
-    },
-    {
-      name: 'Divya Nair',
-      rating: 5,
-      text: 'The platform scales beautifully with our growing business. Never had any performance issues even during peak times.'
-    },
-    {
-      name: 'Rohit Agarwal',
-      rating: 5,
-      text: 'The watermarking feature is exactly what we needed. Simple to use and produces professional results every time.'
-    },
-    {
-      name: 'Kavita Iyer',
-      rating: 5,
-      text: 'Amazing service! The team is responsive and the platform keeps getting better with regular updates.'
-    },
-    {
-      name: 'Nikhil Rao',
-      rating: 5,
-      text: 'The format conversion capabilities are extensive. We can handle any image format our clients throw at us.'
-    },
-    {
-      name: 'Anjali Menon',
-      rating: 5,
-      text: 'Perfect solution for our marketing team. The image transformations help us create stunning visuals quickly.'
+      text: 'Amazing!!! Keep breaking barriers!'
     }
   ]
 
@@ -166,11 +126,13 @@ function HearFromCustomers() {
 
           // For seamless infinite loop: scroll by exactly half the width
           // This ensures when it loops, the duplicate content is in the exact same position
-          const scrollDistance = leftWidth / 2
+          const leftScrollDistance = leftWidth / 2
+          const rightScrollDistance = rightWidth / 2
 
           // Reset positions to ensure clean start
+          // Right column starts offset to the left so it can scroll in seamlessly
           gsap.set(leftColumnRef.current, { x: 0, force3D: true })
-          gsap.set(rightColumnRef.current, { x: 0, force3D: true })
+          gsap.set(rightColumnRef.current, { x: -rightScrollDistance, force3D: true })
 
           // Horizontal scrolling on mobile - columns move in opposite directions
           animationTimelineRef.current = gsap.timeline({
@@ -180,14 +142,14 @@ function HearFromCustomers() {
 
           animationTimelineRef.current
             .to(leftColumnRef.current, {
-              x: -scrollDistance,
+              x: -leftScrollDistance,
               duration: 600,
               ease: 'none',
               force3D: true,
               immediateRender: false
             }, 0)
             .to(rightColumnRef.current, {
-              x: scrollDistance,
+              x: rightScrollDistance,
               duration: 600,
               ease: 'none',
               force3D: true,
@@ -276,7 +238,7 @@ function HearFromCustomers() {
   }
 
   return (
-    <section id="testimonials" className="relative bg-[#F9F7F1] py-20 md:py-32">
+    <section id="hear-from-customers" className="relative bg-[#F9F7F1] py-20 md:py-32">
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
           {/* Left Side - Title */}
@@ -322,8 +284,8 @@ function HearFromCustomers() {
               </div>
 
               {/* Right Column - Scrolls Right, Horizontal Row Below Top */}
-              <div className="absolute top-[280px] left-0 w-full overflow-hidden">
-                <div ref={rightColumnRef} className="flex flex-row gap-4 ml-[140px]" style={{ width: 'max-content', willChange: 'transform' }}>
+              <div className="absolute top-[200px] left-0 w-full overflow-hidden">
+                <div ref={rightColumnRef} className="flex flex-row gap-4" style={{ width: 'max-content', willChange: 'transform' }}>
                   {duplicatedTestimonials.map((testimonial, index) => (
                     <div
                       key={`right-${index}`}

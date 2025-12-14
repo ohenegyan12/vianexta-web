@@ -1,9 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
 import vianextaLogo from '../../assets/vianexta-logo.svg'
 
+interface SectionInfo {
+  id: string
+  title: string
+  questions: string[]
+}
+
 interface ClareChatModalProps {
   isOpen: boolean
   onClose: () => void
+  currentSection?: SectionInfo | null
 }
 
 interface Message {
@@ -19,10 +26,14 @@ interface Message {
 
 const API_BASE_URL = '' // Was 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
 
-function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
+const CHAT_HISTORY_KEY = 'clare_chat_history'
+const MAX_HISTORY_MESSAGES = 100
+
+function ClareChatModal({ isOpen, onClose, currentSection }: ClareChatModalProps) {
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [showQuestionCards, setShowQuestionCards] = useState(true)
   const [userId] = useState(() => {
     // Generate or retrieve a persistent userId
     const storedUserId = localStorage.getItem('clare_userId')
@@ -34,6 +45,45 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
   })
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Load chat history when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      try {
+        const savedHistory = localStorage.getItem(`${CHAT_HISTORY_KEY}_${userId}`)
+        if (savedHistory) {
+          const parsedHistory = JSON.parse(savedHistory)
+          if (Array.isArray(parsedHistory) && parsedHistory.length > 0) {
+            setMessages(parsedHistory)
+            setShowQuestionCards(false) // Don't show cards if there's history
+          } else {
+            setShowQuestionCards(true) // Show cards if no history
+          }
+        } else {
+          setShowQuestionCards(true) // Show cards if no history
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error)
+        setShowQuestionCards(true)
+      }
+    } else {
+      // Reset when modal closes
+      setShowQuestionCards(true)
+    }
+  }, [isOpen, userId])
+
+  // Save chat history whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        // Keep only last MAX_HISTORY_MESSAGES messages
+        const messagesToSave = messages.slice(-MAX_HISTORY_MESSAGES)
+        localStorage.setItem(`${CHAT_HISTORY_KEY}_${userId}`, JSON.stringify(messagesToSave))
+      } catch (error) {
+        console.error('Error saving chat history:', error)
+      }
+    }
+  }, [messages, userId])
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -62,6 +112,11 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
   const handleSendMessage = async (text?: string) => {
     const messageToSend = text || message.trim()
     if (!messageToSend || isLoading) return
+
+    // Hide question cards when user sends a message
+    if (showQuestionCards) {
+      setShowQuestionCards(false)
+    }
 
     // Add user message to chat
     setMessages(prev => [...prev, { text: messageToSend, isUser: true }])
@@ -138,14 +193,14 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
 
   return (
     <>
-      {/* Backdrop - Hidden on mobile, shown on desktop */}
+      {/* Mobile Backdrop - Only on mobile */}
       <div
-        className="hidden md:block fixed inset-0 z-[100] bg-black bg-opacity-30 transition-opacity duration-300"
+        className="lg:hidden fixed inset-0 z-[100] bg-black bg-opacity-50 transition-opacity duration-300"
         onClick={onClose}
       />
 
-      {/* Chat Modal - Full screen on mobile, positioned above chat button on desktop */}
-      <div className="fixed inset-0 md:inset-auto md:bottom-24 md:right-4 lg:right-8 z-[101] w-full md:w-[calc(100vw-2rem)] lg:w-full lg:max-w-md h-screen md:h-[700px] md:max-h-[calc(90vh-6rem)] bg-[#F9F7F1] md:rounded-2xl md:shadow-2xl flex flex-col overflow-hidden animate-slide-up">
+      {/* Chat Panel - Fixed on right side, doesn't push content */}
+      <div className="fixed top-0 right-0 h-full w-full lg:w-[400px] bg-[#F9F7F1] border-l border-[#09543D] z-[101] flex flex-col shadow-2xl">
         {/* Header */}
         <div className="bg-[#F9F7F1] px-4 py-3 flex items-center justify-between border-b border-[#09543D] flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -175,15 +230,39 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 relative min-h-0 flex flex-col pb-32 md:pb-4">
-          {messages.length === 0 ? (
-            /* Centered welcome message when no messages */
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 relative min-h-0 flex flex-col">
+          {/* Ask Me Anything Header */}
+          <div className="text-center mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#09543D]">
+              ASK CLARE ANYTHING
+            </h2>
+          </div>
+          
+          {/* Question Cards - Show when no messages or when currentSection is available */}
+          {showQuestionCards && currentSection && currentSection.questions.length > 0 && (
+            <div className="mb-4 flex justify-center items-center w-full">
+              <div className="grid grid-cols-1 gap-3 max-w-md mx-auto w-full">
+                {currentSection.questions.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSendMessage(question)}
+                    className="w-full text-center px-4 py-3 bg-[#09543D] text-white rounded-2xl hover:bg-[#07382F] transition-all duration-200 text-sm font-medium hover:shadow-md"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.length === 0 && !showQuestionCards ? (
+            /* Centered welcome message when no messages and no cards */
             <div className="flex-1 flex items-center justify-center">
               <p className="text-sm text-gray-600 text-center">
                 Start a new conversation with CLARE
               </p>
             </div>
-          ) : (
+          ) : messages.length > 0 ? (
             /* Chat Messages */
             <div className="space-y-4">
               {messages.map((msg, index) => (
@@ -244,11 +323,11 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
               )}
               <div ref={messagesEndRef} />
             </div>
-          )}
+          ) : null}
         </div>
 
-        {/* Input Area - Fixed to bottom on mobile */}
-        <div className="fixed md:relative bottom-0 left-0 right-0 md:left-auto md:right-auto bg-[#F9F7F1] border-t border-[#09543D] md:border-t-0 p-4 pb-4 md:pb-4 flex-shrink-0 z-10">
+        {/* Input Area */}
+        <div className="bg-[#F9F7F1] border-t border-[#09543D] p-4 flex-shrink-0">
           <div className="relative">
             <textarea
               ref={inputRef}
@@ -258,7 +337,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
               placeholder={isLoading ? "Clare is typing..." : "Message..."}
               disabled={isLoading}
               rows={1}
-              className="w-full px-4 pr-14 py-3 md:py-8 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-base md:text-sm disabled:opacity-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[48px] md:min-h-[64px] max-h-[200px] md:max-h-[120px]"
+              className="w-full px-4 pr-14 py-3 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-sm disabled:opacity-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[48px] max-h-[120px]"
               style={{
                 height: 'auto',
                 lineHeight: '1.5'
@@ -267,7 +346,7 @@ function ClareChatModal({ isOpen, onClose }: ClareChatModalProps) {
             <button
               onClick={() => handleSendMessage()}
               disabled={!message.trim() || isLoading}
-              className="absolute right-2 bottom-2 md:top-1/2 md:-translate-y-1/2 md:bottom-auto w-10 h-10 bg-[#09543D] text-white rounded-full flex items-center justify-center hover:bg-[#09543D]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#09543D] text-white rounded-full flex items-center justify-center hover:bg-[#09543D]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

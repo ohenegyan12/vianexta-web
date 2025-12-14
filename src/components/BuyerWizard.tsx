@@ -12,6 +12,58 @@ import darkRoastIcon from '../../assets/dark.svg'
 import ClareSidePanel from './ClareSidePanel'
 import { stockPostingsApi, cartApi, wholesaleApi, buyerApi } from '../utils/api'
 
+interface UserProfile {
+  userFullName?: string
+  name?: string
+  firstName?: string
+  businessName?: string
+  email?: string
+  phoneNumber?: string
+  jobTitle?: string
+  elevation?: string
+  foundedYear?: string
+  imageUrl?: string
+}
+
+interface StockPosting {
+  id: number
+  description?: string
+  name?: string
+  coffeeType?: string
+  productType?: string
+  bagPrice?: number | string
+  bagWeight?: number | string
+  spotPrice?: number | string
+  spot_price?: number | string
+  price?: number | string
+  scaScoreComponents?: Record<string, number>
+  supplierInfo?: {
+    billingCountry?: string
+    firstName?: string
+  }
+  imageUrl?: string
+  imgUrl?: string
+  variety?: string
+  quality?: string
+  aroma?: string
+  process?: string
+  quantityLeft?: number
+  quantityPosted?: number
+  productName?: string
+  originCountry?: string
+}
+
+interface CartItem {
+  stockPosting?: StockPosting | Record<string, unknown>
+  numBags?: number
+  quantity?: number
+  bagSize?: string
+  grindType?: string
+  roastType?: string
+  bagImage?: string
+  isRoast?: boolean
+}
+
 function BuyerWizard() {
   const navigate = useNavigate()
   const [selectedType, setSelectedType] = useState<string>('')
@@ -56,23 +108,23 @@ function BuyerWizard() {
 
 
   // API Data States
-  const [singleOriginProducts, setSingleOriginProducts] = useState<any[]>([])
-  const [blendProducts, setBlendProducts] = useState<any[]>([])
-  const [wholesaleProducts, setWholesaleProducts] = useState<any[]>([])
-  const [originalWholesaleProducts, setOriginalWholesaleProducts] = useState<any[]>([]) // Store original for search reset
-  const [_wholesaleBrands, setWholesaleBrands] = useState<any[]>([])
-  const [_filterOptions, setFilterOptions] = useState<any>(null)
-  const [selectedProductData, setSelectedProductData] = useState<any>(null)
+  const [singleOriginProducts, setSingleOriginProducts] = useState<StockPosting[]>([])
+  const [blendProducts, setBlendProducts] = useState<StockPosting[]>([])
+  const [wholesaleProducts, setWholesaleProducts] = useState<StockPosting[]>([])
+  const [originalWholesaleProducts, setOriginalWholesaleProducts] = useState<StockPosting[]>([]) // Store original for search reset
+  const [selectedProductData, setSelectedProductData] = useState<StockPosting | null>(null)
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [cartItemsCount, setCartItemsCount] = useState(0)
   const [currentBagImage, setCurrentBagImage] = useState<string>('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userProfile, setUserProfile] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
 
   const [showCart, setShowCart] = useState(false)
   const [loadingCartItems, setLoadingCartItems] = useState(false)
-  const [cartItemsList, setCartItemsList] = useState<any[]>([])
+  const [cartItemsList, setCartItemsList] = useState<CartItem[]>([])
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false)
+  const [comingSoonFeature, setComingSoonFeature] = useState<string>('')
 
   // Bag image mapping based on package size - using local images from public folder
   const bagImageMap: { [key: string]: string } = {
@@ -148,12 +200,10 @@ function BuyerWizard() {
         console.error('Error in auth check:', authError)
       }
 
-      // 2. Fetch Filter Options (Independent)
+      // 2. Fetch Filter Options (Independent) - stored for potential future use
       try {
-        const filterResponse = await stockPostingsApi.getFilterOptions()
-        if (filterResponse?.statusCode === 200) {
-          setFilterOptions(filterResponse.data)
-        }
+        await stockPostingsApi.getFilterOptions()
+        // Filter options fetched but not currently used in UI
       } catch (filterError) {
         console.error('Error fetching filter options:', filterError)
       }
@@ -257,7 +307,8 @@ function BuyerWizard() {
             setOriginalWholesaleProducts(products) // Store original for search reset
           }
           if (brandsResponse?.statusCode === 200) {
-            setWholesaleBrands(brandsResponse.data || [])
+            // Wholesale brands fetched but not currently used in UI
+            // brandsResponse.data || []
           }
         } catch (error) {
           console.error('Error fetching wholesale products:', error)
@@ -572,6 +623,7 @@ function BuyerWizard() {
       setSelectedPreviewImage('')
       setBagPreviewImages([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPackageSize])
 
   // Package weight mapping (in pounds) for calculation
@@ -592,17 +644,17 @@ function BuyerWizard() {
       // Try multiple possible field names for spot price (price per pound)
       // The API might return it as spotPrice, spot_price, price, or we need to calculate from bagPrice
       let spotPrice = parseFloat(
-        selectedProductData.spotPrice ||
+        String(selectedProductData.spotPrice ||
         selectedProductData.spot_price ||
         selectedProductData.price ||
-        '0'
+        '0')
       ) || 0
 
       // If spotPrice is 0, try to derive from bagPrice and bagWeight
       // bagPrice is total price for a bag, bagWeight is in pounds
       if (spotPrice === 0 && selectedProductData.bagPrice && selectedProductData.bagWeight) {
-        const bagPrice = parseFloat(selectedProductData.bagPrice) || 0
-        const bagWeight = parseFloat(selectedProductData.bagWeight) || 1
+        const bagPrice = parseFloat(String(selectedProductData.bagPrice)) || 0
+        const bagWeight = parseFloat(String(selectedProductData.bagWeight)) || 1
         spotPrice = bagWeight > 0 ? bagPrice / bagWeight : 0
       }
 
@@ -637,6 +689,7 @@ function BuyerWizard() {
     } else {
       setProductAmount('0.00')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quantity, selectedProductData, selectedType, selectedPackageSize, fracPackSize])
 
 
@@ -745,10 +798,11 @@ function BuyerWizard() {
   const updateWholesaleBagSize = useCallback((newBagSize: string) => {
     setBagSize(newBagSize)
     // Update price based on bag size (you can customize this logic)
+    const basePrice = parseFloat(String(selectedProductData?.bagPrice || 12.99))
     const wholesaleBagConfigs: { [key: string]: number } = {
-      '12oz Retail Bag': selectedProductData?.bagPrice || 12.99,
-      '16oz Retail Bag': (selectedProductData?.bagPrice || 12.99) * 1.2,
-      '5lb Bag': (selectedProductData?.bagPrice || 12.99) * 3.5,
+      '12oz Retail Bag': basePrice,
+      '16oz Retail Bag': basePrice * 1.2,
+      '5lb Bag': basePrice * 3.5,
     }
     if (wholesaleBagConfigs[newBagSize]) {
       setBagPrice(wholesaleBagConfigs[newBagSize].toString())
@@ -857,6 +911,10 @@ function BuyerWizard() {
 
               {/* Dashboard icon */}
               <button
+                onClick={() => {
+                  setComingSoonFeature('Dashboard')
+                  setShowComingSoonModal(true)
+                }}
                 className="w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all duration-200 shadow-sm hover:shadow-md group"
                 aria-label="Dashboard"
               >
@@ -886,6 +944,10 @@ function BuyerWizard() {
 
               {/* Order history icon */}
               <button
+                onClick={() => {
+                  setComingSoonFeature('Orders')
+                  setShowComingSoonModal(true)
+                }}
                 className="w-11 h-11 lg:w-12 lg:h-12 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all duration-200 shadow-sm hover:shadow-md group"
                 aria-label="Order History"
               >
@@ -1163,9 +1225,9 @@ function BuyerWizard() {
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5 mb-6">
                     {wholesaleProducts
                       .slice((wholesalePage - 1) * 8, wholesalePage * 8)
-                      .map((product: any) => {
+                      .map((product: StockPosting) => {
                         const qualityScore = product.scaScoreComponents
-                          ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
+                          ? Object.values(product.scaScoreComponents).reduce((sum: number, val: number | undefined) => sum + (val || 0), 0) / 9
                           : 0
                         const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
 
@@ -1573,7 +1635,7 @@ function BuyerWizard() {
                               <td className="px-4 py-3 text-sm font-semibold text-gray-700">Quality</td>
                               <td className="px-4 py-3 text-sm text-[#D8501C] font-semibold">
                                 {selectedProductData?.scaScoreComponents
-                                  ? Math.round(Object.values(selectedProductData.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9)
+                                  ? Math.round(Object.values(selectedProductData.scaScoreComponents).reduce((sum: number, val: number | undefined) => sum + (val || 0), 0) / 9)
                                   : selectedProductData?.quality || 'Premium'}
                               </td>
                             </tr>
@@ -1644,9 +1706,9 @@ function BuyerWizard() {
                   <div className="grid grid-cols-4 lg:grid-cols-5 gap-3 lg:gap-4 mb-6 max-w-6xl mx-auto">
                     {singleOriginProducts
                       .slice((currentPage - 1) * 9, currentPage * 9)
-                      .map((product: any) => {
+                      .map((product: StockPosting) => {
                         const qualityScore = product.scaScoreComponents
-                          ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
+                          ? Object.values(product.scaScoreComponents).reduce((sum: number, val: number | undefined) => sum + (val || 0), 0) / 9
                           : 0
                         const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
 
@@ -1883,7 +1945,7 @@ function BuyerWizard() {
                           <div className="mb-6">
                             <h3 className="text-lg font-semibold text-gray-800 mb-3">SCA Score Breakdown</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                              {Object.entries(selectedProductData.scaScoreComponents).map(([key, value]) => (
+                              {Object.entries(selectedProductData.scaScoreComponents).map(([key, value]: [string, number | undefined]) => (
                                 <div key={key} className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-center">
                                   <span className="block text-xs uppercase text-gray-500 mb-1">{key}</span>
                                   <span className="block text-xl font-bold text-[#D8501C]">{Number(value).toFixed(1)}</span>
@@ -1915,9 +1977,9 @@ function BuyerWizard() {
                 {/* Product Cards Grid */}
                 {!loadingProducts && !showBlendDetails && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 max-w-4xl mx-auto">
-                    {blendProducts.map((product: any) => {
+                    {blendProducts.map((product: StockPosting) => {
                       const qualityScore = product.scaScoreComponents
-                        ? Object.values(product.scaScoreComponents).reduce((sum: number, val: any) => sum + (val || 0), 0) / 9
+                        ? Object.values(product.scaScoreComponents).reduce((sum: number, val: number | undefined) => sum + (val || 0), 0) / 9
                         : 0
                       const originCountry = product.supplierInfo?.billingCountry || 'Unknown'
 
@@ -3013,8 +3075,8 @@ function BuyerWizard() {
                 ) : cartItemsList.length > 0 ? (
                   <>
                     <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-6">
-                      {cartItemsList.map((item: any, index: number) => {
-                        const stockPosting = item.stockPosting || {}
+                      {cartItemsList.map((item: CartItem, index: number) => {
+                        const stockPosting = (item.stockPosting as StockPosting) || ({} as StockPosting)
                         const isWholesale = stockPosting.productType === 'whole_sale_brand'
 
                         // Calculate price (logic matching Checkout.tsx)
@@ -3022,7 +3084,7 @@ function BuyerWizard() {
                         let packageDisplay = stockPosting.bagWeight ? `${stockPosting.bagWeight} lb` : ''
 
                         if (isWholesale) {
-                          let basePrice = parseFloat(stockPosting.bagPrice || 0)
+                          let basePrice = parseFloat(String(stockPosting.bagPrice || 0))
                           if (item.bagSize === '16oz Retail Bag') basePrice *= 1.2
                           else if (item.bagSize === '5lb Bag') basePrice *= 3.5
                           itemPrice = basePrice * (item.numBags || 0)
@@ -3036,13 +3098,13 @@ function BuyerWizard() {
                           else if (item.bagSize?.startsWith('frac_pack')) {
                             weight = item.bagSize.includes('3oz') ? 0.1875 : 0.25
                           } else if (stockPosting.bagWeight) {
-                            weight = parseFloat(stockPosting.bagWeight)
+                            weight = parseFloat(String(stockPosting.bagWeight))
                           }
 
-                          let spotPrice = parseFloat(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || '0')
+                          let spotPrice = parseFloat(String(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || '0'))
                           if (spotPrice === 0 && stockPosting.bagPrice && stockPosting.bagWeight) {
-                            const bgPrice = parseFloat(stockPosting.bagPrice) || 0
-                            const bgWeight = parseFloat(stockPosting.bagWeight) || 1
+                            const bgPrice = parseFloat(String(stockPosting.bagPrice)) || 0
+                            const bgWeight = parseFloat(String(stockPosting.bagWeight)) || 1
                             spotPrice = bgWeight > 0 ? bgPrice / bgWeight : 0
                           }
                           itemPrice = (item.numBags || 0) * (spotPrice * weight)
@@ -3095,10 +3157,10 @@ function BuyerWizard() {
                         <span className="text-2xl font-bold text-[#1A4D3A]">
                           ${cartItemsList.reduce((sum, item) => {
                             // Quick recalculate for total (ideal to use same function but keeping inline for brevity)
-                            const stockPosting = item.stockPosting || {}
+                            const stockPostingItem = (item.stockPosting as StockPosting) || ({} as StockPosting)
                             let price = 0
-                            if (stockPosting.productType === 'whole_sale_brand') {
-                              let base = parseFloat(stockPosting.bagPrice || 0)
+                            if (stockPostingItem.productType === 'whole_sale_brand') {
+                              let base = parseFloat(String(stockPostingItem.bagPrice || 0))
                               if (item.bagSize === '16oz Retail Bag') base *= 1.2
                               else if (item.bagSize === '5lb Bag') base *= 3.5
                               price = base * (item.numBags || 0)
@@ -3108,11 +3170,11 @@ function BuyerWizard() {
                               else if (item.bagSize === '12oz') w = 0.75
                               else if (item.bagSize === '10oz') w = 0.625
                               else if (item.bagSize?.startsWith('frac')) w = item.bagSize.includes('3oz') ? 0.1875 : 0.25
-                              else if (stockPosting.bagWeight) w = parseFloat(stockPosting.bagWeight)
+                              else if (stockPostingItem.bagWeight) w = parseFloat(String(stockPostingItem.bagWeight))
 
-                              let s = parseFloat(stockPosting.spotPrice || stockPosting.spot_price || stockPosting.price || '0')
-                              if (s === 0 && stockPosting.bagPrice && stockPosting.bagWeight) {
-                                s = (parseFloat(stockPosting.bagPrice) || 0) / (parseFloat(stockPosting.bagWeight) || 1)
+                              let s = parseFloat(String(stockPostingItem.spotPrice || stockPostingItem.spot_price || stockPostingItem.price || '0'))
+                              if (s === 0 && stockPostingItem.bagPrice && stockPostingItem.bagWeight) {
+                                s = (parseFloat(String(stockPostingItem.bagPrice)) || 0) / (parseFloat(String(stockPostingItem.bagWeight)) || 1)
                               }
                               price = (item.numBags || 0) * (s * w)
                             }
@@ -3297,6 +3359,62 @@ function BuyerWizard() {
                 className="w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold text-lg hover:border-[#09543D] hover:text-[#09543D] transition-all block"
               >
                 Continue Shopping
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Coming Soon Modal */}
+      {showComingSoonModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowComingSoonModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl p-6 lg:p-8 max-w-md w-full shadow-2xl transform transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
+              <h3
+                className="text-2xl lg:text-3xl font-medium text-gray-900"
+                style={{
+                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                  letterSpacing: '1px'
+                }}
+              >
+                Coming Soon
+              </h3>
+              <button
+                onClick={() => setShowComingSoonModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="text-center py-8">
+              <div className="mb-6">
+                <svg className="w-20 h-20 mx-auto text-[#09543D] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+              <p className="text-lg text-gray-700 mb-2 font-semibold">
+                {comingSoonFeature} is coming soon!
+              </p>
+              <p className="text-sm text-gray-500">
+                We're working hard to bring you an amazing {comingSoonFeature.toLowerCase()} experience. Stay tuned!
+              </p>
+            </div>
+
+            <div className="mt-6">
+              <button
+                onClick={() => setShowComingSoonModal(false)}
+                className="w-full bg-[#09543D] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#07382F] transition-all"
+              >
+                Got it
               </button>
             </div>
           </div>
