@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import buyLogo from '../../assets/buy-logo.svg'
 import ChatButton from './ChatButton'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.DEV ? '' : 'https://coffeeplug-api-b982ba0e7659.herokuapp.com')
 
 function ForgotPassword() {
   const [email, setEmail] = useState('')

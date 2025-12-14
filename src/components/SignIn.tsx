@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import buyLogo from '../../assets/buy-logo.svg'
 import ChatButton from './ChatButton'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.DEV ? '' : 'https://coffeeplug-api-b982ba0e7659.herokuapp.com')
 
 function SignIn() {
   const navigate = useNavigate()
@@ -31,10 +32,38 @@ function SignIn() {
         })
       })
 
-      const data = await response.json()
-
+      // Check if response is ok before trying to parse
       if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`)
+        // Try to get error message from response
+        let errorMessage = `HTTP error! status: ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.message || errorData.error || errorMessage
+        } catch (e) {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
+      }
+
+      // Parse JSON response
+      let data
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        const text = await response.text()
+        if (text) {
+          try {
+            data = JSON.parse(text)
+          } catch (e) {
+            console.error('Failed to parse JSON response:', text)
+            throw new Error('Invalid JSON response from server')
+          }
+        } else {
+          data = {}
+        }
+      } else {
+        const text = await response.text()
+        data = text ? { message: text } : {}
       }
 
       if (data.statusCode === 200 || data.statusCode === 201) {
@@ -60,7 +89,11 @@ function SignIn() {
       }
     } catch (error) {
       console.error('Login error:', error)
-      setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        setError('Network error: Unable to connect to the server. Please check your internet connection and try again.')
+      } else {
+        setError(error instanceof Error ? error.message : 'An error occurred. Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }

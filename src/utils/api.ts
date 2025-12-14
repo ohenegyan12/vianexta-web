@@ -1,6 +1,7 @@
 // Use relative path for API calls to leverage Vite proxy in development
-// In production, this can be configured via environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://coffeeplug-api-b982ba0e7659.herokuapp.com'
+// In production, use the backend URL directly
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.DEV ? '' : 'https://coffeeplug-api-b982ba0e7659.herokuapp.com')
 
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
@@ -33,15 +34,43 @@ const apiRequest = async (
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions)
 
-    const data = await response.json()
-
+    // Check if response is ok before trying to parse
     if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`)
+      // Try to get error message from response
+      let errorMessage = `HTTP error! status: ${response.status}`
+      try {
+        const errorData = await response.json()
+        errorMessage = errorData.message || errorData.error || errorMessage
+      } catch (e) {
+        // If response is not JSON, use status text
+        errorMessage = response.statusText || errorMessage
+      }
+      throw new Error(errorMessage)
     }
 
-    return data
+    // Check if response has content before parsing JSON
+    const contentType = response.headers.get('content-type')
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text()
+      if (text) {
+        try {
+          return JSON.parse(text)
+        } catch (e) {
+          console.error('Failed to parse JSON response:', text)
+          throw new Error('Invalid JSON response from server')
+        }
+      }
+      return {}
+    }
+
+    // If not JSON, return text or empty object
+    const text = await response.text()
+    return text || {}
   } catch (error) {
     console.error('API request error:', error)
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new Error('Network error: Unable to connect to the server. Please check your internet connection.')
+    }
     throw error
   }
 }
