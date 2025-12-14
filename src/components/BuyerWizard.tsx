@@ -893,7 +893,7 @@ function BuyerWizard() {
                   <span
                     className="text-white font-medium text-sm lg:text-base tracking-wide"
                     style={{
-                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                      fontFamily: "'Poppins', sans-serif",
                       letterSpacing: '0.5px'
                     }}
                   >
@@ -981,9 +981,9 @@ function BuyerWizard() {
             {/* Question */}
             <div className="text-center mb-6 lg:mb-8">
               <h1
-                className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-gray-900 mb-3 leading-tight"
+                className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-gray-900 mb-3 leading-tight"
                 style={{
-                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   letterSpacing: '1px',
                   lineHeight: '1.1',
                   fontWeight: 500
@@ -992,9 +992,9 @@ function BuyerWizard() {
                 What type of coffee bean
               </h1>
               <h1
-                className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-[#09543D] leading-tight"
+                className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-[#09543D] leading-tight"
                 style={{
-                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   letterSpacing: '1px',
                   lineHeight: '1.1',
                   fontWeight: 500
@@ -1035,7 +1035,7 @@ function BuyerWizard() {
                   className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'roasted' ? 'text-[#09543D]' : 'text-gray-800'
                     }`}
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px',
                     fontWeight: 500
                   }}
@@ -1068,7 +1068,7 @@ function BuyerWizard() {
                   className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'wholesale' ? 'text-[#09543D]' : 'text-gray-800'
                     }`}
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px',
                     fontWeight: 500
                   }}
@@ -1088,7 +1088,7 @@ function BuyerWizard() {
                 <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px',
                     lineHeight: '1.1'
                   }}
@@ -1127,7 +1127,7 @@ function BuyerWizard() {
                       className={`text-base lg:text-lg font-medium transition-colors ${selectedCoffeeType === 'single-origin' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -1164,7 +1164,7 @@ function BuyerWizard() {
                       className={`text-base lg:text-lg font-medium transition-colors ${selectedCoffeeType === 'blend' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -1186,7 +1186,7 @@ function BuyerWizard() {
                 <h2
                   className="text-xl lg:text-2xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px'
                   }}
                 >
@@ -1222,7 +1222,7 @@ function BuyerWizard() {
 
                 {/* Product Cards Grid */}
                 {!loadingProducts && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5 mb-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 max-w-7xl mx-auto">
                     {wholesaleProducts
                       .slice((wholesalePage - 1) * 8, wholesalePage * 8)
                       .map((product: StockPosting) => {
@@ -1235,7 +1235,7 @@ function BuyerWizard() {
                           <div
                             key={product.id}
                             onClick={() => handleProductSelect(product.id, 'wholesale')}
-                            className={`bg-white rounded-xl border-2 p-3 hover:shadow-lg transition-all cursor-pointer ${selectedWholesaleProduct === String(product.id)
+                            className={`bg-white rounded-xl border-2 p-4 hover:shadow-lg transition-all cursor-pointer ${selectedWholesaleProduct === String(product.id)
                               ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg'
                               : 'border-gray-200 hover:border-[#09543D]'
                               }`}
@@ -1259,9 +1259,9 @@ function BuyerWizard() {
 
                             {/* Product Name */}
                             <h3
-                              className="text-xs font-medium text-gray-900 mb-2 uppercase truncate text-center"
+                              className="text-sm font-medium text-gray-900 mb-2 uppercase line-clamp-2 text-center"
                               style={{
-                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                                fontFamily: "'Poppins', sans-serif",
                                 letterSpacing: '0.8px',
                                 fontWeight: 500
                               }}
@@ -1270,9 +1270,9 @@ function BuyerWizard() {
                             </h3>
 
                             {/* Origin */}
-                            <div className="flex items-center justify-center gap-1.5 mb-2">
-                              <div className="w-3 h-3 bg-green-500 rounded-sm"></div>
-                              <span className="text-[10px] text-gray-600 truncate">{originCountry}</span>
+                            <div className="flex items-center justify-center gap-1.5 mb-2 min-w-0">
+                              <div className="w-3 h-3 bg-green-500 rounded-sm flex-shrink-0"></div>
+                              <span className="text-xs text-gray-600 line-clamp-1">{originCountry}</span>
                             </div>
 
                             {/* Coffee Type */}
@@ -1307,7 +1307,7 @@ function BuyerWizard() {
                     <p
                       className="text-sm text-gray-600"
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        fontFamily: "'Poppins', sans-serif"
                       }}
                     >
                       Page {wholesalePage} of {Math.ceil(wholesaleProducts.length / 8)}
@@ -1324,7 +1324,7 @@ function BuyerWizard() {
                             : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
                             }`}
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '0.8px',
                             fontWeight: 500
                           }}
@@ -1344,7 +1344,7 @@ function BuyerWizard() {
                           : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                           }`}
                         style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                          fontFamily: "'Poppins', sans-serif"
                         }}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1360,7 +1360,7 @@ function BuyerWizard() {
                           : 'bg-white border-[#09543D] text-[#09543D] hover:bg-[#09543D]/5 hover:border-[#09543D]/80'
                           }`}
                         style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                          fontFamily: "'Poppins', sans-serif"
                         }}
                       >
                         Next
@@ -1385,7 +1385,7 @@ function BuyerWizard() {
                   }}
                   className="mb-6 flex items-center gap-2 text-gray-600 hover:text-[#09543D] transition-colors"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                    fontFamily: "'Poppins', sans-serif"
                   }}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1454,7 +1454,7 @@ function BuyerWizard() {
                     <h2
                       className="text-3xl lg:text-4xl font-medium text-[#09543D] mb-6"
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -1469,7 +1469,7 @@ function BuyerWizard() {
                           <label
                             className="block text-sm font-semibold text-gray-700 mb-2"
                             style={{
-                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              fontFamily: "'Poppins', sans-serif",
                               letterSpacing: '0.8px',
                               fontWeight: 500
                             }}
@@ -1490,7 +1490,7 @@ function BuyerWizard() {
                           <label
                             className="block text-sm font-semibold text-gray-700 mb-2"
                             style={{
-                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              fontFamily: "'Poppins', sans-serif",
                               letterSpacing: '0.8px',
                               fontWeight: 500
                             }}
@@ -1512,7 +1512,7 @@ function BuyerWizard() {
                           <label
                             className="block text-sm font-semibold text-gray-700 mb-2"
                             style={{
-                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              fontFamily: "'Poppins', sans-serif",
                               letterSpacing: '0.8px',
                               fontWeight: 500
                             }}
@@ -1534,7 +1534,7 @@ function BuyerWizard() {
                           <label
                             className="block text-sm font-semibold text-gray-700 mb-2"
                             style={{
-                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              fontFamily: "'Poppins', sans-serif",
                               letterSpacing: '0.8px',
                               fontWeight: 500
                             }}
@@ -1561,7 +1561,7 @@ function BuyerWizard() {
                         disabled={isLoading || !caseQuantity || !selectedProductData}
                         className="w-full bg-[#D8501C] text-white py-4 rounded-lg font-medium text-lg hover:bg-[#b73d1a] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                         style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                          fontFamily: "'Poppins', sans-serif",
                           letterSpacing: '0.8px',
                           fontWeight: 500
                         }}
@@ -1585,7 +1585,7 @@ function BuyerWizard() {
                       <h3
                         className="text-xl font-medium text-[#09543D] mb-4"
                         style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                          fontFamily: "'Poppins', sans-serif",
                           letterSpacing: '0.8px',
                           fontWeight: 500
                         }}
@@ -1599,7 +1599,7 @@ function BuyerWizard() {
                               <th
                                 className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200"
                                 style={{
-                                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                                  fontFamily: "'Poppins', sans-serif",
                                   letterSpacing: '0.8px',
                                   fontWeight: 500
                                 }}
@@ -1609,7 +1609,7 @@ function BuyerWizard() {
                               <th
                                 className="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b border-gray-200"
                                 style={{
-                                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                                  fontFamily: "'Poppins', sans-serif",
                                   letterSpacing: '0.8px',
                                   fontWeight: 500
                                 }}
@@ -1667,7 +1667,7 @@ function BuyerWizard() {
                 <h2
                   className="text-xl lg:text-2xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px'
                   }}
                 >
@@ -1703,7 +1703,7 @@ function BuyerWizard() {
 
                 {/* Coffee Cards Grid */}
                 {!loadingProducts && (
-                  <div className="grid grid-cols-4 lg:grid-cols-5 gap-3 lg:gap-4 mb-6 max-w-6xl mx-auto">
+                  <div className="grid grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5 mb-6 max-w-7xl mx-auto">
                     {singleOriginProducts
                       .slice((currentPage - 1) * 9, currentPage * 9)
                       .map((product: StockPosting) => {
@@ -1732,9 +1732,9 @@ function BuyerWizard() {
 
                             {/* Coffee Name */}
                             <h3
-                              className="text-sm lg:text-base font-medium text-gray-900 mb-2 uppercase line-clamp-2 leading-tight flex-grow"
+                              className="text-sm lg:text-base font-medium text-gray-900 mb-2 uppercase line-clamp-3 leading-tight flex-grow"
                               style={{
-                                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                                fontFamily: "'Poppins', sans-serif",
                                 letterSpacing: '0.8px',
                                 fontWeight: 500
                               }}
@@ -1745,9 +1745,9 @@ function BuyerWizard() {
                             {/* Bottom Section */}
                             <div className="flex items-center justify-between mt-auto">
                               {/* Left: Flag and Country */}
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-1.5 min-w-0">
                                 <div className="w-3 h-3 bg-green-500 rounded-sm flex-shrink-0"></div>
-                                <span className="text-xs text-gray-600 truncate">{originCountry}</span>
+                                <span className="text-xs text-gray-600 line-clamp-1">{originCountry}</span>
                               </div>
 
                               {/* Right: Score */}
@@ -1777,7 +1777,7 @@ function BuyerWizard() {
                     <p
                       className="text-sm text-gray-600"
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        fontFamily: "'Poppins', sans-serif"
                       }}
                     >
                       Page {currentPage} of {Math.ceil(singleOriginProducts.length / 9)}
@@ -1794,7 +1794,7 @@ function BuyerWizard() {
                             : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
                             }`}
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '0.8px',
                             fontWeight: 500
                           }}
@@ -1814,7 +1814,7 @@ function BuyerWizard() {
                           : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                           }`}
                         style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                          fontFamily: "'Poppins', sans-serif"
                         }}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1830,7 +1830,7 @@ function BuyerWizard() {
                           : 'bg-white border-[#09543D] text-[#09543D] hover:bg-[#09543D]/5 hover:border-[#09543D]/80'
                           }`}
                         style={{
-                          fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                          fontFamily: "'Poppins', sans-serif"
                         }}
                       >
                         Next
@@ -1854,7 +1854,7 @@ function BuyerWizard() {
                 <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px',
                     lineHeight: '1.1'
                   }}
@@ -1922,7 +1922,7 @@ function BuyerWizard() {
 
                       {/* Product Info */}
                       <div className="w-full md:w-2/3">
-                        <h2 className="text-3xl font-bold text-[#09543D] mb-2" style={{ fontFamily: "'Placard Next', sans-serif" }}>
+                        <h2 className="text-3xl font-bold text-[#09543D] mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>
                           {selectedProductData.name}
                         </h2>
                         <div className="flex flex-wrap gap-4 mb-6">
@@ -2027,7 +2027,7 @@ function BuyerWizard() {
                             className={`text-sm lg:text-base font-medium text-gray-900 mb-2 uppercase text-center ${selectedProduct === String(product.id) ? 'text-[#09543D]' : ''
                               }`}
                             style={{
-                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              fontFamily: "'Poppins', sans-serif",
                               letterSpacing: '0.8px',
                               fontWeight: 500
                             }}
@@ -2078,7 +2078,7 @@ function BuyerWizard() {
                 <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px',
                     lineHeight: '1.1'
                   }}
@@ -2128,7 +2128,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'light' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2176,7 +2176,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'medium' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2224,7 +2224,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'medium-dark' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2272,7 +2272,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedRoastType === 'dark' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2293,7 +2293,7 @@ function BuyerWizard() {
                 <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-6 lg:mb-8"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px',
                     lineHeight: '1.1'
                   }}
@@ -2343,7 +2343,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'whole-bean' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2391,7 +2391,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'coarse' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2439,7 +2439,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'medium' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2487,7 +2487,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'fine' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2535,7 +2535,7 @@ function BuyerWizard() {
                       className={`text-sm lg:text-base font-medium transition-colors ${selectedGrindType === 'extra-fine' ? 'text-[#09543D]' : 'text-gray-800'
                         }`}
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                        fontFamily: "'Poppins', sans-serif",
                         letterSpacing: '1px'
                       }}
                     >
@@ -2556,7 +2556,7 @@ function BuyerWizard() {
                 <h2
                   className="text-xl sm:text-2xl lg:text-3xl font-medium text-gray-900 text-center mb-8 lg:mb-10"
                   style={{
-                    fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                    fontFamily: "'Poppins', sans-serif",
                     letterSpacing: '1px',
                     lineHeight: '1.1'
                   }}
@@ -2580,7 +2580,7 @@ function BuyerWizard() {
                           className={`font-medium text-sm lg:text-base transition-colors ${selectedPackageSize === pkg.id ? 'text-[#09543D]' : 'text-gray-800'
                             }`}
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '1px',
                             fontWeight: 500
                           }}
@@ -2656,7 +2656,7 @@ function BuyerWizard() {
                         <h3
                           className="text-2xl lg:text-3xl font-medium text-gray-900 mb-2"
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '1px',
                             fontWeight: 500
                           }}
@@ -2808,7 +2808,7 @@ function BuyerWizard() {
                         <h4
                           className="text-lg font-medium text-gray-800 mb-4"
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '0.8px',
                             fontWeight: 500
                           }}
@@ -2850,7 +2850,7 @@ function BuyerWizard() {
                           <label
                             className="block text-sm font-medium text-gray-700 mb-3"
                             style={{
-                              fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                              fontFamily: "'Poppins', sans-serif",
                               letterSpacing: '0.8px',
                               fontWeight: 500
                             }}
@@ -2889,7 +2889,7 @@ function BuyerWizard() {
                         <label
                           className="block text-sm font-medium text-gray-700 mb-3"
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '0.8px',
                             fontWeight: 500
                           }}
@@ -2910,7 +2910,7 @@ function BuyerWizard() {
                           placeholder="Enter quantity"
                           className="w-full px-4 py-3.5 border-2 border-[#D8501C]/50 rounded-xl focus:outline-none focus:border-[#D8501C] focus:ring-2 focus:ring-[#D8501C]/20 transition-all text-lg font-semibold"
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '0.8px',
                             fontWeight: 500
                           }}
@@ -2940,7 +2940,7 @@ function BuyerWizard() {
                           disabled={isLoading || !quantity || !selectedProductData}
                           className="w-full px-6 py-4 bg-[#09543D] text-white rounded-xl font-medium text-lg hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
                           style={{
-                            fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                            fontFamily: "'Poppins', sans-serif",
                             letterSpacing: '0.8px',
                             fontWeight: 500
                           }}
@@ -2988,7 +2988,7 @@ function BuyerWizard() {
                   <h3
                     className="text-3xl lg:text-4xl font-medium text-gray-900 mb-4"
                     style={{
-                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                      fontFamily: "'Poppins', sans-serif",
                       letterSpacing: '1px'
                     }}
                   >
@@ -3017,7 +3017,7 @@ function BuyerWizard() {
                       }}
                       className="w-full px-8 py-3 bg-[#09543D] text-white rounded-xl font-medium hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl"
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        fontFamily: "'Poppins', sans-serif"
                       }}
                     >
                       {notificationType === 'payment' ? 'Return to Home' : 'View Cart'}
@@ -3027,7 +3027,7 @@ function BuyerWizard() {
                       onClick={() => setShowNotification(false)}
                       className="w-full px-8 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200"
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        fontFamily: "'Poppins', sans-serif"
                       }}
                     >
                       Continue Shopping
@@ -3052,7 +3052,7 @@ function BuyerWizard() {
                   <h3
                     className="text-2xl lg:text-3xl font-medium text-gray-900"
                     style={{
-                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                      fontFamily: "'Poppins', sans-serif",
                       letterSpacing: '1px'
                     }}
                   >
@@ -3235,7 +3235,7 @@ function BuyerWizard() {
                   <h3
                     className="text-3xl lg:text-4xl font-medium text-gray-900 mb-4"
                     style={{
-                      fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                      fontFamily: "'Poppins', sans-serif",
                       letterSpacing: '1px'
                     }}
                   >
@@ -3253,7 +3253,7 @@ function BuyerWizard() {
                       onClick={() => setShowLogoutConfirm(false)}
                       className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all duration-200"
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        fontFamily: "'Poppins', sans-serif"
                       }}
                     >
                       Cancel
@@ -3265,7 +3265,7 @@ function BuyerWizard() {
                       }}
                       className="px-6 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                       style={{
-                        fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                        fontFamily: "'Poppins', sans-serif"
                       }}
                     >
                       Logout
@@ -3331,7 +3331,7 @@ function BuyerWizard() {
               </svg>
             </div>
 
-            <h2 className="text-4xl font-bold text-[#09543D] mb-4" style={{ fontFamily: "'Placard Next', sans-serif" }}>
+            <h2 className="text-4xl font-bold text-[#09543D] mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
               All Done!
             </h2>
             <p className="text-xl text-gray-600 mb-10">
@@ -3379,7 +3379,7 @@ function BuyerWizard() {
               <h3
                 className="text-2xl lg:text-3xl font-medium text-gray-900"
                 style={{
-                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   letterSpacing: '1px'
                 }}
               >

@@ -228,7 +228,7 @@ function ChatButton({ isBuyMode = false }: ChatButtonProps) {
               </span>
             </h3>
             <p className="text-sm text-gray-600 leading-relaxed">
-              I'm your personal coffee assistant. I can help you find the perfect beans, track orders, or answer any coffee questions!
+              I'm your personal product assistant. I can help you find the perfect products, track orders, or answer any questions about sourcing and supply chain!
             </p>
           </div>
 

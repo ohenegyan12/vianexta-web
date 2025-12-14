@@ -10,6 +10,7 @@ import brandLogo7 from '../../assets/brand-logo-7.png'
 import brandLogo8 from '../../assets/8.png'
 import brandLogo9 from '../../assets/9.png'
 import brandLogo10 from '../../assets/10.png'
+import winWinLogo from '../../assets/win-win.webp'
 
 function TrustedBrands() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -25,7 +26,8 @@ function TrustedBrands() {
     brandLogo7,
     brandLogo8,
     brandLogo9,
-    brandLogo10
+    brandLogo10,
+    winWinLogo
   ]
 
   useEffect(() => {

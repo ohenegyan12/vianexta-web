@@ -54,13 +54,13 @@ function Footer() {
           </div>
 
           {/* Company and Quick Links - Side by Side on Mobile */}
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-8 md:mb-0">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 mb-8 md:mb-0 mt-6 md:mt-8">
             {/* Quick Links */}
             <div>
               <h3 
                 className="font-bold text-gray-900 mb-4 text-base md:text-lg"
                 style={{
-                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                  fontFamily: "'Poppins', sans-serif"
                 }}
               >
                 Quick Links
@@ -110,7 +110,7 @@ function Footer() {
               <h3 
                 className="font-bold text-gray-900 mb-4 text-base md:text-lg"
                 style={{
-                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                  fontFamily: "'Poppins', sans-serif"
                 }}
               >
                 Company
@@ -134,7 +134,7 @@ function Footer() {
               <h3 
                 className="font-bold text-gray-900 mb-4 text-base md:text-lg"
                 style={{
-                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                  fontFamily: "'Poppins', sans-serif"
                 }}
               >
                 Others
@@ -158,7 +158,7 @@ function Footer() {
               <h3 
                 className="font-bold text-gray-900 mb-4 text-base md:text-lg"
                 style={{
-                  fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                  fontFamily: "'Poppins', sans-serif"
                 }}
               >
                 Stay Updated
@@ -192,7 +192,7 @@ function Footer() {
             <h3 
               className="font-bold text-gray-900 mb-4 text-base"
               style={{
-                fontFamily: "'Placard Next', 'Arial Black', 'Arial Bold', Arial, sans-serif"
+                fontFamily: "'Poppins', sans-serif"
               }}
             >
               Stay Updated
