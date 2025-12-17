@@ -1,4 +1,4 @@
-import gifNormal from '../../assets/gif-normal.mp4'
+import gifNormal from '../../assets/clare-new-gif.MP4'
 
 interface ExperienceClareProps {
   isBuyMode: boolean
