@@ -34,10 +34,15 @@ const apiRequest = async (
     headers['Authorization'] = `Bearer ${token}`
   }
 
+  // Only send credentials when explicitly enabled via env var.
+  // This avoids breaking production when backend CORS is still using Access-Control-Allow-Origin: *
+  const shouldSendCredentials =
+    import.meta.env.VITE_USE_CREDENTIALS === 'true' || import.meta.env.DEV
+
   const fetchOptions: RequestInit = {
     ...options,
     headers,
-    credentials: 'include', // Send cookies (SESSION) so backend can associate cart with the logged-in user
+    credentials: shouldSendCredentials ? 'include' : 'omit',
     cache: 'no-store', // Prevent caching of API responses
   }
 
