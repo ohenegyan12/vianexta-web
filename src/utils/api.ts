@@ -34,12 +34,10 @@ const apiRequest = async (
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  // Note: credentials removed because backend returns Access-Control-Allow-Origin: *
-  // which is incompatible with credentials. If cookies are needed, backend must return specific origin.
   const fetchOptions: RequestInit = {
     ...options,
     headers,
-    // credentials: 'include', // Removed - incompatible with Access-Control-Allow-Origin: *
+    credentials: 'include', // Send cookies (SESSION) so backend can associate cart with the logged-in user
     cache: 'no-store', // Prevent caching of API responses
   }
 
