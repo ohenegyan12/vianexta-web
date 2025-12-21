@@ -21,25 +21,17 @@ function SignIn() {
 
     try {
       const loginUrl = `${API_BASE_URL}/api/login`
-      const trimmedEmail = email.trim()
-      const payload = {
-        email: trimmedEmail,
-        username: trimmedEmail, // Some backends expect username
-        password: password
-      }
-
-      console.log('Attempting login to:', loginUrl)
 
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
       })
-
-      console.log('Login Response Status:', response.status)
-      console.log('Login response headers:', Object.fromEntries(response.headers.entries()))
 
       // Check if response is ok before trying to parse
       if (!response.ok) {
@@ -79,6 +71,7 @@ function SignIn() {
         // Try to find the token/session ID in various places
         // The backend might return it as 'sessionId' at the root, or inside 'data'
         const token = data.sessionId || data.data?.token || data.token
+        console.log('Login successful! Found token:', token)
 
         if (token) {
           localStorage.setItem('authToken', token)

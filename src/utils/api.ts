@@ -32,6 +32,10 @@ const apiRequest = async (
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
+    // Fallback headers for legacy or session-based backends
+    headers['X-Session-ID'] = token
+    headers['X-Auth-Token'] = token
+    headers['X-CSRF-TOKEN'] = token // Some Laravel setups use this
   }
 
   // Only send credentials when explicitly enabled via env var.
