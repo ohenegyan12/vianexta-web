@@ -1216,7 +1216,7 @@ function BuyerWizard() {
                       fontWeight: 600
                     }}
                   >
-                    What would you like
+                    What product would you like
                   </h1>
                   <h1
                     className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-[#09543D] leading-tight"
