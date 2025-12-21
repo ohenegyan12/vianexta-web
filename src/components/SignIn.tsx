@@ -28,50 +28,20 @@ function SignIn() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email,
-          password: password
+          email: email, // Raw email
+          username: email, // Fallback for some backend versions
+          password: password // Raw password
         })
       })
 
-      // Check if response is ok before trying to parse
-      if (!response.ok) {
-        // Try to get error message from response
-        let errorMessage = `HTTP error! status: ${response.status}`
-        try {
-          const errorData = await response.json()
-          errorMessage = errorData.message || errorData.error || errorMessage
-        } catch (e) {
-          // If response is not JSON, use status text
-          errorMessage = response.statusText || errorMessage
-        }
-        throw new Error(errorMessage)
-      }
-
-      // Parse JSON response
-      let data
-      const contentType = response.headers.get('content-type')
-      if (contentType && contentType.includes('application/json')) {
-        const text = await response.text()
-        if (text) {
-          try {
-            data = JSON.parse(text)
-          } catch (e) {
-            console.error('Failed to parse JSON response:', text)
-            throw new Error('Invalid JSON response from server')
-          }
-        } else {
-          data = {}
-        }
-      } else {
-        const text = await response.text()
-        data = text ? { message: text } : {}
-      }
+      // We ignore response.ok because the backend returns 200 for 401 errors
+      const data = await response.json()
+      console.log('Login API Response:', data)
 
       if (data.statusCode === 200 || data.statusCode === 201) {
-        // Try to find the token/session ID in various places
-        // The backend might return it as 'sessionId' at the root, or inside 'data'
+        // Look for the token in the exact spot the PHP project puts it
         const token = data.sessionId || data.data?.token || data.token
-        console.log('Login successful! Found token:', token)
+        console.log('Token found:', token)
 
         if (token) {
           localStorage.setItem('authToken', token)
@@ -79,15 +49,13 @@ function SignIn() {
 
         if (data.data?.user) {
           localStorage.setItem('user', JSON.stringify(data.data.user))
-        } else if (data.data && !data.data.token) {
-          // Sometimes user data is directly in data.data
+        } else if (data.data) {
           localStorage.setItem('user', JSON.stringify(data.data))
         }
 
-        // Redirect to buyer wizard after sign in
         navigate('/buyer')
       } else {
-        setError(data.message || 'Login failed. Please check your credentials.')
+        setError(data.message || 'Invalid email or password')
       }
     } catch (error) {
       console.error('Login error:', error)
