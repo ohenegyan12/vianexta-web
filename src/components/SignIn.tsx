@@ -22,22 +22,23 @@ function SignIn() {
     try {
       const loginUrl = `${API_BASE_URL}/api/login`
       const trimmedEmail = email.trim()
+      const payload = {
+        email: trimmedEmail,
+        username: trimmedEmail, // Some backends expect username
+        password: password
+      }
 
-      console.log('Attempting login for:', trimmedEmail)
+      console.log('Attempting login to:', loginUrl)
 
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
-        body: JSON.stringify({
-          email: trimmedEmail,
-          password: password // Keep password as is (case sensitive)
-        })
+        body: JSON.stringify(payload)
       })
 
-      console.log('Login HTTP Status:', response.status)
+      console.log('Login Response Status:', response.status)
       console.log('Login response headers:', Object.fromEntries(response.headers.entries()))
 
       // Check if response is ok before trying to parse
