@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import buyLogo from '../../assets/buy-logo.svg'
 import ChatButton from './ChatButton'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.DEV ? '' : 'https://coffeeplug-api-b982ba0e7659.herokuapp.com')
 
 function SignIn() {
@@ -21,24 +21,23 @@ function SignIn() {
 
     try {
       const loginUrl = `${API_BASE_URL}/api/login`
-      console.log('Login request URL:', loginUrl)
-      console.log('API_BASE_URL:', API_BASE_URL)
-      console.log('Environment:', import.meta.env.MODE)
-      
+      const trimmedEmail = email.trim().toLowerCase()
+
+      console.log('Attempting login for:', trimmedEmail)
+
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        // Removed credentials: 'include' because backend returns Access-Control-Allow-Origin: *
-        // which is incompatible with credentials. Token is extracted from response body instead.
         body: JSON.stringify({
-          email,
-          password
+          email: trimmedEmail,
+          password: password // Keep password as is (case sensitive)
         })
       })
-      
-      console.log('Login response status:', response.status)
+
+      console.log('Login HTTP Status:', response.status)
       console.log('Login response headers:', Object.fromEntries(response.headers.entries()))
 
       // Check if response is ok before trying to parse
@@ -101,7 +100,7 @@ function SignIn() {
       console.error('Error type:', error instanceof TypeError ? 'TypeError' : typeof error)
       console.error('Error message:', error instanceof Error ? error.message : String(error))
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
-      
+
       if (error instanceof TypeError) {
         if (error.message === 'Failed to fetch' || error.message.includes('fetch')) {
           setError('Network error: Unable to connect to the server. This may be a CORS issue. Please check the browser console for more details.')
