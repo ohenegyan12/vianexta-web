@@ -21,7 +21,7 @@ function SignIn() {
 
     try {
       const loginUrl = `${API_BASE_URL}/api/login`
-      const trimmedEmail = email.trim().toLowerCase()
+      const trimmedEmail = email.trim()
 
       console.log('Attempting login for:', trimmedEmail)
 
