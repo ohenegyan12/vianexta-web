@@ -11,6 +11,7 @@ import mediumDarkRoastIcon from '../../assets/medium-dark.svg'
 import darkRoastIcon from '../../assets/dark.svg'
 import ClareSidePanel from './ClareSidePanel'
 import { stockPostingsApi, cartApi, wholesaleApi, buyerApi } from '../utils/api'
+import interact from 'interactjs'
 
 interface UserProfile {
   userFullName?: string
@@ -125,17 +126,17 @@ function BuyerWizard() {
   const [cartItemsList, setCartItemsList] = useState<CartItem[]>([])
   const [showComingSoonModal, setShowComingSoonModal] = useState(false)
   const [comingSoonFeature, setComingSoonFeature] = useState<string>('')
-  
+
   // Delete Cart Item Confirmation State
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<number | null>(null)
   const [deletingCartItem, setDeletingCartItem] = useState(false)
-  
+
   // Success/Error Modal State
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [modalMessage, setModalMessage] = useState<string>('')
-  
+
   // Edit Cart Item State
   const [editingCartItem, setEditingCartItem] = useState<CartItem | null>(null)
   const [showEditCartModal, setShowEditCartModal] = useState(false)
@@ -179,6 +180,7 @@ function BuyerWizard() {
   const dropzoneSectionRef = useRef<HTMLLabelElement>(null)
   const wholesaleProductDetailRef = useRef<HTMLDivElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
+  const logoResizableRef = useRef<HTMLDivElement>(null)
 
   // Fetch Cart Items for Modal
   const fetchCartItems = async () => {
@@ -677,9 +679,9 @@ function BuyerWizard() {
       // The API might return it as spotPrice, spot_price, price, or we need to calculate from bagPrice
       let spotPrice = parseFloat(
         String(selectedProductData.spotPrice ||
-        selectedProductData.spot_price ||
-        selectedProductData.price ||
-        '0')
+          selectedProductData.spot_price ||
+          selectedProductData.price ||
+          '0')
       ) || 0
 
       // If spotPrice is 0, try to derive from bagPrice and bagWeight
@@ -723,6 +725,84 @@ function BuyerWizard() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quantity, selectedProductData, selectedType, selectedPackageSize, fracPackSize])
+
+  // Initialize interactjs for logo dragging and resizing
+  useEffect(() => {
+    if (logoResizableRef.current && logoPreview) {
+      const element = logoResizableRef.current;
+
+      // Reset position and transform when package size changes
+      element.style.transform = '';
+      element.setAttribute('data-x', '0');
+      element.setAttribute('data-y', '0');
+
+      interact(element)
+        .draggable({
+          inertia: true,
+          modifiers: [
+            interact.modifiers.restrictRect({
+              restriction: '.main-preview',
+              endOnly: true
+            })
+          ],
+          listeners: {
+            move(event) {
+              const target = event.target;
+              const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+              const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+              target.style.transform = `translate(${x}px, ${y}px)`;
+              target.setAttribute('data-x', x);
+              target.setAttribute('data-y', y);
+            },
+            start(event) {
+              event.target.classList.add('dragging');
+            },
+            end(event) {
+              event.target.classList.remove('dragging');
+            }
+          }
+        })
+        .resizable({
+          edges: {
+            left: '.resize-handle.top-left, .resize-handle.bottom-left',
+            right: '.resize-handle.top-right, .resize-handle.bottom-right',
+            top: '.resize-handle.top-left, .resize-handle.top-right',
+            bottom: '.resize-handle.bottom-left, .resize-handle.bottom-right'
+          },
+          modifiers: [
+            interact.modifiers.restrictEdges({
+              outer: '.main-preview',
+            }),
+            interact.modifiers.restrictSize({
+              min: { width: 50, height: 30 }
+            })
+          ],
+          inertia: true
+        })
+        .on('resizemove', (event) => {
+          const target = event.target;
+          let x = (parseFloat(target.getAttribute('data-x')) || 0);
+          let y = (parseFloat(target.getAttribute('data-y')) || 0);
+
+          target.style.width = `${event.rect.width}px`;
+          target.style.height = `${event.rect.height}px`;
+
+          // translate when resizing from top or left edges
+          x += event.deltaRect.left;
+          y += event.deltaRect.top;
+
+          target.style.transform = `translate(${x}px, ${y}px)`;
+
+          target.setAttribute('data-x', x);
+          target.setAttribute('data-y', y);
+        });
+
+      return () => {
+        interact(element).unset();
+      };
+    }
+  }, [logoPreview, selectedPackageSize]);
 
 
   // Handle product selection
@@ -831,7 +911,7 @@ function BuyerWizard() {
     setDeletingCartItem(true)
     try {
       await cartApi.deleteCartItem(itemToDelete)
-      
+
       // Always refresh cart items after deletion attempt
       // If deletion was successful, the item will be gone
       // If it failed, we'll still have the current items
@@ -840,7 +920,7 @@ function BuyerWizard() {
         const previousCount = cartItemsList.length
         setCartItemsList(cartResponse.data)
         setCartItemsCount(cartResponse.data.length)
-        
+
         // Check if item was actually removed (count decreased)
         if (cartResponse.data.length < previousCount) {
           // Close delete confirmation modal
@@ -2747,8 +2827,15 @@ function BuyerWizard() {
                           </svg>
                         </div>
                         <div className="text-center flex-1">
-                          <span className="text-base font-semibold text-gray-700 group-hover:text-[#09543D] transition-colors block mb-1">Upload your logo</span>
-                          <span className="text-sm text-gray-500">Click to browse or drag and drop</span>
+                          <span className="text-base font-semibold text-gray-700 group-hover:text-[#09543D] transition-colors block mb-1">
+                            Upload your logo
+                          </span>
+                          <span className="text-sm text-gray-500 block">
+                            Click to browse or drag and drop
+                          </span>
+                          <span className="text-xs text-gray-400 mt-1 block">
+                            Recommended label area: 1.75 in (H) × 3.75 in (L); use a wide rectangular JPG/PNG at 3–4× that size for best print quality.
+                          </span>
                         </div>
                         {logoPreview && (
                           <div className="flex items-center gap-3">
@@ -2806,195 +2893,209 @@ function BuyerWizard() {
 
                         {/* Bag Image Preview with Logo Overlay */}
                         <div className="flex flex-col items-center gap-4">
-                        <div
-                          className="relative mx-auto"
-                          style={{
-                            minWidth: '250px',
-                            maxWidth: '100%',
-                            minHeight: selectedPackageSize === '5lb' ? '450px' : selectedPackageSize === 'kcup' ? '280px' : selectedPackageSize === 'frac' ? '350px' : '360px',
-                            width: '100%',
-                            height: selectedPackageSize === '5lb' ? '450px' : selectedPackageSize === 'kcup' ? '280px' : selectedPackageSize === 'frac' ? '350px' : '360px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#f8f9fa',
-                            borderRadius: '16px',
-                            padding: '16px',
-                            position: 'relative'
-                          }}
-                        >
-                          {/* Main Bag Image */}
-                          {selectedPreviewImage || currentBagImage ? (
-                            <img
-                              src={selectedPreviewImage || currentBagImage}
-                              alt="Coffee bag preview"
-                              className="preview-img"
-                              style={{
-                                maxWidth: '100%',
-                                maxHeight: '100%',
-                                width: 'auto',
-                                height: 'auto',
-                                objectFit: 'contain',
-                                borderRadius: '16px'
-                              }}
-                              onError={(e) => {
-                                // Fallback if image fails to load
-                                console.error('Failed to load bag image:', selectedPreviewImage || currentBagImage)
-                                const target = e.target as HTMLImageElement
-                                target.style.display = 'none'
-                              }}
-                            />
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-gray-400">
-                              <div className="text-center">
-                                <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <p className="text-sm">Bag preview</p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Logo Overlay - Only show for non-K-cup bags */}
-                          {logoPreview && selectedPackageSize !== 'kcup' && (
-                            <div
-                              className="absolute"
-                              style={{
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                pointerEvents: 'none',
-                                zIndex: 5
-                              }}
-                            >
+                          <div
+                            className="relative mx-auto"
+                            style={{
+                              minWidth: '250px',
+                              maxWidth: '100%',
+                              minHeight: selectedPackageSize === '5lb' ? '450px' : selectedPackageSize === 'kcup' ? '280px' : selectedPackageSize === 'frac' ? '350px' : '360px',
+                              width: '100%',
+                              height: selectedPackageSize === '5lb' ? '450px' : selectedPackageSize === 'kcup' ? '280px' : selectedPackageSize === 'frac' ? '350px' : '360px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              background: '#f8f9fa',
+                              borderRadius: '16px',
+                              padding: '16px',
+                              position: 'relative'
+                            }}
+                          >
+                            {/* Main Bag Image */}
+                            {selectedPreviewImage || currentBagImage ? (
                               <img
-                                src={logoPreview}
-                                alt="Your logo"
-                                className="design-image"
+                                src={selectedPreviewImage || currentBagImage}
+                                alt="Coffee bag preview"
+                                className="preview-img"
                                 style={{
-                                  position: 'absolute',
+                                  maxWidth: '100%',
+                                  maxHeight: '100%',
+                                  width: 'auto',
+                                  height: 'auto',
                                   objectFit: 'contain',
-                                  pointerEvents: 'auto',
-                                  ...(selectedPackageSize === '5lb' ? {
-                                    top: '42%',
-                                    left: '50%',
-                                    transform: 'translateX(-50%)',
-                                    maxWidth: '450px',
-                                    maxHeight: '210px'
-                                  } : selectedPackageSize === '12oz' ? {
-                                    top: '48%',
-                                    left: '50%',
-                                    transform: 'translateX(-50%)',
-                                    maxWidth: '280px',
-                                    maxHeight: '150px'
-                                  } : selectedPackageSize === '10oz' ? {
-                                    top: '65%',
-                                    left: '50%',
-                                    transform: 'translateX(-50%)',
-                                    maxWidth: '250px',
-                                    maxHeight: '150px'
-                                  } : selectedPackageSize === 'frac' ? {
-                                    top: '40%',
-                                    left: '50%',
-                                    transform: 'translateX(-50%)',
-                                    maxWidth: '130px',
-                                    maxHeight: '120px'
-                                  } : {
-                                    top: '48%',
-                                    left: '50%',
-                                    transform: 'translateX(-50%)',
-                                    maxWidth: '280px',
-                                    maxHeight: '150px'
-                                  })
+                                  borderRadius: '16px'
+                                }}
+                                onError={(e) => {
+                                  // Fallback if image fails to load
+                                  console.error('Failed to load bag image:', selectedPreviewImage || currentBagImage)
+                                  const target = e.target as HTMLImageElement
+                                  target.style.display = 'none'
                                 }}
                               />
-                            </div>
-                          )}
-                        </div>
+                            ) : (
+                              <div className="flex items-center justify-center h-full text-gray-400">
+                                <div className="text-center">
+                                  <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                  <p className="text-sm">Bag preview</p>
+                                </div>
+                              </div>
+                            )}
 
-                        {/* Preview Thumbnails - Only show if we have multiple unique images */}
-                        {bagPreviewImages.length > 0 && (() => {
-                          // Filter to show only unique images
-                          const uniqueImages = Array.from(new Set(bagPreviewImages))
-                          // Only show thumbnails if we have more than one unique image
-                          if (uniqueImages.length <= 1) return null
-                          
-                          return (
-                            <div className="flex gap-2 justify-center">
-                              {bagPreviewImages.map((img, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => setSelectedPreviewImage(img)}
-                                  className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${selectedPreviewImage === img || (index === 0 && !selectedPreviewImage)
-                                    ? 'border-[#09543D] ring-2 ring-[#09543D]/20'
-                                    : 'border-gray-200 hover:border-[#09543D]/50'
-                                    }`}
-                                  onError={(e) => {
-                                    // Hide thumbnail if image fails to load
-                                    const target = e.target as HTMLImageElement
-                                    target.style.display = 'none'
-                                  }}
-                                >
-                                  <img
-                                    src={img}
-                                    alt={`Preview ${index + 1}`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </button>
-                              ))}
-                            </div>
-                          )
-                        })()}
-                      </div>
-                    </div>
+                            {/* Logo Overlay - Only show for non-K-cup bags */}
+                            {logoPreview && selectedPackageSize !== 'kcup' && (
+                              <div
+                                ref={logoResizableRef}
+                                className="resizable-container absolute"
+                                style={{
+                                  top: selectedPackageSize === '5lb' ? '42%' :
+                                    selectedPackageSize === '10oz' ? '65%' :
+                                      selectedPackageSize === 'frac' ? '40%' : '48%',
+                                  left: '50%',
+                                  width: selectedPackageSize === '5lb' ? '180px' :
+                                    selectedPackageSize === 'frac' ? '100px' : '150px',
+                                  height: selectedPackageSize === '5lb' ? '80px' :
+                                    selectedPackageSize === 'frac' ? '60px' : '70px',
+                                  transform: 'translateX(-50%)',
+                                  zIndex: 10,
+                                  // Important: pointer-events: auto allows children/handles to be interactive
+                                  pointerEvents: 'auto'
+                                }}
+                              >
+                                <img
+                                  src={logoPreview}
+                                  alt="Your logo"
+                                  className="w-full h-full object-contain pointer-events-none"
+                                />
+                                <div className="resize-handle top-left"></div>
+                                <div className="resize-handle top-right"></div>
+                                <div className="resize-handle bottom-left"></div>
+                                <div className="resize-handle bottom-right"></div>
+                              </div>
+                            )}
+                          </div>
 
-                    {/* Right Side - Bag Details Card */}
-                    <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
-                      {/* Bag Details */}
-                      <div className="mb-6">
-                        <h4
-                          className="text-lg font-medium text-gray-800 mb-4"
-                          style={{
-                            fontFamily: "'Poppins', sans-serif",
-                            letterSpacing: '0.8px',
-                            fontWeight: 500
-                          }}
-                        >
-                          Bag details
-                        </h4>
-                        <div className="space-y-3 text-gray-700">
-                          <div className="flex items-start gap-2">
-                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                            </svg>
-                            <p><span className="font-semibold">Size:</span> {selectedPackage.details.size}</p>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                            </svg>
-                            <p><span className="font-semibold">Color:</span> {selectedPackage.details.color}</p>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <p>Roasted in the USA</p>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p><span className="font-semibold">Label size:</span> {selectedPackage.details.labelSize}</p>
-                          </div>
+                          {/* Preview Thumbnails - Only show if we have multiple unique images */}
+                          {bagPreviewImages.length > 0 && (() => {
+                            // Filter to show only unique images
+                            const uniqueImages = Array.from(new Set(bagPreviewImages))
+                            // Only show thumbnails if we have more than one unique image
+                            if (uniqueImages.length <= 1) return null
+
+                            return (
+                              <div className="flex gap-2 justify-center">
+                                {bagPreviewImages.map((img, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => setSelectedPreviewImage(img)}
+                                    className={`w-16 h-16 rounded-lg border-2 overflow-hidden transition-all ${selectedPreviewImage === img || (index === 0 && !selectedPreviewImage)
+                                      ? 'border-[#09543D] ring-2 ring-[#09543D]/20'
+                                      : 'border-gray-200 hover:border-[#09543D]/50'
+                                      }`}
+                                    onError={(e) => {
+                                      // Hide thumbnail if image fails to load
+                                      const target = e.target as HTMLImageElement
+                                      target.style.display = 'none'
+                                    }}
+                                  >
+                                    <img
+                                      src={img}
+                                      alt={`Preview ${index + 1}`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </button>
+                                ))}
+                              </div>
+                            )
+                          })()}
                         </div>
                       </div>
 
-                      {/* Frac Pack Size Selection */}
-                      {selectedPackageSize === 'frac' && (
-                        <div className="mb-6 pb-6 border-b border-gray-200">
+                      {/* Right Side - Bag Details Card */}
+                      <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 lg:p-8 shadow-lg">
+                        {/* Bag Details */}
+                        <div className="mb-6">
+                          <h4
+                            className="text-lg font-medium text-gray-800 mb-4"
+                            style={{
+                              fontFamily: "'Poppins', sans-serif",
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
+                            }}
+                          >
+                            Bag details
+                          </h4>
+                          <div className="space-y-3 text-gray-700">
+                            <div className="flex items-start gap-2">
+                              <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                              </svg>
+                              <p><span className="font-semibold">Size:</span> {selectedPackage.details.size}</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                              </svg>
+                              <p><span className="font-semibold">Color:</span> {selectedPackage.details.color}</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              <p>Roasted in the USA</p>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <svg className="w-5 h-5 text-[#09543D] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              <p><span className="font-semibold">Label size:</span> {selectedPackage.details.labelSize}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Frac Pack Size Selection */}
+                        {selectedPackageSize === 'frac' && (
+                          <div className="mb-6 pb-6 border-b border-gray-200">
+                            <label
+                              className="block text-sm font-medium text-gray-700 mb-3"
+                              style={{
+                                fontFamily: "'Poppins', sans-serif",
+                                letterSpacing: '0.8px',
+                                fontWeight: 500
+                              }}
+                            >
+                              Select size:
+                            </label>
+                            <div className="flex gap-4">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="fracPackSize"
+                                  value="3oz"
+                                  checked={fracPackSize === '3oz'}
+                                  onChange={(e) => setFracPackSize(e.target.value)}
+                                  className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
+                                />
+                                <span className="text-gray-700 font-semibold">3oz</span>
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="radio"
+                                  name="fracPackSize"
+                                  value="4oz"
+                                  checked={fracPackSize === '4oz'}
+                                  onChange={(e) => setFracPackSize(e.target.value)}
+                                  className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
+                                />
+                                <span className="text-gray-700 font-semibold">4oz</span>
+                              </label>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Quantity Input */}
+                        <div>
                           <label
                             className="block text-sm font-medium text-gray-700 mb-3"
                             style={{
@@ -3003,110 +3104,71 @@ function BuyerWizard() {
                               fontWeight: 500
                             }}
                           >
-                            Select size:
-                          </label>
-                          <div className="flex gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="fracPackSize"
-                                value="3oz"
-                                checked={fracPackSize === '3oz'}
-                                onChange={(e) => setFracPackSize(e.target.value)}
-                                className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
-                              />
-                              <span className="text-gray-700 font-semibold">3oz</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="fracPackSize"
-                                value="4oz"
-                                checked={fracPackSize === '4oz'}
-                                onChange={(e) => setFracPackSize(e.target.value)}
-                                className="w-5 h-5 text-[#09543D] focus:ring-[#09543D]"
-                              />
-                              <span className="text-gray-700 font-semibold">4oz</span>
-                            </label>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Quantity Input */}
-                      <div>
-                        <label
-                          className="block text-sm font-medium text-gray-700 mb-3"
-                          style={{
-                            fontFamily: "'Poppins', sans-serif",
-                            letterSpacing: '0.8px',
-                            fontWeight: 500
-                          }}
-                        >
-                          <span className="flex items-center gap-2">
-                            <svg className="w-5 h-5 text-[#09543D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                            </svg>
-                            QUANTITY (# OF BAGS) *
-                          </span>
-                        </label>
-                        <p className="text-sm text-gray-500 mb-2">Enter the number of bags you'd like to order</p>
-                        <input
-                          type="number"
-                          min="1"
-                          value={quantity}
-                          onChange={(e) => setQuantity(e.target.value)}
-                          placeholder="Enter quantity"
-                          className="w-full px-4 py-3.5 border-2 border-[#D8501C]/50 rounded-xl focus:outline-none focus:border-[#D8501C] focus:ring-2 focus:ring-[#D8501C]/20 transition-all text-lg font-semibold"
-                          style={{
-                            fontFamily: "'Poppins', sans-serif",
-                            letterSpacing: '0.8px',
-                            fontWeight: 500
-                          }}
-                        />
-                        {/* Amount Display for Regular Products */}
-                        {selectedType !== 'wholesale' && quantity && parseFloat(quantity) > 0 && (
-                          <div className="mt-3">
-                            {!selectedPackageSize && (
-                              <p className="text-xs text-amber-600 mb-1">
-                                * Please select a package size for accurate pricing
-                              </p>
-                            )}
-                            <div className="text-right">
-                              <span className="text-sm text-gray-600">Amount: </span>
-                              <span className="text-lg font-medium text-[#09543D]">
-                                ${parseFloat(productAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Confirm and Proceed Button */}
-                      <div className="mt-6 pt-6 border-t border-gray-200">
-                        <button
-                          onClick={handleAddToCart}
-                          disabled={isLoading || !quantity || !selectedProductData}
-                          className="w-full px-6 py-4 bg-[#09543D] text-white rounded-xl font-medium text-lg hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
-                          style={{
-                            fontFamily: "'Poppins', sans-serif",
-                            letterSpacing: '0.8px',
-                            fontWeight: 500
-                          }}
-                        >
-                          {isLoading ? (
-                            <>
-                              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <span className="flex items-center gap-2">
+                              <svg className="w-5 h-5 text-[#09543D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                               </svg>
-                              <span>Processing...</span>
-                            </>
-                          ) : (
-                            'Confirm and Proceed'
+                              QUANTITY (# OF BAGS) *
+                            </span>
+                          </label>
+                          <p className="text-sm text-gray-500 mb-2">Enter the number of bags you'd like to order</p>
+                          <input
+                            type="number"
+                            min="1"
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            placeholder="Enter quantity"
+                            className="w-full px-4 py-3.5 border-2 border-[#D8501C]/50 rounded-xl focus:outline-none focus:border-[#D8501C] focus:ring-2 focus:ring-[#D8501C]/20 transition-all text-lg font-semibold"
+                            style={{
+                              fontFamily: "'Poppins', sans-serif",
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
+                            }}
+                          />
+                          {/* Amount Display for Regular Products */}
+                          {selectedType !== 'wholesale' && quantity && parseFloat(quantity) > 0 && (
+                            <div className="mt-3">
+                              {!selectedPackageSize && (
+                                <p className="text-xs text-amber-600 mb-1">
+                                  * Please select a package size for accurate pricing
+                                </p>
+                              )}
+                              <div className="text-right">
+                                <span className="text-sm text-gray-600">Amount: </span>
+                                <span className="text-lg font-medium text-[#09543D]">
+                                  ${parseFloat(productAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </span>
+                              </div>
+                            </div>
                           )}
-                        </button>
+                        </div>
+
+                        {/* Confirm and Proceed Button */}
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <button
+                            onClick={handleAddToCart}
+                            disabled={isLoading || !quantity || !selectedProductData}
+                            className="w-full px-6 py-4 bg-[#09543D] text-white rounded-xl font-medium text-lg hover:bg-[#0d6b4f] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                            style={{
+                              fontFamily: "'Poppins', sans-serif",
+                              letterSpacing: '0.8px',
+                              fontWeight: 500
+                            }}
+                          >
+                            {isLoading ? (
+                              <>
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Processing...</span>
+                              </>
+                            ) : (
+                              'Confirm and Proceed'
+                            )}
+                          </button>
+                        </div>
                       </div>
-                    </div>
                     </div>
                   )}
                 </div>
@@ -3510,11 +3572,10 @@ function BuyerWizard() {
                             key={roast.value}
                             onClick={() => setEditRoastType(roast.value)}
                             disabled={savingCartItem}
-                            className={`p-4 rounded-xl border-2 transition-all ${
-                              editRoastType === roast.value
-                                ? 'border-[#09543D] bg-[#09543D]/10'
-                                : 'border-gray-200 hover:border-[#09543D]/50'
-                            } disabled:opacity-50`}
+                            className={`p-4 rounded-xl border-2 transition-all ${editRoastType === roast.value
+                              ? 'border-[#09543D] bg-[#09543D]/10'
+                              : 'border-gray-200 hover:border-[#09543D]/50'
+                              } disabled:opacity-50`}
                           >
                             <img src={roast.icon} alt={roast.label} className="w-12 h-12 mx-auto mb-2" />
                             <p className="text-sm font-medium text-gray-700">{roast.label}</p>
@@ -3542,11 +3603,10 @@ function BuyerWizard() {
                             key={grind.value}
                             onClick={() => setEditGrindType(grind.value)}
                             disabled={savingCartItem}
-                            className={`px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${
-                              editGrindType === grind.value
-                                ? 'border-[#09543D] bg-[#09543D]/10 text-[#09543D]'
-                                : 'border-gray-200 text-gray-700 hover:border-[#09543D]/50'
-                            } disabled:opacity-50`}
+                            className={`px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${editGrindType === grind.value
+                              ? 'border-[#09543D] bg-[#09543D]/10 text-[#09543D]'
+                              : 'border-gray-200 text-gray-700 hover:border-[#09543D]/50'
+                              } disabled:opacity-50`}
                           >
                             {grind.label}
                           </button>
@@ -3575,11 +3635,10 @@ function BuyerWizard() {
                             setEditBagImage(bagImage)
                           }}
                           disabled={savingCartItem}
-                          className={`p-4 rounded-xl border-2 transition-all text-center ${
-                            editBagSize === size.value
-                              ? 'border-[#09543D] bg-[#09543D]/10'
-                              : 'border-gray-200 hover:border-[#09543D]/50'
-                          } disabled:opacity-50`}
+                          className={`p-4 rounded-xl border-2 transition-all text-center ${editBagSize === size.value
+                            ? 'border-[#09543D] bg-[#09543D]/10'
+                            : 'border-gray-200 hover:border-[#09543D]/50'
+                            } disabled:opacity-50`}
                         >
                           <p className="font-semibold text-gray-900 mb-1">{size.label}</p>
                           <p className="text-xs text-gray-600">{size.desc}</p>
@@ -3600,7 +3659,10 @@ function BuyerWizard() {
                           className="flex items-center justify-center gap-4 p-6 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#09543D] hover:bg-[#09543D]/5 transition-all"
                         >
                           <span className="text-4xl">📤</span>
-                          <span className="text-gray-600 font-medium">Upload your logo</span>
+                          <span className="text-gray-600 font-medium block">Upload your logo</span>
+                          <span className="text-xs text-gray-400 mt-1 block">
+                            Recommended label area: 1.75 in (H) × 3.75 in (L); use a wide rectangular JPG/PNG at 3–4× that size for best print quality.
+                          </span>
                           <input
                             id="edit-logo-upload"
                             type="file"
