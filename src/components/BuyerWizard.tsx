@@ -1,3 +1,4 @@
+import interact from 'interactjs'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import vianextaLogo from '../../assets/vianexta-logo.svg'
@@ -66,6 +67,7 @@ interface CartItem {
 
 function BuyerWizard() {
   const navigate = useNavigate()
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [selectedType, setSelectedType] = useState<string>('')
   const [selectedCoffeeType, setSelectedCoffeeType] = useState<string>('')
   const [selectedCoffee, setSelectedCoffee] = useState<string>('')
@@ -135,6 +137,11 @@ function BuyerWizard() {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [modalMessage, setModalMessage] = useState<string>('')
+
+  // Logo Position and Size State
+  const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0 })
+  const [logoSize, setLogoSize] = useState({ width: 120, height: 48 }) // Initial size matching ref project handleFileUpload
+  const logoRef = useRef<HTMLDivElement>(null)
 
   // Edit Cart Item State
   const [editingCartItem, setEditingCartItem] = useState<CartItem | null>(null)
@@ -592,6 +599,74 @@ function BuyerWizard() {
     }
   }, [selectedPackageSize])
 
+  // Initialize interactjs for logo dragging and resizing
+  useEffect(() => {
+    if (!logoRef.current || !logoPreview) return
+
+    const interactable = interact(logoRef.current)
+      .draggable({
+        inertia: true,
+        modifiers: [
+          interact.modifiers.restrictRect({
+            restriction: 'parent',
+            endOnly: true
+          })
+        ],
+        autoScroll: true,
+        listeners: {
+          move: (event) => {
+            const target = event.target
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+
+            target.style.transform = `translate(${x}px, ${y}px)`
+            target.setAttribute('data-x', x.toString())
+            target.setAttribute('data-y', y.toString())
+
+            setLogoPosition({ x, y })
+          }
+        }
+      })
+      .resizable({
+        edges: { left: true, right: true, bottom: true, top: true },
+        listeners: {
+          move: (event) => {
+            const target = event.target
+            let x = parseFloat(target.getAttribute('data-x')) || 0
+            let y = parseFloat(target.getAttribute('data-y')) || 0
+
+            x += event.deltaRect.left
+            y += event.deltaRect.top
+
+            Object.assign(target.style, {
+              width: `${event.rect.width}px`,
+              height: `${event.rect.height}px`,
+              transform: `translate(${x}px, ${y}px)`
+            })
+
+            target.setAttribute('data-x', x.toString())
+            target.setAttribute('data-y', y.toString())
+
+            setLogoPosition({ x, y })
+            setLogoSize({ width: event.rect.width, height: event.rect.height })
+          }
+        },
+        modifiers: [
+          interact.modifiers.restrictEdges({
+            outer: 'parent'
+          }),
+          interact.modifiers.restrictSize({
+            min: { width: 50, height: 20 }
+          })
+        ],
+        inertia: true
+      })
+
+    return () => {
+      interactable.unset()
+    }
+  }, [logoPreview, selectedPackageSize])
+
   useEffect(() => {
     if (selectedWholesaleProduct) {
       // Scroll to product detail view after it's rendered
@@ -623,6 +698,17 @@ function BuyerWizard() {
       const reader = new FileReader()
       reader.onloadend = () => {
         setLogoPreview(reader.result as string)
+        // Reset logo state for new upload
+        setLogoPosition({ x: 0, y: 0 })
+        const initialSize = selectedPackageSize === '5lb' ? { width: 280, height: 150 } : { width: 120, height: 48 }
+        setLogoSize(initialSize)
+        if (logoRef.current) {
+          logoRef.current.setAttribute('data-x', '0')
+          logoRef.current.setAttribute('data-y', '0')
+          logoRef.current.style.transform = 'translate(0px, 0px)'
+          logoRef.current.style.width = `${initialSize.width}px`
+          logoRef.current.style.height = `${initialSize.height}px`
+        }
       }
       reader.readAsDataURL(file)
     }
@@ -631,6 +717,8 @@ function BuyerWizard() {
   // Handle logo deletion
   const handleLogoDelete = () => {
     setLogoPreview('')
+    setLogoPosition({ x: 0, y: 0 })
+    setLogoSize({ width: 120, height: 48 })
     // Reset the file input so the same file can be uploaded again
     if (logoInputRef.current) {
       logoInputRef.current.value = ''
@@ -1114,105 +1202,210 @@ function BuyerWizard() {
             }`}
         >
           <div className="w-full max-w-6xl">
-            {/* Question */}
-            <div className="text-center mb-6 lg:mb-8">
-              <h1
-                className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-gray-900 mb-3 leading-tight"
-                style={{
-                  fontFamily: "'Poppins', sans-serif",
-                  letterSpacing: '1px',
-                  lineHeight: '1.1',
-                  fontWeight: 500
-                }}
-              >
-                What type of coffee bean
-              </h1>
-              <h1
-                className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-[#09543D] leading-tight"
-                style={{
-                  fontFamily: "'Poppins', sans-serif",
-                  letterSpacing: '1px',
-                  lineHeight: '1.1',
-                  fontWeight: 500
-                }}
-              >
-                are you looking for?
-              </h1>
-            </div>
+            {/* Step 0: Product Selection */}
+            {!selectedCategory && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="text-center mb-10 lg:mb-16">
+                  <h1
+                    className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-gray-900 mb-4 leading-tight"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px',
+                      lineHeight: '1.2',
+                      fontWeight: 600
+                    }}
+                  >
+                    What would you like
+                  </h1>
+                  <h1
+                    className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-[#09543D] leading-tight"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px',
+                      lineHeight: '1.2',
+                      fontWeight: 600
+                    }}
+                  >
+                    to buy today?
+                  </h1>
+                  <p className="mt-6 text-gray-500 max-w-2xl mx-auto text-lg lg:text-xl">
+                    Select a product category to begin your sourcing journey with Vianexta.
+                  </p>
+                </div>
 
-            {/* Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 max-w-lg mx-auto mb-6">
-              {/* Roasted Card */}
-              <button
-                onClick={() => {
-                  setSelectedType('roasted')
-                  setTimeout(() => {
-                    coffeeTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }, 100)
-                }}
-                className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedType === 'roasted'
-                  ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                  : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                  }`}
-              >
-                {/* Selection indicator */}
-                {selectedType === 'roasted' && (
-                  <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
-                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8 max-w-[1600px] mx-auto mb-12 px-6">
+                  {[
+                    { id: 'coffee', name: 'Coffee', icon: lightRoastIcon, active: true },
+                    { id: 'juice', name: 'Juice', icon: '/assets/juicce.svg', active: false },
+                    { id: 'skincare', name: 'Skincare', icon: '/assets/skincare.svg', active: false },
+                    { id: 'cashew', name: 'Cashew', icon: null, active: false },
+                    { id: 'others', name: 'Others', icon: null, active: false },
+                  ].map((category) => (
+                    <button
+                      key={category.id}
+                      disabled={!category.active}
+                      onClick={() => category.active && setSelectedCategory('coffee')}
+                      className={`group relative flex flex-col items-center justify-center p-6 xl:p-8 rounded-[2rem] border-2 transition-all duration-500 h-full min-h-[240px] ${category.active
+                        ? 'bg-white border-gray-100 hover:border-[#09543D] hover:shadow-[0_20px_50px_rgba(9,84,61,0.15)] hover:-translate-y-2 cursor-pointer shadow-sm'
+                        : 'bg-gray-50 border-gray-100 opacity-60 grayscale cursor-not-allowed'
+                        }`}
+                    >
+                      {/* Selection indicator for active */}
+                      {category.active && (
+                        <div className="absolute top-4 right-4 w-7 h-7 bg-[#09543D] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-0 group-hover:scale-100 transition-all duration-300 shadow-lg">
+                          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-center mb-6">
+                        {category.icon ? (
+                          <img
+                            src={category.icon}
+                            alt={category.name}
+                            className="w-24 h-24 xl:w-28 xl:h-28 object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-gray-300 text-3xl font-bold">
+                            {category.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-center w-full">
+                        <h3
+                          className={`text-xl xl:text-2xl font-semibold transition-colors ${category.active ? 'text-gray-900 group-hover:text-[#09543D]' : 'text-gray-400'
+                            }`}
+                          style={{ fontFamily: "'Poppins', sans-serif" }}
+                        >
+                          {category.name}
+                        </h3>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedCategory === 'coffee' && (
+              <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+                <button
+                  onClick={() => {
+                    setSelectedCategory('')
+                    setSelectedType('')
+                  }}
+                  className="mb-8 flex items-center gap-2 text-gray-500 hover:text-[#09543D] transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center group-hover:border-[#09543D] group-hover:bg-[#09543D]/5 transition-all">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                   </div>
-                )}
+                  <span className="font-medium" style={{ fontFamily: "'Poppins', sans-serif" }}>Back to Product selection</span>
+                </button>
 
-                <div className="flex justify-center mb-3 lg:mb-4">
-                  <img src={roastedIcon} alt="Roasted" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-110" />
+                {/* Question */}
+                <div className="text-center mb-6 lg:mb-8">
+                  <h1
+                    className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-gray-900 mb-3 leading-tight"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px',
+                      lineHeight: '1.1',
+                      fontWeight: 500
+                    }}
+                  >
+                    What type of coffee bean
+                  </h1>
+                  <h1
+                    className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-[#09543D] leading-tight"
+                    style={{
+                      fontFamily: "'Poppins', sans-serif",
+                      letterSpacing: '1px',
+                      lineHeight: '1.1',
+                      fontWeight: 500
+                    }}
+                  >
+                    are you looking for?
+                  </h1>
                 </div>
-                <h3
-                  className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'roasted' ? 'text-[#09543D]' : 'text-gray-800'
-                    }`}
-                  style={{
-                    fontFamily: "'Poppins', sans-serif",
-                    letterSpacing: '1px',
-                    fontWeight: 500
-                  }}
-                >
-                  Roasted
-                </h3>
-              </button>
 
-              {/* Wholesale Brands Card */}
-              <button
-                onClick={() => setSelectedType('wholesale')}
-                className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedType === 'wholesale'
-                  ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
-                  : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
-                  }`}
-              >
-                {/* Selection indicator */}
-                {selectedType === 'wholesale' && (
-                  <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
-                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                )}
+                {/* Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 max-w-lg mx-auto mb-6">
+                  {/* Roasted Card */}
+                  <button
+                    onClick={() => {
+                      setSelectedType('roasted')
+                      setTimeout(() => {
+                        coffeeTypeSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }, 100)
+                    }}
+                    className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedType === 'roasted'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
+                  >
+                    {/* Selection indicator */}
+                    {selectedType === 'roasted' && (
+                      <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
 
-                <div className="flex justify-center mb-3 lg:mb-4">
-                  <img src={wholesaleBrandsIcon} alt="Wholesale Brands" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-110" />
+                    <div className="flex justify-center mb-3 lg:mb-4">
+                      <img src={roastedIcon} alt="Roasted" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-110" />
+                    </div>
+                    <h3
+                      className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'roasted' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
+                      style={{
+                        fontFamily: "'Poppins', sans-serif",
+                        letterSpacing: '1px',
+                        fontWeight: 500
+                      }}
+                    >
+                      Roasted
+                    </h3>
+                  </button>
+
+                  {/* Wholesale Brands Card */}
+                  <button
+                    onClick={() => setSelectedType('wholesale')}
+                    className={`group relative bg-white rounded-xl border-2 p-4 lg:p-5 text-center transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1 ${selectedType === 'wholesale'
+                      ? 'border-[#09543D] bg-gradient-to-br from-[#09543D]/10 to-[#09543D]/5 shadow-lg shadow-[#09543D]/10'
+                      : 'border-gray-200 hover:border-[#09543D]/50 hover:shadow-lg'
+                      }`}
+                  >
+                    {/* Selection indicator */}
+                    {selectedType === 'wholesale' && (
+                      <div className="absolute top-2 right-2 w-4 h-4 bg-[#09543D] rounded-full flex items-center justify-center">
+                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+
+                    <div className="flex justify-center mb-3 lg:mb-4">
+                      <img src={wholesaleBrandsIcon} alt="Wholesale Brands" className="w-16 h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-500 group-hover:scale-110" />
+                    </div>
+                    <h3
+                      className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'wholesale' ? 'text-[#09543D]' : 'text-gray-800'
+                        }`}
+                      style={{
+                        fontFamily: "'Poppins', sans-serif",
+                        letterSpacing: '1px',
+                        fontWeight: 500
+                      }}
+                    >
+                      Wholesale Brands
+                    </h3>
+                  </button>
                 </div>
-                <h3
-                  className={`text-base lg:text-lg font-medium transition-colors ${selectedType === 'wholesale' ? 'text-[#09543D]' : 'text-gray-800'
-                    }`}
-                  style={{
-                    fontFamily: "'Poppins', sans-serif",
-                    letterSpacing: '1px',
-                    fontWeight: 500
-                  }}
-                >
-                  Wholesale Brands
-                </h3>
-              </button>
-            </div>
+              </div>
+            )}
 
             {/* Second Question - How do you want your coffee? */}
             {selectedType === 'roasted' && (
@@ -2872,50 +3065,46 @@ function BuyerWizard() {
                                   width: '100%',
                                   height: '100%',
                                   pointerEvents: 'none',
-                                  zIndex: 5
+                                  zIndex: 10
                                 }}
                               >
-                                <img
-                                  src={logoPreview}
-                                  alt="Your logo"
-                                  className="design-image"
+                                <div
+                                  ref={logoRef}
+                                  className="relative group border border-dashed border-gray-400 hover:border-[#09543D] transition-colors"
                                   style={{
                                     position: 'absolute',
-                                    objectFit: 'contain',
+                                    width: `${logoSize.width}px`,
+                                    height: `${logoSize.height}px`,
+                                    transform: `translate(${logoPosition.x}px, ${logoPosition.y}px)`,
+                                    // Set initial position based on bag size if not already moved
+                                    ...(!logoPosition.x && !logoPosition.y && {
+                                      top: selectedPackageSize === '5lb' ? '42%' :
+                                        selectedPackageSize === '12oz' ? '48%' :
+                                          selectedPackageSize === '10oz' ? '65%' :
+                                            selectedPackageSize === 'frac' ? '40%' : '48%',
+                                      left: '50%',
+                                      marginLeft: `-${logoSize.width / 2}px`,
+                                      marginTop: `-${logoSize.height / 2}px`
+                                    }),
                                     pointerEvents: 'auto',
-                                    ...(selectedPackageSize === '5lb' ? {
-                                      top: '42%',
-                                      left: '50%',
-                                      transform: 'translateX(-50%)',
-                                      maxWidth: '450px',
-                                      maxHeight: '210px'
-                                    } : selectedPackageSize === '12oz' ? {
-                                      top: '48%',
-                                      left: '50%',
-                                      transform: 'translateX(-50%)',
-                                      maxWidth: '280px',
-                                      maxHeight: '150px'
-                                    } : selectedPackageSize === '10oz' ? {
-                                      top: '65%',
-                                      left: '50%',
-                                      transform: 'translateX(-50%)',
-                                      maxWidth: '250px',
-                                      maxHeight: '150px'
-                                    } : selectedPackageSize === 'frac' ? {
-                                      top: '40%',
-                                      left: '50%',
-                                      transform: 'translateX(-50%)',
-                                      maxWidth: '130px',
-                                      maxHeight: '120px'
-                                    } : {
-                                      top: '48%',
-                                      left: '50%',
-                                      transform: 'translateX(-50%)',
-                                      maxWidth: '280px',
-                                      maxHeight: '150px'
-                                    })
+                                    touchAction: 'none',
+                                    cursor: 'move'
                                   }}
-                                />
+                                  data-x={logoPosition.x}
+                                  data-y={logoPosition.y}
+                                >
+                                  <img
+                                    src={logoPreview}
+                                    alt="Your logo"
+                                    className="w-full h-full object-contain pointer-events-none"
+                                  />
+
+                                  {/* Resize Handles */}
+                                  <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-[#09543D] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-[#09543D] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-white border-2 border-[#09543D] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-white border-2 border-[#09543D] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
                               </div>
                             )}
                           </div>
@@ -3518,8 +3707,8 @@ function BuyerWizard() {
                             onClick={() => setEditRoastType(roast.value)}
                             disabled={savingCartItem}
                             className={`p-4 rounded-xl border-2 transition-all ${editRoastType === roast.value
-                                ? 'border-[#09543D] bg-[#09543D]/10'
-                                : 'border-gray-200 hover:border-[#09543D]/50'
+                              ? 'border-[#09543D] bg-[#09543D]/10'
+                              : 'border-gray-200 hover:border-[#09543D]/50'
                               } disabled:opacity-50`}
                           >
                             <img src={roast.icon} alt={roast.label} className="w-12 h-12 mx-auto mb-2" />
@@ -3549,8 +3738,8 @@ function BuyerWizard() {
                             onClick={() => setEditGrindType(grind.value)}
                             disabled={savingCartItem}
                             className={`px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${editGrindType === grind.value
-                                ? 'border-[#09543D] bg-[#09543D]/10 text-[#09543D]'
-                                : 'border-gray-200 text-gray-700 hover:border-[#09543D]/50'
+                              ? 'border-[#09543D] bg-[#09543D]/10 text-[#09543D]'
+                              : 'border-gray-200 text-gray-700 hover:border-[#09543D]/50'
                               } disabled:opacity-50`}
                           >
                             {grind.label}
@@ -3581,8 +3770,8 @@ function BuyerWizard() {
                           }}
                           disabled={savingCartItem}
                           className={`p-4 rounded-xl border-2 transition-all text-center ${editBagSize === size.value
-                              ? 'border-[#09543D] bg-[#09543D]/10'
-                              : 'border-gray-200 hover:border-[#09543D]/50'
+                            ? 'border-[#09543D] bg-[#09543D]/10'
+                            : 'border-gray-200 hover:border-[#09543D]/50'
                             } disabled:opacity-50`}
                         >
                           <p className="font-semibold text-gray-900 mb-1">{size.label}</p>
