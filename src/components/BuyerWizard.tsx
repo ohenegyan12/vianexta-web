@@ -68,6 +68,7 @@ interface CartItem {
 function BuyerWizard() {
   const navigate = useNavigate()
   const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const [isExiting, setIsExiting] = useState(false)
   const [selectedType, setSelectedType] = useState<string>('')
   const [selectedCoffeeType, setSelectedCoffeeType] = useState<string>('')
   const [selectedCoffee, setSelectedCoffee] = useState<string>('')
@@ -1204,7 +1205,7 @@ function BuyerWizard() {
           <div className="w-full max-w-6xl">
             {/* Step 0: Product Selection */}
             {!selectedCategory && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className={`transition-all duration-500 transform ${isExiting ? 'opacity-0 -translate-y-8 pointer-events-none' : 'opacity-100 translate-y-0 animate-in fade-in slide-in-from-bottom-4 duration-700'}`}>
                 <div className="text-center mb-10 lg:mb-16">
                   <h1
                     className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-medium text-gray-900 mb-4 leading-tight"
@@ -1244,7 +1245,15 @@ function BuyerWizard() {
                     <button
                       key={category.id}
                       disabled={!category.active}
-                      onClick={() => category.active && setSelectedCategory('coffee')}
+                      onClick={() => {
+                        if (category.active) {
+                          setIsExiting(true)
+                          setTimeout(() => {
+                            setSelectedCategory('coffee')
+                            setIsExiting(false)
+                          }, 500)
+                        }
+                      }}
                       className={`group relative flex flex-col items-center justify-center p-6 xl:p-8 rounded-[2rem] border-2 transition-all duration-500 h-full min-h-[240px] ${category.active
                         ? 'bg-white border-gray-100 hover:border-[#09543D] hover:shadow-[0_20px_50px_rgba(9,84,61,0.15)] hover:-translate-y-2 cursor-pointer shadow-sm'
                         : 'bg-gray-50 border-gray-100 opacity-60 grayscale cursor-not-allowed'
@@ -1289,11 +1298,15 @@ function BuyerWizard() {
             )}
 
             {selectedCategory === 'coffee' && (
-              <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+              <div className={`animate-in fade-in slide-in-from-right-8 duration-700 transition-all ${isExiting ? 'opacity-0 translate-x-8 pointer-events-none' : 'opacity-100 translate-x-0'}`}>
                 <button
                   onClick={() => {
-                    setSelectedCategory('')
-                    setSelectedType('')
+                    setIsExiting(true)
+                    setTimeout(() => {
+                      setSelectedCategory('')
+                      setSelectedType('')
+                      setIsExiting(false)
+                    }, 500)
                   }}
                   className="mb-8 flex items-center gap-2 text-gray-500 hover:text-[#09543D] transition-colors group"
                 >
