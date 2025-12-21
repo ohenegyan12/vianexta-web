@@ -1239,8 +1239,8 @@ function BuyerWizard() {
                     { id: 'coffee', name: 'Coffee', icon: lightRoastIcon, active: true },
                     { id: 'juice', name: 'Juice', icon: '/assets/juicce.svg', active: false },
                     { id: 'skincare', name: 'Skincare', icon: '/assets/skincare.svg', active: false },
-                    { id: 'cashew', name: 'Cashew', icon: null, active: false },
-                    { id: 'others', name: 'Others', icon: null, active: false },
+                    { id: 'cashew', name: 'Cashew', icon: '/assets/cashew.svg', active: false },
+                    { id: 'others', name: 'Others', icon: '/assets/others.svg', active: false },
                   ].map((category) => (
                     <button
                       key={category.id}
