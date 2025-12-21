@@ -24,6 +24,7 @@ body {
     transform: translateY(100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -39,6 +40,7 @@ body {
     transform: translateY(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -54,6 +56,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -91,55 +94,4 @@ body {
 .clare-chat-html-content div p {
   margin: 0 0 16px 0;
   padding: 0;
-}
-
-
-/* Resize handles for logo preview */
-.resize-handle {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: white;
-  border: 2px solid #D8501C;
-  border-radius: 50%;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.resizable-container:hover .resize-handle {
-  opacity: 1;
-}
-
-.resize-handle.top-left {
-  top: -5px;
-  left: -5px;
-  cursor: nw-resize;
-}
-
-.resize-handle.top-right {
-  top: -5px;
-  right: -5px;
-  cursor: ne-resize;
-}
-
-.resize-handle.bottom-left {
-  bottom: -5px;
-  left: -5px;
-  cursor: sw-resize;
-}
-
-.resize-handle.bottom-right {
-  bottom: -5px;
-  right: -5px;
-  cursor: se-resize;
-}
-
-.resizable-container.dragging {
-  cursor: grabbing;
-}
-
-.resizable-container {
-  touch-action: none;
-  user-select: none;
 }

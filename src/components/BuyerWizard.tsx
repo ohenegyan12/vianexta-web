@@ -11,7 +11,6 @@ import mediumDarkRoastIcon from '../../assets/medium-dark.svg'
 import darkRoastIcon from '../../assets/dark.svg'
 import ClareSidePanel from './ClareSidePanel'
 import { stockPostingsApi, cartApi, wholesaleApi, buyerApi } from '../utils/api'
-import interact from 'interactjs'
 
 interface UserProfile {
   userFullName?: string
@@ -180,7 +179,6 @@ function BuyerWizard() {
   const dropzoneSectionRef = useRef<HTMLLabelElement>(null)
   const wholesaleProductDetailRef = useRef<HTMLDivElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
-  const logoResizableRef = useRef<HTMLDivElement>(null)
 
   // Fetch Cart Items for Modal
   const fetchCartItems = async () => {
@@ -725,84 +723,6 @@ function BuyerWizard() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quantity, selectedProductData, selectedType, selectedPackageSize, fracPackSize])
-
-  // Initialize interactjs for logo dragging and resizing
-  useEffect(() => {
-    if (logoResizableRef.current && logoPreview) {
-      const element = logoResizableRef.current;
-
-      // Reset position and transform when package size changes
-      element.style.transform = '';
-      element.setAttribute('data-x', '0');
-      element.setAttribute('data-y', '0');
-
-      interact(element)
-        .draggable({
-          inertia: true,
-          modifiers: [
-            interact.modifiers.restrictRect({
-              restriction: '.main-preview',
-              endOnly: true
-            })
-          ],
-          listeners: {
-            move(event) {
-              const target = event.target;
-              const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-              const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-              target.style.transform = `translate(${x}px, ${y}px)`;
-              target.setAttribute('data-x', x);
-              target.setAttribute('data-y', y);
-            },
-            start(event) {
-              event.target.classList.add('dragging');
-            },
-            end(event) {
-              event.target.classList.remove('dragging');
-            }
-          }
-        })
-        .resizable({
-          edges: {
-            left: '.resize-handle.top-left, .resize-handle.bottom-left',
-            right: '.resize-handle.top-right, .resize-handle.bottom-right',
-            top: '.resize-handle.top-left, .resize-handle.top-right',
-            bottom: '.resize-handle.bottom-left, .resize-handle.bottom-right'
-          },
-          modifiers: [
-            interact.modifiers.restrictEdges({
-              outer: '.main-preview',
-            }),
-            interact.modifiers.restrictSize({
-              min: { width: 50, height: 30 }
-            })
-          ],
-          inertia: true
-        })
-        .on('resizemove', (event) => {
-          const target = event.target;
-          let x = (parseFloat(target.getAttribute('data-x')) || 0);
-          let y = (parseFloat(target.getAttribute('data-y')) || 0);
-
-          target.style.width = `${event.rect.width}px`;
-          target.style.height = `${event.rect.height}px`;
-
-          // translate when resizing from top or left edges
-          x += event.deltaRect.left;
-          y += event.deltaRect.top;
-
-          target.style.transform = `translate(${x}px, ${y}px)`;
-
-          target.setAttribute('data-x', x);
-          target.setAttribute('data-y', y);
-        });
-
-      return () => {
-        interact(element).unset();
-      };
-    }
-  }, [logoPreview, selectedPackageSize]);
 
 
   // Handle product selection
@@ -2945,32 +2865,57 @@ function BuyerWizard() {
                             {/* Logo Overlay - Only show for non-K-cup bags */}
                             {logoPreview && selectedPackageSize !== 'kcup' && (
                               <div
-                                ref={logoResizableRef}
-                                className="resizable-container absolute"
+                                className="absolute"
                                 style={{
-                                  top: selectedPackageSize === '5lb' ? '42%' :
-                                    selectedPackageSize === '10oz' ? '65%' :
-                                      selectedPackageSize === 'frac' ? '40%' : '48%',
-                                  left: '50%',
-                                  width: selectedPackageSize === '5lb' ? '180px' :
-                                    selectedPackageSize === 'frac' ? '100px' : '150px',
-                                  height: selectedPackageSize === '5lb' ? '80px' :
-                                    selectedPackageSize === 'frac' ? '60px' : '70px',
-                                  transform: 'translateX(-50%)',
-                                  zIndex: 10,
-                                  // Important: pointer-events: auto allows children/handles to be interactive
-                                  pointerEvents: 'auto'
+                                  top: 0,
+                                  left: 0,
+                                  width: '100%',
+                                  height: '100%',
+                                  pointerEvents: 'none',
+                                  zIndex: 5
                                 }}
                               >
                                 <img
                                   src={logoPreview}
                                   alt="Your logo"
-                                  className="w-full h-full object-contain pointer-events-none"
+                                  className="design-image"
+                                  style={{
+                                    position: 'absolute',
+                                    objectFit: 'contain',
+                                    pointerEvents: 'auto',
+                                    ...(selectedPackageSize === '5lb' ? {
+                                      top: '42%',
+                                      left: '50%',
+                                      transform: 'translateX(-50%)',
+                                      maxWidth: '450px',
+                                      maxHeight: '210px'
+                                    } : selectedPackageSize === '12oz' ? {
+                                      top: '48%',
+                                      left: '50%',
+                                      transform: 'translateX(-50%)',
+                                      maxWidth: '280px',
+                                      maxHeight: '150px'
+                                    } : selectedPackageSize === '10oz' ? {
+                                      top: '65%',
+                                      left: '50%',
+                                      transform: 'translateX(-50%)',
+                                      maxWidth: '250px',
+                                      maxHeight: '150px'
+                                    } : selectedPackageSize === 'frac' ? {
+                                      top: '40%',
+                                      left: '50%',
+                                      transform: 'translateX(-50%)',
+                                      maxWidth: '130px',
+                                      maxHeight: '120px'
+                                    } : {
+                                      top: '48%',
+                                      left: '50%',
+                                      transform: 'translateX(-50%)',
+                                      maxWidth: '280px',
+                                      maxHeight: '150px'
+                                    })
+                                  }}
                                 />
-                                <div className="resize-handle top-left"></div>
-                                <div className="resize-handle top-right"></div>
-                                <div className="resize-handle bottom-left"></div>
-                                <div className="resize-handle bottom-right"></div>
                               </div>
                             )}
                           </div>
@@ -3573,8 +3518,8 @@ function BuyerWizard() {
                             onClick={() => setEditRoastType(roast.value)}
                             disabled={savingCartItem}
                             className={`p-4 rounded-xl border-2 transition-all ${editRoastType === roast.value
-                              ? 'border-[#09543D] bg-[#09543D]/10'
-                              : 'border-gray-200 hover:border-[#09543D]/50'
+                                ? 'border-[#09543D] bg-[#09543D]/10'
+                                : 'border-gray-200 hover:border-[#09543D]/50'
                               } disabled:opacity-50`}
                           >
                             <img src={roast.icon} alt={roast.label} className="w-12 h-12 mx-auto mb-2" />
@@ -3604,8 +3549,8 @@ function BuyerWizard() {
                             onClick={() => setEditGrindType(grind.value)}
                             disabled={savingCartItem}
                             className={`px-4 py-3 rounded-xl border-2 transition-all text-sm font-medium ${editGrindType === grind.value
-                              ? 'border-[#09543D] bg-[#09543D]/10 text-[#09543D]'
-                              : 'border-gray-200 text-gray-700 hover:border-[#09543D]/50'
+                                ? 'border-[#09543D] bg-[#09543D]/10 text-[#09543D]'
+                                : 'border-gray-200 text-gray-700 hover:border-[#09543D]/50'
                               } disabled:opacity-50`}
                           >
                             {grind.label}
@@ -3636,8 +3581,8 @@ function BuyerWizard() {
                           }}
                           disabled={savingCartItem}
                           className={`p-4 rounded-xl border-2 transition-all text-center ${editBagSize === size.value
-                            ? 'border-[#09543D] bg-[#09543D]/10'
-                            : 'border-gray-200 hover:border-[#09543D]/50'
+                              ? 'border-[#09543D] bg-[#09543D]/10'
+                              : 'border-gray-200 hover:border-[#09543D]/50'
                             } disabled:opacity-50`}
                         >
                           <p className="font-semibold text-gray-900 mb-1">{size.label}</p>
