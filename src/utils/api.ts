@@ -32,10 +32,6 @@ const apiRequest = async (
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
-    // Fallback headers for legacy or session-based backends
-    headers['X-Session-ID'] = token
-    headers['X-Auth-Token'] = token
-    headers['X-CSRF-TOKEN'] = token // Some Laravel setups use this
   }
 
   // Only send credentials when explicitly enabled via env var.
@@ -181,11 +177,14 @@ export const cartApi = {
     bagImage?: string
     isRoast?: boolean
   }): Promise<any> => {
-    // Send both numBags and quantity to ensure backend compatibility
+    // Use numBags if provided, otherwise fall back to quantity
     const payload = {
       ...item,
       numBags: item.numBags || item.quantity,
-      quantity: item.quantity || item.numBags,
+    }
+    // Remove quantity if numBags is set
+    if (payload.numBags) {
+      delete (payload as any).quantity
     }
     return apiRequest('/api/cart-item', {
       method: 'POST',
@@ -204,11 +203,14 @@ export const cartApi = {
     bagImage?: string
     isRoast?: boolean
   }): Promise<any> => {
-    // Send both numBags and quantity to ensure backend compatibility
+    // Use numBags if provided, otherwise fall back to quantity
     const payload = {
       ...item,
       numBags: item.numBags || item.quantity,
-      quantity: item.quantity || item.numBags,
+    }
+    // Remove quantity if numBags is set
+    if (payload.numBags) {
+      delete (payload as any).quantity
     }
     return apiRequest('/api/cart-item', {
       method: 'PUT',

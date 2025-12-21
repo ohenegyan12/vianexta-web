@@ -21,27 +21,64 @@ function SignIn() {
 
     try {
       const loginUrl = `${API_BASE_URL}/api/login`
+      console.log('Login request URL:', loginUrl)
+      console.log('API_BASE_URL:', API_BASE_URL)
+      console.log('Environment:', import.meta.env.MODE)
 
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        // Removed credentials: 'include' because backend returns Access-Control-Allow-Origin: *
+        // which is incompatible with credentials. Token is extracted from response body instead.
         body: JSON.stringify({
-          email: email, // Raw email
-          username: email, // Fallback for some backend versions
-          password: password // Raw password
+          email,
+          password
         })
       })
 
-      // We ignore response.ok because the backend returns 200 for 401 errors
-      const data = await response.json()
-      console.log('Login API Response:', data)
+      console.log('Login response status:', response.status)
+      console.log('Login response headers:', Object.fromEntries(response.headers.entries()))
+
+      // Check if response is ok before trying to parse
+      if (!response.ok) {
+        // Try to get error message from response
+        let errorMessage = `HTTP error! status: ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.message || errorData.error || errorMessage
+        } catch (e) {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
+      }
+
+      // Parse JSON response
+      let data
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        const text = await response.text()
+        if (text) {
+          try {
+            data = JSON.parse(text)
+          } catch (e) {
+            console.error('Failed to parse JSON response:', text)
+            throw new Error('Invalid JSON response from server')
+          }
+        } else {
+          data = {}
+        }
+      } else {
+        const text = await response.text()
+        data = text ? { message: text } : {}
+      }
 
       if (data.statusCode === 200 || data.statusCode === 201) {
-        // Look for the token in the exact spot the PHP project puts it
+        // Try to find the token/session ID in various places
+        // The backend might return it as 'sessionId' at the root, or inside 'data'
         const token = data.sessionId || data.data?.token || data.token
-        console.log('Token found:', token)
 
         if (token) {
           localStorage.setItem('authToken', token)
@@ -49,13 +86,15 @@ function SignIn() {
 
         if (data.data?.user) {
           localStorage.setItem('user', JSON.stringify(data.data.user))
-        } else if (data.data) {
+        } else if (data.data && !data.data.token) {
+          // Sometimes user data is directly in data.data
           localStorage.setItem('user', JSON.stringify(data.data))
         }
 
+        // Redirect to buyer wizard after sign in
         navigate('/buyer')
       } else {
-        setError(data.message || 'Invalid email or password')
+        setError(data.message || 'Login failed. Please check your credentials.')
       }
     } catch (error) {
       console.error('Login error:', error)
