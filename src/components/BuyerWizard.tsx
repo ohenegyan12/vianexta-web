@@ -881,9 +881,7 @@ function BuyerWizard() {
         const cartResponse = await cartApi.getCartItems()
         if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
           setCartItemsCount(cartResponse.data.length)
-        }
-        if (cartResponse?.statusCode === 200 && Array.isArray(cartResponse.data)) {
-          setCartItemsCount(cartResponse.data.length)
+          setCartItemsList(cartResponse.data)
         }
         setShowDoneStep(true)
         window.scrollTo({ top: 0, behavior: 'smooth' })

@@ -1,6 +1,6 @@
 // Use relative path for API calls to leverage Vite proxy in development
 // In production, use the backend URL directly
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.DEV ? '' : 'https://coffeeplug-api-b982ba0e7659.herokuapp.com')
 
 // Log API configuration in production for debugging
@@ -49,7 +49,7 @@ const apiRequest = async (
   try {
     const fullUrl = `${API_BASE_URL}${endpoint}`
     console.log('API Request:', fullUrl, fetchOptions)
-    
+
     const response = await fetch(fullUrl, fetchOptions)
 
     // Check if response is ok before trying to parse
@@ -89,7 +89,7 @@ const apiRequest = async (
     console.error('API_BASE_URL:', API_BASE_URL)
     console.error('Endpoint:', endpoint)
     console.error('Full URL:', `${API_BASE_URL}${endpoint}`)
-    
+
     if (error instanceof TypeError) {
       if (error.message === 'Failed to fetch' || error.message.includes('fetch')) {
         // This usually means CORS blocked the request or network error
@@ -177,14 +177,11 @@ export const cartApi = {
     bagImage?: string
     isRoast?: boolean
   }): Promise<any> => {
-    // Use numBags if provided, otherwise fall back to quantity
+    // Send both numBags and quantity to ensure backend compatibility
     const payload = {
       ...item,
       numBags: item.numBags || item.quantity,
-    }
-    // Remove quantity if numBags is set
-    if (payload.numBags) {
-      delete (payload as any).quantity
+      quantity: item.quantity || item.numBags,
     }
     return apiRequest('/api/cart-item', {
       method: 'POST',
@@ -203,14 +200,11 @@ export const cartApi = {
     bagImage?: string
     isRoast?: boolean
   }): Promise<any> => {
-    // Use numBags if provided, otherwise fall back to quantity
+    // Send both numBags and quantity to ensure backend compatibility
     const payload = {
       ...item,
       numBags: item.numBags || item.quantity,
-    }
-    // Remove quantity if numBags is set
-    if (payload.numBags) {
-      delete (payload as any).quantity
+      quantity: item.quantity || item.numBags,
     }
     return apiRequest('/api/cart-item', {
       method: 'PUT',
