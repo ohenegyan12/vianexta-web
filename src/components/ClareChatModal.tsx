@@ -24,7 +24,7 @@ interface Message {
   }>
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.DEV ? '' : 'https://coffeeplug-api-b982ba0e7659.herokuapp.com')
 
 const CHAT_HISTORY_KEY = 'clare_chat_history'
@@ -46,6 +46,26 @@ function ClareChatModal({ isOpen, onClose, currentSection }: ClareChatModalProps
   })
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      // Prevent layout shift on mobile when keyboard opens
+      const originalHeight = window.innerHeight
+      const handleResize = () => {
+        // If the height decreases significantly, it's likely the keyboard
+        if (window.innerHeight < originalHeight * 0.8) {
+          // Keyboard is likely open
+        }
+      }
+      window.addEventListener('resize', handleResize)
+      return () => {
+        document.body.style.overflow = ''
+        window.removeEventListener('resize', handleResize)
+      }
+    }
+  }, [isOpen])
 
   // Load chat history when modal opens
   useEffect(() => {
@@ -238,7 +258,7 @@ function ClareChatModal({ isOpen, onClose, currentSection }: ClareChatModalProps
               ASK CLARE ANYTHING
             </h2>
           </div>
-          
+
           {/* Question Cards - Show when no messages or when currentSection is available */}
           {showQuestionCards && currentSection && currentSection.questions.length > 0 && (
             <div className="mb-4 flex justify-center items-center w-full">
@@ -273,15 +293,15 @@ function ClareChatModal({ isOpen, onClose, currentSection }: ClareChatModalProps
                 >
                   <div
                     className={`max-w-[80%] px-4 py-2 rounded-2xl break-words ${msg.isUser
-                        ? 'bg-[#09543D] text-white'
-                        : 'bg-white text-gray-800 border border-gray-200'
+                      ? 'bg-[#09543D] text-white'
+                      : 'bg-white text-gray-800 border border-gray-200'
                       }`}
                   >
                     {msg.isUser ? (
-                      <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed">{msg.text}</p>
+                      <p className="text-base whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed">{msg.text}</p>
                     ) : (
                       <div
-                        className="text-sm clare-chat-html-content break-words overflow-wrap-anywhere leading-relaxed"
+                        className="text-base clare-chat-html-content break-words overflow-wrap-anywhere leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: msg.text }}
                       />
                     )}
@@ -338,7 +358,7 @@ function ClareChatModal({ isOpen, onClose, currentSection }: ClareChatModalProps
               placeholder={isLoading ? "Clare is typing..." : "Message..."}
               disabled={isLoading}
               rows={1}
-              className="w-full px-4 pr-14 py-3 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-sm disabled:opacity-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[48px] max-h-[120px]"
+              className="w-full px-4 pr-14 py-3 bg-white border border-[#09543D] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09543D] text-base disabled:opacity-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[48px] max-h-[120px]"
               style={{
                 height: 'auto',
                 lineHeight: '1.5'
